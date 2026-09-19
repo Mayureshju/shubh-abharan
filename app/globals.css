@@ -1,26 +1,323 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------------------
+   Design tokens — the single source of truth for this system.
+
+   Several Tailwind namespaces are cleared with `: initial` before anything is
+   declared. That is deliberate and load-bearing: it removes the default
+   palette, radius scale, type scale, and every shadow/blur utility from the
+   build, so `bg-blue-600`, `text-gray-400`, `rounded-2xl`, `text-sm`,
+   `text-3xl`, `shadow-lg` and `backdrop-blur-sm` do not compile at all.
+
+   Verified limits (task 2.9): Tailwind's *static* utilities have no theme
+   namespace and survive the clear — `rounded-full` and its directional
+   variants, and `bg-gradient-*` / `bg-radial` / `bg-conic`. Those are caught
+   by scripts/check-slop.mjs instead. `rounded-none` also survives and is
+   harmless: it sets border-radius to 0, which is what this system wants.
+   An overlay that legitimately needs a shadow must now write an arbitrary
+   value, which is deliberate and greppable. See design.md, decision 1.
+
+   Colour is authored in OKLCH with a hard chroma ceiling of 0.02. Metallic
+   gold sits around chroma 0.09–0.13, an order of magnitude outside the range,
+   so "gold is a material, not a colour" is checkable by reading this block.
+   Ratios below are measured by `node scripts/contrast.mjs`.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --ease-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --blur-*: initial;
+
+  /* Palette — achromatic. Chroma <= 0.02 on every entry. */
+  --color-paper: oklch(96% 0.006 85);
+  --color-ink: oklch(18% 0.008 85);
+  --color-graphite: oklch(52% 0.008 85);
+  --color-graphite-inverse: oklch(68% 0.008 85);
+  --color-hairline: oklch(18% 0.008 85 / 0.14);
+  --color-hairline-inverse: oklch(96% 0.006 85 / 0.18);
+
+  /* Typefaces. Fallback stacks exist only for the load-failure path. */
+  --font-display: var(--font-gambarino), "Iowan Old Style", Georgia, serif;
+  --font-text: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale — bimodal by design. Four roles, no intermediate steps.
+     `display` compresses 120 -> 52px across the viewport range while `body`
+     and `caption` stay fixed; that asymmetry is what the responsive spec
+     requires. All rem-based so browser text zoom works. */
+  --text-display: clamp(3.25rem, 1.5rem + 7vw, 7.5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.02em;
+
+  --text-title: clamp(1.75rem, 1.1rem + 2.2vw, 2.75rem);
+  --text-title--line-height: 1.08;
+  --text-title--letter-spacing: -0.01em;
+
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.55;
+  --text-body--letter-spacing: 0em;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.35;
+  --text-caption--letter-spacing: 0.06em;
+
+  /* Section rhythm. Three named joins, never uniform down a page:
+     no two `breath` joins adjacent, at least one `tight` join present. */
+  --spacing-tight: clamp(2.5rem, 4vw, 3.5rem);
+  --spacing-normal: clamp(5rem, 9vw, 8rem);
+  --spacing-breath: clamp(8rem, 16vw, 14rem);
+
+  /* Measure is capped independently of the container — images size freely.
+     There is deliberately no global centred page wrapper. */
+  --container-measure: 62ch;
+
+  /* Radius. Surfaces, images and buttons are square; inputs get 2px. */
+  --radius-input: 2px;
+
+  /* Motion. Four durations, two curves (plus linear, permitted for opacity
+     crossfades only). Mirrored in lib/motion.ts for JS consumers; the pair is
+     asserted equal by scripts/check-slop.mjs. */
+  --duration-instant: 120ms;
+  --duration-quick: 240ms;
+  --duration-base: 480ms;
+  --duration-slow: 900ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-linear: linear;
+
+  /* Motion budgets, as tokens so reduced-motion can neutralise them in one
+     place rather than in every component. */
+  --reveal-travel: 14px;
+  --hover-scale: 1.03;
 }
 
+/* Surface-relative tokens. `inline` so they resolve against whichever surface
+   scope they are used in, rather than being baked at build time.
+
+   This is what stops secondary text from silently failing contrast: a single
+   mid-grey cannot clear 4.5:1 against both paper and ink, so `muted` resolves
+   per surface instead of being chosen by hand at each placement. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface-bg);
+  --color-on-surface: var(--surface-fg);
+  --color-muted: var(--surface-muted);
+  --color-line: var(--surface-line);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  /* Exactly two surfaces. There is no third. */
+  :root,
+  [data-surface="paper"] {
+    --surface-bg: var(--color-paper);
+    --surface-fg: var(--color-ink);
+    --surface-muted: var(--color-graphite); /* 4.90:1 on paper */
+    --surface-line: var(--color-hairline);
+  }
+
+  [data-surface="ink"] {
+    --surface-bg: var(--color-ink);
+    --surface-fg: var(--color-paper);
+    --surface-muted: var(--color-graphite-inverse); /* 6.53:1 on ink */
+    --surface-line: var(--color-hairline-inverse);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+
+    /* Page gutter. Above 1600px the layout gains margin while type stays
+       capped by its clamp() ceiling — the wide-viewport behaviour the
+       responsive spec requires. Implemented as growing padding rather than a
+       centred max-width wrapper, which the layout spec forbids: content must
+       still be positioned by the grid, and .full-bleed must still escape. */
+    --page-gutter: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      --page-gutter: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1600px) {
+    html {
+      /* Continuous with 2.5rem at exactly 1600px, then grows. */
+      --page-gutter: calc((100vw - 1520px) / 2);
+    }
+  }
+
+  body {
+    background-color: var(--surface-bg);
+    color: var(--surface-fg);
+    font-family: var(--font-text);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  [data-surface] {
+    background-color: var(--surface-bg);
+    color: var(--surface-fg);
+  }
+
+  /* Bind each typographic role to its typeface. The --text-* namespace carries
+     size, line-height and tracking but cannot carry font-family, so the
+     binding lives here — otherwise every heading silently inherits the
+     grotesque and the display serif never appears.
+
+     :where() keeps specificity at 0, so an explicit font-* utility still wins
+     on the rare element that needs the other face. */
+  :where(.text-display, .text-title) {
+    font-family: var(--font-display);
+  }
+
+  :where(.text-body, .text-caption) {
+    font-family: var(--font-text);
+  }
+
+  /* Focus indicator resolves to the surface foreground: 16.74:1 on both
+     surfaces, comfortably past the 3:1 floor for focus indicators. */
+  :focus-visible {
+    outline: 2px solid var(--surface-fg);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--surface-fg);
+    color: var(--surface-bg);
+  }
+
+  /* Scroll reveal. The pending state applies only where scripting is enabled,
+     so with JS off the content is simply visible — it is never hidden waiting
+     for an animation that cannot run.
+
+     The failsafe animation covers the remaining gap: if the bundle fails to
+     load or hydration never completes, anything still pending reveals itself
+     after 3s. The observer pre-empts it by flipping to "shown". Worst case is
+     a delayed reveal, never permanently invisible content. */
+  @media (scripting: enabled) {
+    [data-reveal="pending"] {
+      opacity: 0;
+      transform: translateY(var(--reveal-travel));
+      transition:
+        opacity var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
+      animation: reveal-failsafe var(--duration-base) var(--ease-out) 3s forwards;
+    }
+
+    [data-reveal="shown"] {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+
+  @keyframes reveal-failsafe {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Reduced motion neutralises the travel and scale budgets at the token
+     level, so every component that reads them degrades without its own
+     branch. Transitions are shortened rather than removed — feedback must
+     survive, per specs/design-system/motion-language. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --reveal-travel: 0px;
+      --hover-scale: 1;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: var(--duration-instant) !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Product image hover. Budgeted at <= 1.03 over the base duration — big,
+     fast scale is the cheap-looking combination. Uses the `scale` property
+     rather than `transform` so it composites without fighting the reveal's
+     translate, and is gated on real hover so touch devices never trigger it.
+     Reduced motion resolves --hover-scale to 1. */
+  .plate-zoom [data-plate-img] {
+    transition: scale var(--duration-base) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .plate-zoom:hover [data-plate-img] {
+      scale: var(--hover-scale);
+    }
+  }
+}
+
+@layer components {
+  /* Horizontal rail. Mobile presents collection and related-product sets as a
+     rail rather than a long vertical stack, per the mobile-composition
+     requirement. Native scroll with snap points — no scroll interception. */
+  .page-gutter {
+    padding-inline: var(--page-gutter);
+  }
+
+  .rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 72%;
+    gap: 1rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* Full-bleed on mobile: the rail runs to both viewport edges, while its
+       first item still lines up with the page gutter.
+
+       scroll-padding is required, not optional: the snapport otherwise starts
+       at the padding-box edge while the first child sits inside the padding,
+       so a mandatory snap scrolls the rail by the gutter on load and the first
+       card lands flush against the viewport edge. */
+    margin-inline: calc(var(--page-gutter) * -1);
+    padding-inline: var(--page-gutter);
+    scroll-padding-inline: var(--page-gutter);
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail > * {
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    .rail {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(var(--rail-columns, 3), minmax(0, 1fr));
+      grid-auto-columns: auto;
+      overflow-x: visible;
+      margin-inline: 0;
+      padding-inline: 0;
+      gap: 2rem;
+    }
+  }
+
+  /* Full-bleed: escapes the page gutter to both viewport edges. Editorial
+     imagery uses this on mobile, where a side gutter kills the impact. */
+  .full-bleed {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
 }

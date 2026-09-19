@@ -25,12 +25,31 @@ One constraint shapes several decisions below: **the working directory is not a 
 Tailwind v4's `@theme` supports clearing a namespace with `--namespace-*: initial;` before declaring replacements. The system uses this on three namespaces:
 
 ```
---color-*:  initial   → then paper, ink, graphite, graphite-inverse, hairline
---radius-*: initial   → then only radius-input (2px)
---text-*:   initial   → then only display, title, body, caption
+--color-*:        initial  → then paper, ink, graphite, graphite-inverse, hairline
+--radius-*:       initial  → then only radius-input (2px)
+--text-*:         initial  → then only display, title, body, caption
+--font-*:         initial  → then only display, text
+--ease-*:         initial  → then only out, inout, linear
+--shadow-*:       initial  ┐
+--inset-shadow-*: initial  │ removes every shadow, drop-shadow,
+--drop-shadow-*:  initial  │ text-shadow, blur and backdrop-blur utility
+--text-shadow-*:  initial  │
+--blur-*:         initial  ┘
 ```
 
-The effect is that `bg-blue-600`, `text-gray-400`, `rounded-2xl`, `rounded-full`, `text-sm`, and `text-3xl` **stop compiling**. Anti-slop rules 4, 5, and 6 become build failures instead of review findings, and no gold hex can enter through a utility class.
+The effect is that `bg-blue-600`, `text-gray-400`, `rounded-2xl`, `text-sm`, `text-3xl`, `shadow-lg`, `drop-shadow-lg`, `blur-sm` and `backdrop-blur-sm` **stop compiling**. Anti-slop rules 2, 3, 5 and 6 become build failures rather than review findings, and no gold hex can enter through a utility class.
+
+**Corrected during implementation (task 2.9).** The original version of this decision claimed `rounded-full` would also stop compiling. It does not. Tailwind v4 implements a handful of utilities as *static* rules with no backing theme namespace, so clearing a namespace cannot remove them. Verified survivors:
+
+| Survivor | Disposition |
+| --- | --- |
+| `rounded-full`, `rounded-s/e/t/b-full` | caught by `scripts/check-slop.mjs` |
+| `bg-gradient-*`, `bg-linear-*`, `bg-radial`, `bg-conic` | caught by `scripts/check-slop.mjs` |
+| `rounded-none` | harmless — sets `border-radius: 0`, which is the system default |
+
+Rule 4 (radius) and rule 1 (gradients) are therefore script-enforced, not compiler-enforced. The requirement in `specs/design-system/visual-language` is unchanged and still fully enforced; only the tier that catches it moved. The enforcement table in decision 8 reflects the corrected split.
+
+One consequence worth noting: clearing the shadow namespaces means an overlay that legitimately needs a shadow — permitted by the border-and-surface requirement — must write an arbitrary value such as `shadow-[0_24px_60px_-20px_…]`. That is a net gain. A casual `shadow-lg` is now impossible, and a deliberate overlay shadow is conspicuous in review and greppable by the check script's allowlist.
 
 *Alternative considered:* leave the defaults and enforce by ESLint or code review. Rejected — every generic pattern this change exists to prevent is one autocomplete away, and review pressure decays across five downstream changes.
 
@@ -71,6 +90,15 @@ Loaded with `next/font/local` from self-hosted `woff2` under `app/fonts/`, with 
 
 **Licences must be verified per family before files are committed.** If either is unavailable, the pre-named fallback is Fraunces (variable, optical-size axis, `wonk` disabled) for display and Archivo (variable) for the grotesque — both Google, both avoiding the default pairing.
 
+**Verified during implementation (task 1.4).** Both families ship under the **ITF Free Font License v2.0** (identical text in both archives). Section 01 grants free personal and commercial use in perpetuity and states that self-hosting via CSS `@font-face` is "permitted and recommended". **No substitution is required — Gambarino and Switzer are retained** and the Fraunces/Archivo fallback is not used.
+
+Two licence terms constrain implementation and are carried forward:
+
+- **Section 02 prohibits subsetting and format conversion.** The `woff2` files are used exactly as distributed. `next/font/local` is compatible — it copies the file and emits `@font-face` without modifying it — but no subsetting step may be added to the build.
+- **Section 02 prohibits redistribution via "publicly accessible servers" or a "repository".** Self-hosting for the licensee's own site is explicitly exempted, so committing the files to a *private* repository for this project is within the grant. **If this repository is ever made public, the font files must be removed from version control** and supplied at build time instead. This is recorded in `DESIGN-SYSTEM.md`.
+
+Gambarino ships a single Regular weight; Switzer ships a variable file covering 100–900. The display serif therefore has one weight, which is sufficient for the two roles it carries.
+
 ### 5. The type scale is fluid and deliberately gapped
 
 ```
@@ -100,10 +128,12 @@ This is a real, if small, duplication — six values in two files. The alternati
 
 | Rule | Enforced by |
 | --- | --- |
-| 4 radius, 5 metal colour, 6 type roles | Tailwind theme — **does not compile** |
-| 1 gradients, 2 `backdrop-filter`, 3 content shadow | `scripts/check-slop.mjs` — grep, run in `npm run check` |
+| 2 `backdrop-filter`, 3 content shadow, 5 metal colour, 6 type roles | Tailwind theme — **does not compile** |
+| 1 gradients, 4 radius (`rounded-*-full` only) | `scripts/check-slop.mjs` — grep, run in `npm run check` |
 | 7 stagger budget, 9 centred text, 10 section variation, 11 nav count, 12 icon count, 13 copy rule | review against the specs |
 | 8 no rating/review/badge fields | the catalog model's type — a later change |
+
+Revised after task 2.9 — see the correction in decision 1. Rules 2 and 3 moved *up* into the compiler tier once the shadow and blur namespaces were cleared; rules 1 and 4 moved *down* into the script tier because the utilities backing them are static and cannot be removed via the theme.
 
 The script is a plain Node grep over `app/` and `components/`, not custom ESLint rules. It earns its place by catching the three CSS-level rules the theme cannot; anything requiring composition judgement stays with review, where it belongs.
 
