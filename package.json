@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && node scripts/contrast.mjs && node scripts/check-slop.mjs"
+    "check": "npm run lint && npm run typecheck && node scripts/contrast.mjs && node scripts/check-slop.mjs && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-catalog.mjs"
   },
   "dependencies": {
     "motion": "^13.4.0",

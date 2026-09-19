@@ -1,64 +1,106 @@
 import Link from "next/link";
-import { brand, isSupplied } from "@/lib/brand";
+import { brand, isSupplied, placeholder } from "@/lib/brand";
+import type { Category } from "@/lib/catalog";
 
 /**
- * Caption type throughout, separated by hairline rules. The newsletter is one
- * line, not a boxed card — there is no third surface to box it on.
- *
- * Policy links render only where the business has supplied that policy.
- * A missing policy omits its link rather than approximating one.
+ * Caption type throughout. Columns whose entries are all unsupplied do not
+ * render. Social is omitted until URLs are supplied.
  */
+
+const TYPES = [
+  { category: "necklace", label: "Necklaces" },
+  { category: "ring", label: "Rings" },
+  { category: "bracelet", label: "Bracelets" },
+  { category: "earring", label: "Earrings" },
+  { category: "pendant", label: "Pendants" },
+] as const satisfies readonly { category: Category; label: string }[];
+
+const QUICK_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Shop", href: "/shop" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+] as const;
 
 const POLICY_LINKS = [
   { key: "shipping", label: "Shipping", href: "/shipping" },
   { key: "returns", label: "Returns", href: "/returns" },
   { key: "care", label: "Care", href: "/care" },
+  { key: "warranty", label: "Repairs", href: "/warranty" },
 ] as const;
+
+function Column({
+  heading,
+  links,
+}: {
+  heading: string;
+  links: readonly { label: string; href: string }[];
+}) {
+  if (links.length === 0) return null;
+
+  return (
+    <div>
+      <h2 className="text-caption text-gold">{heading}</h2>
+      <ul className="mt-2">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className="inline-flex min-h-11 items-center text-caption hover:text-gold"
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function SiteFooter() {
   const policies = POLICY_LINKS.filter((link) => isSupplied(brand.policies[link.key]));
 
   return (
-    <footer data-surface="ink" className="mt-breath page-gutter pt-tight pb-tight">
-      <div className="border-t border-line pt-tight">
-        <div className="flex flex-col gap-tight md:flex-row md:justify-between">
-          <div>
-            <p className="text-caption uppercase tracking-[0.18em]">
-              {isSupplied(brand.name) ? brand.name : "[BRAND NAME]"}
+    <footer data-surface="ink" className="mt-breath pt-tight pb-tight">
+      <div className="page-gutter border-t border-line pt-tight">
+        <div className="grid gap-tight md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <p className="flex items-center gap-2 font-display text-title text-gold">
+              {isSupplied(brand.wordmarkSrc) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={brand.wordmarkSrc} alt="" width={36} height={36} className="size-9" />
+              ) : null}
+              {isSupplied(brand.name) ? brand.name : placeholder("brand name")}
             </p>
-            {isSupplied(brand.placeOfBusiness) ? (
-              <p className="mt-2 text-caption uppercase text-muted">{brand.placeOfBusiness}</p>
+
+            {isSupplied(brand.footerStatement) ? (
+              <p className="mt-3 text-caption text-muted">{brand.footerStatement}</p>
             ) : null}
           </div>
 
-          <nav aria-label="Footer" className="flex flex-wrap gap-x-8 gap-y-2">
-            <Link href="/collections" className="inline-flex min-h-11 items-center text-caption uppercase hover:underline underline-offset-4">
-              Collections
-            </Link>
-            <Link href="/shop" className="inline-flex min-h-11 items-center text-caption uppercase hover:underline underline-offset-4">
-              Shop
-            </Link>
-            {policies.map((link) => (
-              <Link
-                key={link.key}
-                href={link.href}
-                className="inline-flex min-h-11 items-center text-caption uppercase hover:underline underline-offset-4"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav
+            aria-label="Footer"
+            className="grid grid-cols-2 gap-tight md:col-span-2 md:grid-cols-3 md:gap-x-8 lg:col-span-7 lg:col-start-6"
+          >
+            <Column heading="Quick Links" links={QUICK_LINKS} />
+            <Column
+              heading="Categories"
+              links={TYPES.map((type) => ({
+                label: type.label,
+                href: `/shop?category=${type.category}`,
+              }))}
+            />
+            {policies.length > 0 ? <Column heading="Legal" links={policies} /> : null}
           </nav>
         </div>
 
-        {isSupplied(brand.contactEmail) ? (
-          <p className="mt-tight border-t border-line pt-6 text-caption uppercase text-muted">
-            {brand.contactEmail}
+        <div className="mt-tight flex flex-col gap-2 border-t border-line pt-6 text-caption text-muted md:flex-row md:justify-between">
+          <p>
+            {isSupplied(brand.contactEmail)
+              ? brand.contactEmail
+              : `${placeholder("contact email")} — unfilled, see BRAND-INPUTS.md`}
           </p>
-        ) : (
-          <p className="mt-tight border-t border-line pt-6 text-caption uppercase text-muted">
-            [CONTACT EMAIL] &mdash; unfilled, see BRAND-INPUTS.md
-          </p>
-        )}
+        </div>
       </div>
     </footer>
   );

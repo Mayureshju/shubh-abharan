@@ -54,7 +54,7 @@ const RULES = [
     id: "rule 4 — radius",
     pattern: /\brounded-(full\b|[strebxy]{1,2}-full\b)/,
     message:
-      "Border radius is 0 on surfaces, images and buttons, and 2px on form inputs. `rounded-full` survives the theme clear because it is a static utility — do not use it.",
+      "Use the `pill` radius token (`rounded-pill`) for CTAs and circular stills, not the static `rounded-full` utility.",
   },
 ];
 
@@ -118,6 +118,31 @@ function checkRules() {
   return findings;
 }
 
+/**
+ * Rule 6, scoped to the homepage: `display` at most twice. Title is permitted
+ * for section headings on the mood-board homepage.
+ *
+ * ponytail: counts occurrences in source, not renders.
+ */
+function checkHomepageTypeBudget() {
+  const files = [join("app", "page.tsx"), ...walk(join("components", "home"))];
+  const findings = [];
+  let displays = 0;
+
+  for (const file of files) {
+    const source = stripComments(readFileSync(file, "utf8"));
+    displays += source.match(/\btext-display\b/g)?.length ?? 0;
+  }
+
+  if (displays > 2) {
+    findings.push(
+      `the homepage renders the \`display\` role ${displays} times across app/page.tsx and components/home/. Rule 6 caps it at two — the hero heading and the closing statement.`,
+    );
+  }
+
+  return findings;
+}
+
 /** design.md decision 7: six values live in two files; assert they agree. */
 function checkMotionSync() {
   const ts = readFileSync(join("lib", "motion.ts"), "utf8");
@@ -166,8 +191,9 @@ function checkMotionSync() {
 
 const findings = checkRules();
 const motion = checkMotionSync();
+const homepage = checkHomepageTypeBudget();
 
-if (findings.length === 0 && motion.length === 0) {
+if (findings.length === 0 && motion.length === 0 && homepage.length === 0) {
   console.log("check-slop: pass — no forbidden patterns, motion tokens in sync.");
   process.exit(0);
 }
@@ -182,5 +208,11 @@ for (const message of motion) {
   console.error(`\n[motion token sync]  ${message}`);
 }
 
-console.error(`\ncheck-slop: ${findings.length + motion.length} finding(s).`);
+for (const message of homepage) {
+  console.error(`\n[rule 6 — homepage type budget]  ${message}`);
+}
+
+console.error(
+  `\ncheck-slop: ${findings.length + motion.length + homepage.length} finding(s).`,
+);
 process.exit(1);

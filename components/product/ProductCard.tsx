@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Plate, type PlateRole } from "@/components/editorial/Plate";
+import { Plate } from "@/components/editorial/Plate";
+import type { ProductCardProduct } from "@/lib/catalog/types";
 
 /**
  * Presentation follows the declared image role rather than a fixed template,
@@ -8,41 +9,21 @@ import { Plate, type PlateRole } from "@/components/editorial/Plate";
  * product-card requirement in specs/design-system/core-components.
  *
  * There is deliberately no rating, review, badge, discount or scarcity
- * affordance. Those have no prop here, so no listing can render one.
+ * affordance. Those have no prop here, so no listing can render one. Product
+ * labels — made-to-order, hallmarked and the rest — are manufacturing facts
+ * the catalog carries, and they are not among them: they surface on the
+ * product detail page only.
  *
- * The catalog model is out of scope for this change (it belongs to
- * define-catalog-model). This is the narrow shape the card needs; the real
- * Product type will be structurally assignable to it.
+ * `ProductCardProduct` is owned by lib/catalog and re-exported here. A
+ * `Product` is *not* assignable to it — the catalog's price is structured
+ * Money, its material line may be unsupplied, and the card cannot know which
+ * image role the layout wants. `toProductCardProduct(product, role)` is the
+ * one path between them. The type is imported from lib/catalog/types rather
+ * than the barrel, so this component depends on product shape and never on
+ * the repository or the fixtures behind it.
  */
 
-type CardImage =
-  | {
-      role: "scale";
-      /** Required for the scale role — it exists to communicate true size. */
-      dimension: string;
-      src?: string;
-      alt: string;
-      aspect: string;
-      crop?: string;
-    }
-  | {
-      role: Exclude<PlateRole, "scale">;
-      dimension?: string;
-      src?: string;
-      alt: string;
-      aspect: string;
-      crop?: string;
-    };
-
-export interface ProductCardProduct {
-  slug: string;
-  name: string;
-  /** Preformatted. Currency handling belongs to the catalog model. */
-  price: string;
-  /** e.g. "9ct recycled gold · 1.2mm" — a measurable fact, per the copy rule. */
-  materialLine: string;
-  image: CardImage;
-}
+export type { ProductCardProduct } from "@/lib/catalog/types";
 
 export function ProductCard({
   product,

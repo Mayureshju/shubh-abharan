@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/nav/SiteHeader";
-import { SiteFooter } from "@/components/nav/SiteFooter";
 import { Button } from "@/components/ui/Button";
-import { Plate, PLATE_ROLE_INTENT } from "@/components/editorial/Plate";
+import { Plate, PLATE_ROLE_INTENT, type PlateRole } from "@/components/editorial/Plate";
 import { FigureCaption } from "@/components/editorial/FigureCaption";
-import { ProductCard, type ProductCardProduct } from "@/components/product/ProductCard";
+import { ProductCard } from "@/components/product/ProductCard";
+import { getProduct, toProductCardProduct } from "@/lib/catalog";
 import { Reveal } from "@/components/primitives/Reveal";
 import { duration, ease } from "@/lib/motion";
 import { OverlayDemo } from "./OverlayDemo";
@@ -26,10 +25,12 @@ export const metadata: Metadata = {
  * after any change to the colour tokens.
  */
 const CONTRAST = [
-  { pair: "ink on paper", ratio: "16.74:1", floor: "4.5:1", use: "body and caption text" },
-  { pair: "graphite on paper", ratio: "4.90:1", floor: "4.5:1", use: "secondary text" },
-  { pair: "paper on ink", ratio: "16.74:1", floor: "4.5:1", use: "body and caption text" },
-  { pair: "graphite-inverse on ink", ratio: "6.53:1", floor: "4.5:1", use: "secondary text" },
+  { pair: "charcoal on paper", ratio: "16.40:1", floor: "4.5:1", use: "body and caption text" },
+  { pair: "graphite on paper", ratio: "12.11:1", floor: "4.5:1", use: "secondary text" },
+  { pair: "paper on ink", ratio: "11.40:1", floor: "4.5:1", use: "body text on royal green" },
+  { pair: "graphite-inverse on ink", ratio: "6.83:1", floor: "4.5:1", use: "secondary text on green" },
+  { pair: "charcoal on gold", ratio: "8.28:1", floor: "4.5:1", use: "primary button label" },
+  { pair: "gold on ink", ratio: "5.75:1", floor: "4.5:1", use: "gold rules and icons on green" },
   { pair: "hairline on paper", ratio: "1.15:1", floor: "decorative", use: "rules only, never text or control boundaries" },
 ];
 
@@ -39,35 +40,19 @@ const RHYTHMS = [
   { name: "breath", value: "clamp(8rem, 16vw, 14rem)", use: "at most twice per page, never adjacent" },
 ];
 
-/** Specimen data. Deliberately not brand content — see BRAND-INPUTS.md. */
-const SPECIMEN_PRODUCTS: ProductCardProduct[] = [
-  {
-    slug: "specimen-macro",
-    name: "Specimen — macro role",
-    price: "[PRICE]",
-    materialLine: "[MATERIAL LINE]",
-    image: { role: "macro", aspect: "4/5", alt: "Specimen plate, macro role", crop: "fills frame" },
-  },
-  {
-    slug: "specimen-scale",
-    name: "Specimen — scale role",
-    price: "[PRICE]",
-    materialLine: "[MATERIAL LINE]",
-    image: {
-      role: "scale",
-      aspect: "1/1",
-      alt: "Specimen plate, true-scale role",
-      crop: "object small in field",
-      dimension: "14mm",
-    },
-  },
-  {
-    slug: "specimen-worn",
-    name: "Specimen — worn role",
-    price: "[PRICE]",
-    materialLine: "[MATERIAL LINE]",
-    image: { role: "worn", aspect: "3/4", alt: "Specimen plate, worn role", crop: "on the body" },
-  },
+/**
+ * Specimen cards come from the catalog fixtures through the one adapter, so
+ * this surface exercises `toProductCardProduct` as well as rendering the card.
+ * One card per image role — macro, scale, worn — as the product-card
+ * requirement expects a listing to vary.
+ *
+ * The values are catalog fixtures, not brand content: price and material line
+ * are unsupplied and render as marked placeholders. See BRAND-INPUTS.md.
+ */
+const SPECIMEN_CARDS: { slug: string; role: PlateRole; span?: string }[] = [
+  { slug: "fixture-ring-size-finish", role: "macro", span: "lg:row-span-2" },
+  { slug: "fixture-earring-finish", role: "scale" },
+  { slug: "fixture-necklace-length", role: "worn" },
 ];
 
 /**
@@ -107,12 +92,20 @@ function Section({
   );
 }
 
-export default function SpecimenPage() {
-  return (
-    <>
-      <SiteHeader />
+export default async function SpecimenPage() {
+  const specimenCards = (
+    await Promise.all(
+      SPECIMEN_CARDS.map(async ({ slug, role, span }) => {
+        const product = await getProduct(slug);
+        return product === null ? null : { ...toProductCardProduct(product, role), span };
+      }),
+    )
+  ).filter((card) => card !== null);
 
-      <main className="page-gutter">
+  return (
+    // The header and footer come from the root layout, like every other
+    // route — this surface no longer mounts its own.
+    <div className="page-gutter">
         <header className="py-normal">
           <p className="text-caption uppercase text-muted">Internal — not indexed, not linked</p>
           <h1 className="mt-4 text-display">Specimen</h1>
@@ -135,15 +128,15 @@ export default function SpecimenPage() {
         >
           <div className="space-y-tight">
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">display · Gambarino · clamp(3.25rem, 1.5rem + 7vw, 7.5rem) · -0.02em</p>
+              <p className="text-caption uppercase text-muted">display · Playfair Display · clamp(3.25rem, 1.5rem + 7vw, 7.5rem) · -0.02em</p>
               <p className="mt-3 font-display text-display">Hand &amp; file</p>
             </div>
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">title · Gambarino · clamp(1.75rem, 1.1rem + 2.2vw, 2.75rem) · -0.01em</p>
+              <p className="text-caption uppercase text-muted">title · Playfair Display · clamp(1.75rem, 1.1rem + 2.2vw, 2.75rem) · -0.01em</p>
               <p className="mt-3 font-display text-title">Nine carat, recycled</p>
             </div>
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">body · Switzer · 17px / 1.55</p>
+              <p className="text-caption uppercase text-muted">body · Montserrat · 17px / 1.55</p>
               <p className="mt-3 max-w-measure font-text text-body">
                 Measure is capped at 62 characters and positioned by the grid.
                 Images size independently of it. There is deliberately no global
@@ -152,7 +145,7 @@ export default function SpecimenPage() {
               </p>
             </div>
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">caption · Switzer 500 · 12px / 1.35 · +0.06em</p>
+              <p className="text-caption uppercase text-muted">caption · Montserrat · 12px / 1.35 · +0.06em</p>
               <p className="mt-3 font-text text-caption uppercase">
                 Band width 1.2mm · Plate 04 · 14mm
               </p>
@@ -162,14 +155,14 @@ export default function SpecimenPage() {
 
         <Section
           title="Colour and surfaces"
-          intent="Achromatic, authored in OKLCH at chroma 0.02 or below. Metal and gem colour enter only through photography — no token expresses them."
+          intent="Cream paper, charcoal text, royal-green inverted surface, gold accent. Gold labels are charcoal — cream on gold fails 4.5:1."
         >
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { name: "paper", cls: "bg-paper", token: "oklch(96% 0.006 85)" },
-              { name: "ink", cls: "bg-ink", token: "oklch(18% 0.008 85)" },
-              { name: "graphite", cls: "bg-graphite", token: "oklch(52% 0.008 85)" },
-              { name: "graphite-inverse", cls: "bg-graphite-inverse", token: "oklch(68% 0.008 85)" },
+              { name: "paper", cls: "bg-paper", token: "Cream #FAF8F3" },
+              { name: "charcoal", cls: "bg-charcoal", token: "Charcoal #1A1A1A" },
+              { name: "ink", cls: "bg-ink", token: "Royal Green #0F3D33" },
+              { name: "gold", cls: "bg-gold", token: "Gold #D4AF37" },
             ].map((swatch) => (
               <div key={swatch.name}>
                 <div className={`${swatch.cls} h-24 border border-line`} />
@@ -209,7 +202,7 @@ export default function SpecimenPage() {
         <Section
           title="The ink surface"
           rhythm="tight"
-          intent="One of exactly two surfaces. Secondary text resolves to graphite-inverse here automatically — a single mid-grey cannot clear 4.5:1 against both."
+          intent="One of exactly two surfaces — royal green. Secondary text resolves to graphite-inverse here automatically."
           surface="ink"
         >
           <p className="max-w-measure text-body">
@@ -217,7 +210,7 @@ export default function SpecimenPage() {
             than being chosen by hand at each placement.
           </p>
           <p className="mt-3 max-w-measure text-caption uppercase text-muted">
-            This line is muted on ink — 6.53:1
+            This line is muted on ink — 6.83:1
           </p>
           <div className="mt-tight flex flex-wrap gap-4">
             <Button variant="primary">Primary on ink</Button>
@@ -250,12 +243,16 @@ export default function SpecimenPage() {
         <Section
           title="Border and surface language"
           rhythm="tight"
-          intent="Radius 0 on surfaces, images and buttons; 2px on form inputs only. Depth comes from hairline rules and image scale, never from elevation."
+          intent="Pill on primary and quiet; 2px on form inputs; square on cards. Depth comes from hairline rules and image scale, never from elevation."
         >
           <div className="flex flex-wrap items-end gap-8">
             <div>
               <div className="size-24 border border-on-surface" />
               <p className="mt-2 text-caption uppercase text-muted">surface · radius 0</p>
+            </div>
+            <div>
+              <div className="size-24 overflow-hidden rounded-pill border border-gold bg-gold" />
+              <p className="mt-2 text-caption uppercase text-muted">pill · CTAs and circular stills</p>
             </div>
             <div>
               <input
@@ -355,12 +352,8 @@ export default function SpecimenPage() {
           intent="Presentation follows the declared image role. Aspect ratio and grid span vary deliberately — a uniform repeating row fails review. Rendered with specimen data, not brand content."
         >
           <div className="rail" style={{ ["--rail-columns" as string]: "3" }}>
-            {SPECIMEN_PRODUCTS.map((product, index) => (
-              <ProductCard
-                key={product.slug}
-                product={product}
-                className={index === 0 ? "lg:row-span-2" : undefined}
-              />
+            {specimenCards.map(({ span, ...product }) => (
+              <ProductCard key={product.slug} product={product} className={span} />
             ))}
           </div>
           <p className="mt-tight text-caption uppercase text-muted">
@@ -411,9 +404,6 @@ export default function SpecimenPage() {
             the same overlay full screen.
           </p>
         </Section>
-      </main>
-
-      <SiteFooter />
-    </>
+    </div>
   );
 }

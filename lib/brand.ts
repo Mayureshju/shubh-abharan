@@ -1,15 +1,20 @@
 /**
  * The single boundary for brand-owned values.
  *
- * Every field is `string | null`. `null` means the business has not supplied the
- * value yet, and the UI renders a visibly marked placeholder for it. There is
- * deliberately no default string anywhere in this module: no code path can
- * produce a brand value the business did not provide.
+ * Every field is `string | null` unless it is a supplied list. `null` means the
+ * business has not supplied the value yet, and the UI renders a visibly marked
+ * placeholder for it. There is deliberately no default string anywhere in this
+ * module: no code path can produce a brand value the business did not provide.
  *
  * Fill these in alongside BRAND-INPUTS.md at the repo root.
  */
 
 export type BrandField = string | null;
+
+export interface Reason {
+  readonly title: string;
+  readonly body: string;
+}
 
 export interface Brand {
   /** Identity */
@@ -23,7 +28,28 @@ export interface Brand {
   /** Voice */
   voiceNotes: readonly string[];
 
-  /** Collections — the primary navigation axis, capped at five. */
+  /**
+   * Homepage copy. Mood-board sentences supplied 2026-09-20. Several do not
+   * satisfy the measurable-fact copy rule; the exception is recorded in
+   * BRAND-INPUTS.md rather than being rewritten here.
+   */
+  heroEyebrow: BrandField;
+  heroSupport: BrandField;
+  heroStatement: BrandField;
+  closingSupport: BrandField;
+  closingStatement: BrandField;
+
+  /**
+   * One line in the footer's brand column. Optional: unsupplied, the line is
+   * omitted rather than placeheld, because the footer is where this system
+   * drops an affordance it has no content for.
+   */
+  footerStatement: BrandField;
+
+  /** Why-choose columns. Empty omits the section. */
+  reasons: readonly Reason[];
+
+  /** Collections — capped at five. */
   collections: readonly Collection[];
 
   /** Materials vocabulary used in card material lines and spec tables. */
@@ -40,7 +66,9 @@ export interface Brand {
 export interface Collection {
   slug: string;
   name: string;
-  /** One line. Must carry a measurable fact or a photographable noun. */
+  /** Secondary heading on the featured split, when supplied. */
+  tagline: BrandField;
+  /** One line. */
   description: BrandField;
 }
 
@@ -62,20 +90,42 @@ export interface Policies {
 }
 
 /**
- * The live brand record. Unfilled by design — see BRAND-INPUTS.md.
+ * The live brand record.
  *
- * Replacing a `null` here is the only way a brand value reaches the interface.
+ * Values marked as mood-board copy were supplied with the board on 2026-09-20.
  */
 export const brand: Brand = {
-  name: null,
+  name: "Shubha Abharan",
   legalName: null,
-  wordmarkSrc: null,
+  wordmarkSrc: "/brand/lotus.svg",
   foundedYear: null,
   placeOfBusiness: null,
 
   voiceNotes: [],
 
-  collections: [],
+  heroEyebrow: "Timeless elegance in every detail",
+  heroSupport: "Exquisite Jewellery for Every Moment of Your Life",
+  heroStatement: "Shubha Abharan",
+  closingSupport: "Jewellery that celebrates you.",
+  closingStatement: "Because You Deserve to Shine",
+  footerStatement: "Grace in Every Gem",
+
+  reasons: [
+    { title: "Premium Quality", body: "Crafted with the finest materials" },
+    { title: "Trusted Heritage", body: "A legacy of elegance and trust" },
+    { title: "Elegant Packaging", body: "Beautifully packed for every occasion" },
+    { title: "Secure Shopping", body: "Safe & hassle-free experience" },
+  ],
+
+  collections: [
+    {
+      slug: "modern-classics",
+      name: "Modern Classics",
+      tagline: "Timeless Beauty",
+      description:
+        "Exquisite jewellery that blends tradition with contemporary elegance.",
+    },
+  ],
 
   materials: {
     metals: [],
@@ -99,7 +149,7 @@ export const brand: Brand = {
 
 /**
  * Rendered in place of an unsupplied brand value. Deliberately conspicuous:
- * an unfilled field must read as unfilled on screen, never as finished copy.
+ * an unfilled field must look unfilled on screen, never as finished copy.
  */
 export function placeholder(field: string): string {
   return `[${field.toUpperCase()}]`;

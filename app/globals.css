@@ -17,10 +17,11 @@
    An overlay that legitimately needs a shadow must now write an arbitrary
    value, which is deliberate and greppable. See design.md, decision 1.
 
-   Colour is authored in OKLCH with a hard chroma ceiling of 0.02. Metallic
-   gold sits around chroma 0.09–0.13, an order of magnitude outside the range,
-   so "gold is a material, not a colour" is checkable by reading this block.
-   Ratios below are measured by `node scripts/contrast.mjs`.
+   Colour is authored in OKLCH. Cream, charcoal and deep brown sit under a
+   chroma ceiling of 0.02. Royal green (`ink`) and gold are named exemptions
+   in `scripts/contrast.mjs`. Gold is a UI colour on this board — charcoal
+   labels on a gold fill, never gold running text on cream (1.98:1). Ratios
+   below are measured by `node scripts/contrast.mjs`.
 --------------------------------------------------------------------------- */
 
 @theme {
@@ -35,17 +36,19 @@
   --text-shadow-*: initial;
   --blur-*: initial;
 
-  /* Palette — achromatic. Chroma <= 0.02 on every entry. */
-  --color-paper: oklch(96% 0.006 85);
-  --color-ink: oklch(18% 0.008 85);
-  --color-graphite: oklch(52% 0.008 85);
-  --color-graphite-inverse: oklch(68% 0.008 85);
-  --color-hairline: oklch(18% 0.008 85 / 0.14);
-  --color-hairline-inverse: oklch(96% 0.006 85 / 0.18);
+  /* Palette — Shubha Abharan mood board. Token names are structural roles. */
+  --color-paper: oklch(97.93% 0.0070 88.64); /* Cream         #FAF8F3 */
+  --color-charcoal: oklch(21.78% 0.0000 89.88); /* Charcoal    #1A1A1A */
+  --color-ink: oklch(32.60% 0.0523 175.48); /* Royal Green     #0F3D33 */
+  --color-graphite: oklch(31.85% 0.0176 18.11); /* Deep Brown  #3B2F2F */
+  --color-graphite-inverse: oklch(81.56% 0.0178 84.59); /* Cream-grey #C8C2B6 */
+  --color-gold: oklch(76.65% 0.1387 91.06); /* Gold            #D4AF37 */
+  --color-hairline: oklch(21.78% 0.0000 89.88 / 0.14);
+  --color-hairline-inverse: oklch(97.93% 0.0070 88.64 / 0.18);
 
   /* Typefaces. Fallback stacks exist only for the load-failure path. */
-  --font-display: var(--font-gambarino), "Iowan Old Style", Georgia, serif;
-  --font-text: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-text: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
 
   /* Type scale — bimodal by design. Four roles, no intermediate steps.
      `display` compresses 120 -> 52px across the viewport range while `body`
@@ -77,8 +80,11 @@
      There is deliberately no global centred page wrapper. */
   --container-measure: 62ch;
 
-  /* Radius. Surfaces, images and buttons are square; inputs get 2px. */
+  /* Radius. Pills and circular stills share `pill`; inset photographs use
+     `frame`; inputs stay 2px. Everything else is square. */
   --radius-input: 2px;
+  --radius-frame: 1.25rem;
+  --radius-pill: 9999px;
 
   /* Motion. Four durations, two curves (plus linear, permitted for opacity
      crossfades only). Mirrored in lib/motion.ts for JS consumers; the pair is
@@ -116,15 +122,15 @@
   :root,
   [data-surface="paper"] {
     --surface-bg: var(--color-paper);
-    --surface-fg: var(--color-ink);
-    --surface-muted: var(--color-graphite); /* 4.90:1 on paper */
+    --surface-fg: var(--color-charcoal);
+    --surface-muted: var(--color-graphite); /* 12.11:1 on paper */
     --surface-line: var(--color-hairline);
   }
 
   [data-surface="ink"] {
     --surface-bg: var(--color-ink);
     --surface-fg: var(--color-paper);
-    --surface-muted: var(--color-graphite-inverse); /* 6.53:1 on ink */
+    --surface-muted: var(--color-graphite-inverse); /* 7.67:1 on ink */
     --surface-line: var(--color-hairline-inverse);
   }
 
@@ -177,6 +183,16 @@
      on the rare element that needs the other face. */
   :where(.text-display, .text-title) {
     font-family: var(--font-display);
+
+    /* The scale is rem-based so browser text zoom works. At 200% zoom the
+       display role's own floor is 104px, and any word longer than about six
+       characters is then wider than a 390px viewport — it would spill past
+       the gutter and give the page a horizontal scrollbar, which the
+       responsive requirement forbids at every verified width.
+
+       `break-word` only acts when a word genuinely cannot fit, so nothing
+       changes at normal zoom. */
+    overflow-wrap: break-word;
   }
 
   :where(.text-body, .text-caption) {
@@ -190,9 +206,10 @@
     outline-offset: 2px;
   }
 
+  /* Selection is gold with charcoal type — cream on gold is 1.98:1. */
   ::selection {
-    background-color: var(--surface-fg);
-    color: var(--surface-bg);
+    background-color: var(--color-gold);
+    color: var(--color-charcoal);
   }
 
   /* Scroll reveal. The pending state applies only where scripting is enabled,
@@ -261,6 +278,62 @@
   @media (hover: hover) {
     .plate-zoom:hover [data-plate-img] {
       scale: var(--hover-scale);
+    }
+  }
+}
+
+@layer components {
+  /* The hero entrance — this route's one orchestrated staggered sequence.
+     Three steps: frame, heading, action.
+
+     CSS rather than a JS animation runtime, because Motion renders its
+     initial state into the server HTML. With scripting disabled or the bundle
+     blocked, the heading and the primary action would stay at opacity 0
+     permanently, which is precisely the failure
+     specs/design-system/responsive-accessibility forbids. A keyframe with
+     `both` fill runs with or without scripting and cannot be left applied.
+
+     Reduced motion is covered twice: the global rule drops every animation to
+     1ms and resolves --reveal-travel to 0, and the stagger delays below are
+     only set when no preference is expressed, so no step is held back. */
+  [data-hero-step] {
+    animation: hero-in var(--duration-slow) var(--ease-out) both;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-hero-step="2"] {
+      animation-delay: var(--duration-instant);
+    }
+
+    [data-hero-step="3"] {
+      animation-delay: var(--duration-quick);
+    }
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--reveal-travel));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer components {
+  /* A plate declaring two aspect ratios. The inline style points
+     `aspect-ratio` at this custom property, which is re-pointed at 768px —
+     an inline value could not be overridden by a class. Only frames a single
+     ratio cannot serve declare a second one; see components/editorial/Plate.tsx. */
+  [data-plate-aspect-md] {
+    --plate-aspect: var(--plate-aspect-sm);
+  }
+
+  @media (min-width: 768px) {
+    [data-plate-aspect-md] {
+      --plate-aspect: var(--plate-aspect-md);
     }
   }
 }

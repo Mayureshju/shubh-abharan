@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 /**
  * The only path to an image in this codebase. Components must not render
@@ -29,10 +30,32 @@ type OtherRole = { role: Exclude<PlateRole, "scale">; dimension?: string };
 interface PlateCommon {
   /** Aspect ratio as `w/h`, e.g. "4/5". Required — reserves space before load. */
   aspect: string;
+  /**
+   * A second aspect ratio, applied from 768px up. Optional, and only for
+   * frames a single ratio cannot serve: a 2/1 band is 195px tall on a phone,
+   * a 4/5 portrait is 2400px tall on a desktop.
+   *
+   * Two ratios rather than two plates, because browsers fetch images inside
+   * `display: none` subtrees — one hidden per breakpoint would download both
+   * frames for every visitor the moment photography exists.
+   */
+  aspectMd?: string;
   /** Omit while photography is unsupplied; a marked placeholder renders instead. */
   src?: string;
   /** Intended crop. Shown on the placeholder so an unshot frame is still reviewable. */
   crop?: string;
+  /**
+   * Where the subject sits in the source frame, as an `object-position` value.
+   *
+   * Defaults to centre. A frame whose subject is deliberately off-axis — the
+   * hero's figure is in the right half, against empty wall — loses that subject
+   * when a narrower viewport crops the frame symmetrically. This moves the crop
+   * window instead of asking for a second photograph.
+   *
+   * It is the *photograph's* property, not the layout's, so it is declared
+   * beside `src` and `crop` and travels with the image wherever it is placed.
+   */
+  position?: string;
   className?: string;
   /** Responsive sizes hint. Default assumes a full-width frame. */
   sizes?: string;
@@ -44,11 +67,13 @@ export type PlateProps = PlateCommon & (Described | Decorative) & (ScaleRole | O
 export function Plate(props: PlateProps) {
   const {
     aspect,
+    aspectMd,
     src,
     crop,
     className,
     sizes = "100vw",
     priority = false,
+    position,
     role,
     dimension,
   } = props;
@@ -56,12 +81,25 @@ export function Plate(props: PlateProps) {
   const alt = "decorative" in props && props.decorative ? "" : (props.alt ?? "");
   const isDecorative = "decorative" in props && props.decorative === true;
 
+  // With one ratio the inline aspect-ratio is the whole story. With two, the
+  // resolved value has to be reachable from a media query, and an inline style
+  // cannot be overridden by a class — so the value moves into a custom
+  // property that globals.css re-points at 768px.
+  const frameStyle: CSSProperties = aspectMd
+    ? ({
+        aspectRatio: "var(--plate-aspect)",
+        "--plate-aspect-sm": aspect,
+        "--plate-aspect-md": aspectMd,
+      } as CSSProperties)
+    : { aspectRatio: aspect };
+
   return (
     <figure className={className}>
       <div
         className="relative w-full overflow-hidden bg-[color-mix(in_oklab,var(--surface-fg)_6%,var(--surface-bg))]"
-        style={{ aspectRatio: aspect }}
+        style={frameStyle}
         data-plate-role={role}
+        data-plate-aspect-md={aspectMd ? "" : undefined}
       >
         {src ? (
           <Image
@@ -72,10 +110,11 @@ export function Plate(props: PlateProps) {
             sizes={sizes}
             priority={priority}
             aria-hidden={isDecorative || undefined}
+            style={position ? { objectPosition: position } : undefined}
             className="object-cover"
           />
         ) : (
-          <PlatePlaceholder role={role} aspect={aspect} crop={crop} />
+          <PlatePlaceholder role={role} aspect={aspect} aspectMd={aspectMd} crop={crop} />
         )}
       </div>
 
@@ -97,10 +136,12 @@ export function Plate(props: PlateProps) {
 function PlatePlaceholder({
   role,
   aspect,
+  aspectMd,
   crop,
 }: {
   role: PlateRole;
   aspect: string;
+  aspectMd?: string;
   crop?: string;
 }) {
   return (
@@ -112,7 +153,8 @@ function PlatePlaceholder({
         <dt>Crop</dt>
         <dd>{crop ?? "unspecified"}</dd>
         <dt>Aspect</dt>
-        <dd>{aspect}</dd>
+        {/* Both ratios, so the frame on screen still reads as a shoot brief. */}
+        <dd>{aspectMd ? `${aspect} · ${aspectMd} from 768px` : aspect}</dd>
       </dl>
     </div>
   );

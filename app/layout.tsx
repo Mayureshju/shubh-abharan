@@ -1,35 +1,24 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import { brand, resolve } from "@/lib/brand";
+import { SiteHeader } from "@/components/nav/SiteHeader";
+import { SiteFooter } from "@/components/nav/SiteFooter";
 
 /**
- * Two typefaces, two roles. Both self-hosted under the ITF Free Font License
- * v2.0, which permits self-hosting but prohibits subsetting and format
- * conversion — the woff2 files are used exactly as distributed.
- *
- * `adjustFontFallback` generates a metric-matched fallback so the swap to the
- * real face produces no layout shift. The fallback stack exists only for the
- * load-failure path, never for normal operation.
+ * Two typefaces, two roles, named by the mood board. Loaded through
+ * `next/font/google` so the files are self-hosted at build time.
  */
-const gambarino = localFont({
-  src: "./fonts/Gambarino-Regular.woff2",
-  variable: "--font-gambarino",
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
   display: "swap",
-  weight: "400",
-  style: "normal",
-  adjustFontFallback: "Times New Roman",
-  fallback: ["Iowan Old Style", "Georgia", "serif"],
 });
 
-const switzer = localFont({
-  src: "./fonts/Switzer-Variable.woff2",
-  variable: "--font-switzer",
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
   display: "swap",
-  weight: "100 900",
-  style: "normal",
-  adjustFontFallback: "Arial",
-  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
 /**
@@ -47,9 +36,22 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-surface="paper"
-      className={`${gambarino.variable} ${switzer.variable} h-full`}
+      className={`${playfair.variable} ${montserrat.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      {/*
+        The shell is mounted once here, not per route: header, one main
+        landmark, footer. A route contributes only its own content, and never
+        its own header, footer or second main — see
+        specs/storefront/app-shell. This layout stays a server component; the
+        header is a client component rendered as a child of it.
+      */}
+      <body className="flex min-h-full flex-col">
+        <SiteHeader />
+        <main id="main" className="flex-1">
+          {children}
+        </main>
+        <SiteFooter />
+      </body>
     </html>
   );
 }

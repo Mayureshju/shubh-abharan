@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { duration, ease } from "@/lib/motion";
 import { Button } from "@/components/ui/Button";
+import { CloseIcon } from "@/components/ui/icons";
 import type { Collection } from "@/lib/brand";
+import type { Category } from "@/lib/catalog";
 
 /**
  * Built on a native <dialog>. showModal() supplies focus containment, Escape
@@ -17,6 +19,11 @@ import type { Collection } from "@/lib/brand";
  * + `m` so the animation runtime stays out of the static page tree — see
  * design.md, decision 6.
  *
+ * The type index is declared here rather than imported from the homepage
+ * section: the overlay is part of the shell and must not depend on a route's
+ * components. Both lists are keyed by the catalog's `Category` union, which is
+ * what keeps them from drifting apart.
+ *
  * MotionConfig carries reducedMotion="user". The global CSS reduced-motion
  * rule cannot reach a JS-driven animation, so without this the overlay would
  * keep its translation for a customer who asked for reduced motion. With it,
@@ -24,6 +31,14 @@ import type { Collection } from "@/lib/brand";
  * appears and still takes focus, which is the feedback the motion spec
  * requires reduced motion to preserve.
  */
+
+const TYPES = [
+  { category: "necklace", label: "Necklaces" },
+  { category: "ring", label: "Rings" },
+  { category: "bracelet", label: "Bracelets" },
+  { category: "earring", label: "Earrings" },
+  { category: "pendant", label: "Pendants" },
+] as const satisfies readonly { category: Category; label: string }[];
 
 export function NavOverlay({
   open,
@@ -72,7 +87,7 @@ export function NavOverlay({
       ref={dialogRef}
       aria-label="Site navigation"
       data-surface="paper"
-      className="m-0 size-full max-h-none max-w-none bg-surface text-on-surface backdrop:bg-[oklch(18%_0.008_85_/_0.4)]"
+      className="m-0 size-full max-h-none max-w-none bg-surface text-on-surface backdrop:bg-[oklch(32.6%_0.0523_175.48_/_0.45)]"
     >
       <LazyMotion features={domAnimation} strict>
         <MotionConfig reducedMotion="user">
@@ -89,11 +104,30 @@ export function NavOverlay({
               <div className="flex items-start justify-between">
                 <p className="text-caption uppercase text-muted">Navigation</p>
                 <Button variant="icon" onClick={onClose} aria-label="Close navigation">
-                  <span aria-hidden="true">&#10005;</span>
+                  <CloseIcon />
                 </Button>
               </div>
 
-              <nav className="mt-tight flex flex-1 flex-col justify-center gap-8 md:flex-row md:justify-start md:gap-24">
+              <nav className="mt-tight flex flex-1 flex-col justify-center gap-tight md:flex-row md:justify-start md:gap-24">
+                {/* Type sits first because it is the axis a visitor arriving
+                    on a phone from the homepage has just been reading. */}
+                <div>
+                  <h2 className="text-caption uppercase text-muted">Shop by type</h2>
+                  <ul className="mt-4 space-y-1">
+                    {TYPES.map((type) => (
+                      <li key={type.category}>
+                        <Link
+                          href={`/shop?category=${type.category}`}
+                          onClick={onClose}
+                          className="inline-flex min-h-11 items-center text-body uppercase tracking-[0.18em] hover:underline underline-offset-4"
+                        >
+                          {type.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
                 <div>
                   <h2 className="text-caption uppercase text-muted">Collections</h2>
                   <ul className="mt-4 space-y-2">
@@ -102,6 +136,7 @@ export function NavOverlay({
                         <li key={collection.slug}>
                           <Link
                             href={`/collections/${collection.slug}`}
+                            onClick={onClose}
                             className="inline-flex min-h-11 items-center text-title hover:underline underline-offset-8"
                           >
                             {collection.name}
@@ -123,6 +158,7 @@ export function NavOverlay({
                       <li key={link.href}>
                         <Link
                           href={link.href}
+                          onClick={onClose}
                           className="inline-flex min-h-11 items-center text-body hover:underline underline-offset-4"
                         >
                           {link.label}

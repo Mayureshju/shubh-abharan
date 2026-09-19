@@ -1,0 +1,221 @@
+#!/usr/bin/env node
+/**
+ * Generates the site's editorial photography through OpenRouter.
+ *
+ * This is a content-workflow tool, not application code — nothing in `app/`,
+ * `components/` or `lib/` imports it, and the storefront never calls a model at
+ * request time. It exists so the shoot brief declared in
+ * `components/home/plates.ts` and `BRAND-INPUTS.md` can be satisfied before the
+ * business has commissioned a real shoot, and so each frame is reproducible
+ * from a prompt kept under version control.
+ *
+ * Every prompt is derived from the two art-direction prompts in
+ * SHUBHA-BRAND-DIRECTION.md. Changing a frame means changing its prompt here.
+ *
+ * The key is read from `.env` at the repo root and is never written to disk,
+ * logged, or embedded in output. There is no credential in this file.
+ *
+ *   node scripts/generate-images.mjs            # only frames not yet on disk
+ *   node scripts/generate-images.mjs --force    # regenerate everything
+ *   node scripts/generate-images.mjs hero       # one frame by id
+ */
+
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+
+const MODEL = "google/gemini-3-pro-image";
+
+/**
+ * The model's default output is about 1.1MP — 1264px on the long edge — which
+ * the full-bleed frames upscale past on any desktop and badly on a 2x display.
+ * "2K" returns ~2528px instead. "4K" is rejected by this model.
+ */
+const IMAGE_SIZE = "2K";
+const OUT_DIR = join("public", "images");
+
+/** Wider than any frame is served at 2x on a 1920 viewport; larger is dead weight. */
+const MAX_WIDTH = 2400;
+
+/** Shared direction. Appended to every prompt so the set reads as one shoot. */
+const HOUSE_STYLE =
+  "Realistic campaign photography for a premium Indian jewellery house named Shubha Abharan. " +
+  "Emerald and deep green silk, cream marble, warm gold kundan and polki jewellery, " +
+  "soft daylight, tactile materials, real metal reflection and gemstone facets, " +
+  "shallow depth of field, subtle film grain, slight natural imperfection. " +
+  "Wherever a person or a part of one appears, she is the same South Asian woman with warm " +
+  "deep brown skin, so the whole set reads as one shoot with one model. " +
+  "Absolutely no text, no lettering, no logo, no watermark, no signature, " +
+  "no artificial sparkle or lens flare, no CGI or plastic render look, " +
+  "no floating objects, no neon, no gradient background.";
+
+/**
+ * Aspect ratios are requested rather than cropped afterwards: `Plate` renders
+ * with `object-cover`, so a frame shot at the wrong ratio loses its composition
+ * at the edges instead of being letterboxed.
+ */
+const FRAMES = [
+  {
+    id: "hero",
+    aspect: "16:9",
+    prompt:
+      "Jewellery campaign portrait for an overlay hero. South Asian woman in three-quarter profile, " +
+      "emerald green silk saree, wearing an ornate gold kundan necklace with emerald drops and matching " +
+      "chandbali earrings and a maang tikka, one hand near the collarbone. Lush foliage behind her. " +
+      "She is placed in the right half of a wide 16:9 frame so the left third is softer darker foliage " +
+      "that can hold overlay typography. Natural skin texture, no retouched plastic skin, no direct " +
+      "eye contact with camera.",
+  },
+  {
+    id: "collection",
+    aspect: "5:4",
+    prompt:
+      "Jewellery still life, almost square. A large ornate gold and pearl necklace — a floral kundan " +
+      "collar with a central pendant — filling most of the frame on a cream marble slab. " +
+      "Warm side light, the piece centred so a circular or rectangular crop keeps the necklace intact. " +
+      "No person. No text.",
+  },
+  {
+    id: "detail",
+    aspect: "1:1",
+    prompt:
+      "Extreme macro of a single piece of handmade gold jewellery: granulation and fine twisted " +
+      "wire work around a deep red garnet cabochon, the bezel visibly set by hand. " +
+      "Shot against near-black espresso-brown ground so the metal is the only lit thing in frame. " +
+      "Focus on the stone's edge, the rest falling away. Dust and micro-scratches visible — " +
+      "this is a worked object, not a render.",
+  },
+  {
+    id: "campaign",
+    aspect: "16:9",
+    prompt:
+      "Wide cinematic campaign frame. A South Asian woman seated, seen from the side, wearing " +
+      "stacked gold bangles, rings and a heavy necklace, emerald and maroon silk around her. " +
+      "Dark festive interior, warm lamp light. She occupies the right half so the left can hold " +
+      "overlay typography. Intimate, still, unposed. No text.",
+  },
+  {
+    id: "category-necklaces",
+    aspect: "1:1",
+    prompt:
+      "Square product still life on a soft cream ground. An ornate gold necklace arranged in a " +
+      "circle, perfectly centred so a circular crop keeps the whole piece. Soft even light, no person.",
+  },
+  {
+    id: "category-rings",
+    aspect: "1:1",
+    prompt:
+      "Square product still life on a soft cream ground. Two or three gold rings stacked or grouped " +
+      "dead-centre so a circular crop keeps them. Soft even light, no person.",
+  },
+  {
+    id: "category-bracelets",
+    aspect: "1:1",
+    prompt:
+      "Square product still life on a soft cream ground. A pair of gold bangles centred so a " +
+      "circular crop keeps them. Soft even light, no person.",
+  },
+  {
+    id: "category-earrings",
+    aspect: "1:1",
+    prompt:
+      "Square product still life on a soft cream ground. A pair of gold chandbali or jhumka earrings " +
+      "centred so a circular crop keeps both. Soft even light, no person.",
+  },
+  {
+    id: "category-pendants",
+    aspect: "1:1",
+    prompt:
+      "Square product still life on a soft cream ground. A single gold pendant on a short chain, " +
+      "centred so a circular crop keeps the whole piece. Soft even light, no person.",
+  },
+];
+
+function loadKey() {
+  const raw = readFileSync(".env", "utf8");
+  for (const line of raw.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    if (trimmed.slice(0, eq).trim() !== "OPENROUTER_API_KEY") continue;
+    return trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+  }
+  throw new Error("OPENROUTER_API_KEY is not set in .env");
+}
+
+async function generate(key, frame) {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: MODEL,
+      modalities: ["image", "text"],
+      image_config: { aspect_ratio: frame.aspect, image_size: IMAGE_SIZE },
+      messages: [{ role: "user", content: `${frame.prompt}\n\n${HOUSE_STYLE}` }],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`${response.status} ${await response.text()}`);
+  }
+
+  const json = await response.json();
+  if (json.error) throw new Error(JSON.stringify(json.error));
+
+  const url = json.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  if (!url) throw new Error(`no image returned: ${JSON.stringify(json).slice(0, 400)}`);
+
+  const [, mime, base64] = /^data:([^;]+);base64,(.+)$/.exec(url) ?? [];
+  if (!base64) throw new Error("image was not returned as a data URI");
+
+  const buffer = Buffer.from(base64, "base64");
+
+  // Encoded to JPEG rather than stored as the returned PNG: these are
+  // photographs, and a 1.6MB lossless PNG of a photograph is 8x the file for no
+  // visible gain. `sharp` ships with Next and is used here only by this script —
+  // if it is ever absent the original bytes are written unchanged.
+  const path = join(OUT_DIR, `${frame.id}.jpg`);
+  try {
+    const { default: sharp } = await import("sharp");
+    await sharp(buffer)
+      .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+      .jpeg({ quality: 82, mozjpeg: true, chromaSubsampling: "4:4:4" })
+      .toFile(path);
+  } catch {
+    writeFileSync(join(OUT_DIR, `${frame.id}.${mime === "image/jpeg" ? "jpg" : "png"}`), buffer);
+  }
+  return path;
+}
+
+const args = process.argv.slice(2);
+const force = args.includes("--force");
+const only = args.filter((arg) => !arg.startsWith("--"));
+
+mkdirSync(OUT_DIR, { recursive: true });
+const key = loadKey();
+
+const queue = FRAMES.filter((frame) => only.length === 0 || only.includes(frame.id)).filter(
+  (frame) =>
+    force ||
+    !["png", "jpg"].some((extension) => existsSync(join(OUT_DIR, `${frame.id}.${extension}`))),
+);
+
+if (queue.length === 0) {
+  console.log("nothing to generate — pass --force to regenerate");
+  process.exit(0);
+}
+
+let failed = 0;
+for (const frame of queue) {
+  process.stdout.write(`${frame.id.padEnd(22)} ${frame.aspect.padEnd(6)} `);
+  try {
+    const path = await generate(key, frame);
+    const { size } = await import("node:fs").then((fs) => fs.statSync(path));
+    console.log(`-> ${path} (${Math.round(size / 1024)} KB)`);
+  } catch (error) {
+    failed++;
+    console.log(`FAILED — ${error.message.slice(0, 300)}`);
+  }
+}
+
+process.exit(failed > 0 ? 1 : 0);

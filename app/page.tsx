@@ -1,24 +1,30 @@
+import { Hero } from "@/components/home/Hero";
+import { Types } from "@/components/home/Types";
+import { Collection } from "@/components/home/Collection";
+import { Reasons } from "@/components/home/Reasons";
+import { Statement } from "@/components/home/Statement";
+
 /**
- * Stub. The scaffold's placeholder page was removed by establish-brand-system,
- * which builds the design system only — no storefront pages are in its scope.
- * The homepage is delivered by the `build-homepage` change.
+ * Five mood-board sections.
  *
- * The design system's acceptance surface is /specimen.
+ *   Hero       → Types        normal
+ *   Types      → Collection   tight
+ *   Collection → Reasons      normal
+ *   Reasons    → Statement    normal
+ *   Statement  → footer       breath    (fixed by SiteFooter)
+ *
+ * One `tight` join, no two `breath` joins adjacent.
+ *
+ * Header, main landmark and footer come from the root layout.
  */
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col justify-center page-gutter py-breath">
-      <p className="max-w-measure text-caption uppercase text-muted">
-        Design system established. No storefront pages are in scope for this
-        change.
-      </p>
-      <p className="mt-tight max-w-measure text-body">
-        The token set and component states are rendered at{" "}
-        <a className="underline underline-offset-4 hover:no-underline" href="/specimen">
-          /specimen
-        </a>
-        .
-      </p>
-    </main>
+    <>
+      <Hero />
+      <Types className="mt-normal" />
+      <Collection className="mt-tight" />
+      <Reasons className="mt-normal" />
+      <Statement className="mt-normal" />
+    </>
   );
 }

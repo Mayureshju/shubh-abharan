@@ -1,20 +1,24 @@
 "use client";
 
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { buttonClass, type ButtonVariant } from "./buttonClass";
 
 /**
  * Four presentations, no more. A view presents at most one `primary` — that
  * part is a review rule, since a component cannot see its siblings.
  *
- * Square by construction: the radius scale is cleared in globals.css, so pill
- * geometry is not reachable from a utility class.
+ * `primary` and `quiet` are pills via `--radius-pill`. `icon` stays square.
  *
  * Disabled and pending are signalled by border treatment and text, never by
  * colour alone — see the non-colour encoding requirement in
  * specs/design-system/responsive-accessibility.
+ *
+ * The class strings live in ./buttonClass so a navigating `<Link>` in a server
+ * component can use the same four presentations without duplicating them or
+ * nesting a button inside an anchor.
  */
 
-type Variant = "primary" | "quiet" | "inline" | "icon";
+type Variant = ButtonVariant;
 
 interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
   variant?: Variant;
@@ -28,40 +32,6 @@ interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "cla
   pendingLabel?: string;
   className?: string;
 }
-
-const BASE =
-  "inline-flex items-center justify-center gap-2 text-caption uppercase " +
-  "transition-[background-color,color,border-color,opacity] duration-[var(--duration-quick)] " +
-  "ease-[var(--ease-out)] focus-visible:outline-2 focus-visible:outline-offset-2 " +
-  "disabled:cursor-not-allowed aria-disabled:cursor-not-allowed";
-
-/** Minimum 44px touch target, including for caption-sized labels. */
-const TARGET = "min-h-11 px-6";
-
-const VARIANTS: Record<Variant, string> = {
-  primary:
-    "bg-on-surface text-surface border border-on-surface " +
-    "hover:bg-transparent hover:text-on-surface " +
-    "active:opacity-90 " +
-    "disabled:border-dashed disabled:bg-transparent disabled:text-muted " +
-    "aria-disabled:border-dashed aria-disabled:bg-transparent aria-disabled:text-muted",
-  quiet:
-    "bg-transparent text-on-surface border border-on-surface " +
-    "hover:bg-on-surface hover:text-surface " +
-    "active:opacity-90 " +
-    "disabled:border-dashed disabled:text-muted " +
-    "aria-disabled:border-dashed aria-disabled:text-muted",
-  inline:
-    "bg-transparent text-on-surface border-0 p-0 min-h-11 " +
-    "underline underline-offset-4 hover:no-underline " +
-    "disabled:no-underline disabled:line-through disabled:text-muted " +
-    "aria-disabled:no-underline aria-disabled:line-through aria-disabled:text-muted",
-  icon:
-    "bg-transparent text-on-surface border border-transparent size-11 p-0 " +
-    "hover:border-on-surface " +
-    "disabled:border-dashed disabled:border-line disabled:text-muted " +
-    "aria-disabled:border-dashed aria-disabled:border-line aria-disabled:text-muted",
-};
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
@@ -77,8 +47,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   },
   ref,
 ) {
-  const sizing = variant === "inline" || variant === "icon" ? "" : TARGET;
-
   return (
     <button
       ref={ref}
@@ -95,7 +63,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         }
         onClick?.(event);
       }}
-      className={`${BASE} ${sizing} ${VARIANTS[variant]} ${className ?? ""}`}
+      className={`${buttonClass(variant)} ${className ?? ""}`}
       {...rest}
     >
       {children}

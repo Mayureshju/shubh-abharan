@@ -69,28 +69,46 @@ function contrastLinear(fgLinear, bg) {
 }
 
 // ---------------------------------------------------------------------------
-// Tokens. Chroma ceiling is 0.02 — see design.md, decision 2.
+// Tokens. Cream / charcoal / brown sit under a chroma ceiling of 0.02.
+// Royal green (`ink`) and gold are named exemptions — see
+// clone-shubha-moodboard/design.md, Decision 1. An unnamed token above the
+// ceiling still fails. Gold is allowed in the metal hue band because it is
+// named; any other metal-band token is not.
 // ---------------------------------------------------------------------------
 const CHROMA_CEILING = 0.02;
 
+/** Tokens permitted past the ceiling, and why. */
+const EXEMPT = {
+  ink: "royal green surface supplied by the mood board (#0F3D33)",
+  gold: "gold accent supplied by the mood board (#D4AF37)",
+};
+
+/** Hue band reserved for unnamed metal. Named `gold` is exempted above. */
+const HUE_EXCLUSION = { from: 60, to: 110, label: "warm metal" };
+
 export const TOKENS = {
-  paper: [0.96, 0.006, 85],
-  ink: [0.18, 0.008, 85],
-  graphite: [0.52, 0.008, 85],
-  "graphite-inverse": [0.68, 0.008, 85],
+  paper: [0.9793, 0.007, 88.64], // Cream          #FAF8F3
+  charcoal: [0.2178, 0, 89.88], // Charcoal        #1A1A1A
+  ink: [0.326, 0.0523, 175.48], // Royal Green     #0F3D33
+  graphite: [0.3185, 0.0176, 18.11], // Deep Brown  #3B2F2F
+  "graphite-inverse": [0.8156, 0.0178, 84.59], // Cream-grey #C8C2B6
+  gold: [0.7665, 0.1387, 91.06], // Gold            #D4AF37
 };
 
 const HAIRLINE_ALPHA = 0.14;
 
 // Pairings the system actually renders, with the floor each must clear.
 const CHECKS = [
-  ["ink on paper", TOKENS.ink, TOKENS.paper, 4.5],
+  ["charcoal on paper", TOKENS.charcoal, TOKENS.paper, 4.5],
   ["graphite on paper", TOKENS.graphite, TOKENS.paper, 4.5],
   ["paper on ink", TOKENS.paper, TOKENS.ink, 4.5],
   ["graphite-inverse on ink", TOKENS["graphite-inverse"], TOKENS.ink, 4.5],
-  // Control boundaries and focus indicators use ink / paper, never hairline.
-  ["ink boundary on paper", TOKENS.ink, TOKENS.paper, 3],
+  ["charcoal boundary on paper", TOKENS.charcoal, TOKENS.paper, 3],
   ["paper boundary on ink", TOKENS.paper, TOKENS.ink, 3],
+  // primary fill: charcoal on gold. Cream on gold is 1.98:1 and is not used.
+  ["charcoal on gold", TOKENS.charcoal, TOKENS.gold, 4.5],
+  // gold rules and icons on the green surface
+  ["gold on ink", TOKENS.gold, TOKENS.ink, 4.5],
 ];
 
 function main() {
@@ -98,11 +116,38 @@ function main() {
   const rows = [];
 
   for (const [name, token] of Object.entries(TOKENS)) {
-    const chroma = token[1];
-    if (chroma > CHROMA_CEILING) {
-      console.error(`FAIL  ${name}: chroma ${chroma} exceeds ceiling ${CHROMA_CEILING}`);
+    const [, chroma, hue] = token;
+
+    if (chroma > CHROMA_CEILING && !(name in EXEMPT)) {
+      console.error(
+        `FAIL  ${name}: chroma ${chroma} exceeds ceiling ${CHROMA_CEILING}. ` +
+          `Only a brand colour supplied by the business may be exempted, and it must be named in EXEMPT.`,
+      );
       failed++;
     }
+
+    // Unnamed metal. `gold` is in EXEMPT and is the one permitted metal token.
+    if (
+      chroma > CHROMA_CEILING &&
+      hue >= HUE_EXCLUSION.from &&
+      hue <= HUE_EXCLUSION.to &&
+      !(name in EXEMPT)
+    ) {
+      console.error(
+        `FAIL  ${name}: hue ${hue} sits in the ${HUE_EXCLUSION.label} band ` +
+          `(${HUE_EXCLUSION.from}-${HUE_EXCLUSION.to}) at chroma ${chroma}. Metal enters through photography, not tokens.`,
+      );
+      failed++;
+    }
+  }
+
+  for (const [name, reason] of Object.entries(EXEMPT)) {
+    if (!(name in TOKENS)) {
+      console.error(`FAIL  EXEMPT names "${name}", which is not a token.`);
+      failed++;
+      continue;
+    }
+    console.log(`exempt ${name}: chroma ${TOKENS[name][1]} — ${reason}`);
   }
 
   for (const [label, fg, bg, floor] of CHECKS) {
@@ -113,8 +158,8 @@ function main() {
   }
 
   // Hairline is decorative only — reported, never asserted against a text floor.
-  const hairOnPaper = contrastLinear(over(TOKENS.ink, TOKENS.paper, HAIRLINE_ALPHA), TOKENS.paper);
-  rows.push(["info", `hairline on paper (ink @ ${HAIRLINE_ALPHA})`, hairOnPaper.toFixed(2), "decorative"]);
+  const hairOnPaper = contrastLinear(over(TOKENS.charcoal, TOKENS.paper, HAIRLINE_ALPHA), TOKENS.paper);
+  rows.push(["info", `hairline on paper (charcoal @ ${HAIRLINE_ALPHA})`, hairOnPaper.toFixed(2), "decorative"]);
 
   const w = Math.max(...rows.map((r) => r[1].length));
   for (const [status, label, ratio, floor] of rows) {
