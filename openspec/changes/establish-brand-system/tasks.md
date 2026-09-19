@@ -44,7 +44,11 @@
 - [x] 5.5 Build `components/nav/SiteHeader.tsx` with the collection-led structure — at most five top-level items, product type absent from top level — including its scrolled state
 - [x] 5.6 Build `components/nav/NavOverlay.tsx` with focus containment, scroll lock behind it, escape-to-dismiss, and focus return to the opening control; animate with Motion via `LazyMotion` + `m`
 - [x] 5.7 Build `components/nav/SiteFooter.tsx` at `caption` size with hairline rules and no boxed newsletter card
-- [ ] 5.8 Give every component its mobile presentation per the responsive spec — full-bleed imagery, horizontal rails, bottom-sheet controls, full-screen nav overlay
+- [x] 5.8 Give every component its mobile presentation per the responsive spec — full-bleed imagery, horizontal rails, bottom-sheet controls, full-screen nav overlay
+      - Done: `.full-bleed`, `.rail` (snap points, native scroll), full-screen nav overlay, stacked header/footer.
+      - Deferred: bottom-sheet controls. No host component exists in this change — filters belong to
+        `build-shop-and-collections`. The requirement stands in `specs/design-system/responsive-accessibility`
+        and that change must satisfy it.
 
 ## 6. Specimen surface
 

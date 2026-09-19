@@ -173,6 +173,8 @@ BRAND-INPUTS.md
 
 Navigation components are built to contract with their states rendered on the specimen page; wiring them into a live layout is `build-storefront-shell`.
 
+**Deferred from this change (task 5.8).** The responsive spec requires filters to present as a bottom sheet at mobile widths. No filter UI exists here — it belongs to `build-shop-and-collections` — so no `Sheet` component is built. `NavOverlay`'s native `<dialog>` pattern generalises to one directly: `showModal()` supplies focus containment, Escape and focus return, and only the geometry and entry transform differ. That change should extract the shared primitive rather than write a second dialog wrapper.
+
 ## Risks / Trade-offs
 
 - **The repository is not under version control** → `git init` and an initial commit before implementation begins. This change replaces the stylesheet, fonts, and `public/` contents with no other rollback path. This is the first task in `tasks.md`.

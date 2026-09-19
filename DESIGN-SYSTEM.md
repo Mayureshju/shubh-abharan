@@ -109,6 +109,15 @@ explicitly permitted. Two terms constrain this repository:
    servers" or a "repository". **If this repository is made public, remove
    `app/fonts/*.woff2` from version control** and supply them at build time.
 
+## Known gap carried forward
+
+The responsive spec requires filters to present as a **bottom sheet** at mobile
+widths. No filter UI exists yet, so no `Sheet` component was built. Implement it
+in `build-shop-and-collections` by generalising `components/nav/NavOverlay.tsx`
+— the native `<dialog>` already supplies focus containment, Escape and focus
+return; only geometry and the entry transform differ. Do not write a second
+dialog wrapper.
+
 ## Running the gates
 
 ```
