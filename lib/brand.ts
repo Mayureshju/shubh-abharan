@@ -16,6 +16,37 @@ export interface Reason {
   readonly body: string;
 }
 
+export interface Occasion {
+  slug: string;
+  name: string;
+  /** One line on the destination tile, when supplied. */
+  description: BrandField;
+}
+
+export interface HeroSlide {
+  /**
+   * Key into the homepage slide plates. The photograph is declared in
+   * `components/home/plates.ts`, not here — this record owns the copy.
+   */
+  readonly plate: "hero" | "campaign" | "collection" | "detail";
+  readonly eyebrow: BrandField;
+  /**
+   * Overlay title for slides after the first. The first slide uses the brand
+   * name as the page heading and ignores this field.
+   */
+  readonly heading: BrandField;
+  readonly support: BrandField;
+  readonly ctaLabel: BrandField;
+  readonly ctaHref: string;
+}
+
+export interface HomepageMerchandising {
+  /** Product slugs, editorial order. Empty omits the section. */
+  readonly newArrivalSlugs: readonly string[];
+  /** Product slugs, editorial order. Empty omits the section. */
+  readonly featuredSlugs: readonly string[];
+}
+
 export interface Brand {
   /** Identity */
   name: BrandField;
@@ -40,6 +71,12 @@ export interface Brand {
   closingStatement: BrandField;
 
   /**
+   * Campaign frames after the first inherit overlay copy from this list.
+   * Slide 0 is the existing hero photograph; its heading is the brand name.
+   */
+  heroSlides: readonly HeroSlide[];
+
+  /**
    * One line in the footer's brand column. Optional: unsupplied, the line is
    * omitted rather than placeheld, because the footer is where this system
    * drops an affordance it has no content for.
@@ -51,6 +88,12 @@ export interface Brand {
 
   /** Collections — capped at five. */
   collections: readonly Collection[];
+
+  /** Occasions — capped at three. Empty omits the homepage section. */
+  occasions: readonly Occasion[];
+
+  /** Homepage product rails. Empty lists omit their section. */
+  homepage: HomepageMerchandising;
 
   /** Materials vocabulary used in card material lines and spec tables. */
   materials: MaterialsVocabulary;
@@ -110,6 +153,41 @@ export const brand: Brand = {
   closingStatement: "Because You Deserve to Shine",
   footerStatement: "Grace in Every Gem",
 
+  heroSlides: [
+    {
+      plate: "hero",
+      eyebrow: "Timeless elegance in every detail",
+      heading: null,
+      support: "Exquisite Jewellery for Every Moment of Your Life",
+      ctaLabel: "Shop Now",
+      ctaHref: "/shop",
+    },
+    {
+      plate: "campaign",
+      eyebrow: "Worn in lamplight",
+      heading: "Kundan against silk",
+      support: "Necklace, stacked bangles and rings in a lamp-lit interior.",
+      ctaLabel: "Shop Now",
+      ctaHref: "/shop",
+    },
+    {
+      plate: "collection",
+      eyebrow: "Still life",
+      heading: "A collar on marble",
+      support: "Gold kundan, emerald stones and pearl drops on cream stone.",
+      ctaLabel: "Shop the collection",
+      ctaHref: "/collections/modern-classics",
+    },
+    {
+      plate: "detail",
+      eyebrow: "Close work",
+      heading: "Bezel and granulation",
+      support: "A gold disc closed by hand around a cabochon.",
+      ctaLabel: "Shop Now",
+      ctaHref: "/shop",
+    },
+  ],
+
   reasons: [
     { title: "Premium Quality", body: "Crafted with the finest materials" },
     { title: "Trusted Heritage", body: "A legacy of elegance and trust" },
@@ -126,6 +204,39 @@ export const brand: Brand = {
         "Exquisite jewellery that blends tradition with contemporary elegance.",
     },
   ],
+
+  occasions: [
+    {
+      slug: "wedding",
+      name: "Wedding",
+      description: "Necklace, chandbalis and maang tikka as worn on silk.",
+    },
+    {
+      slug: "festive",
+      name: "Festive",
+      description: "Kundan collars, stacked rings and bangles on marble.",
+    },
+    {
+      slug: "everyday",
+      name: "Everyday",
+      description: "A pendant on a fine chain, close enough for daily wear.",
+    },
+  ],
+
+  homepage: {
+    newArrivalSlugs: [
+      "emerald-drop-kundan-necklace",
+      "chandbali-earrings",
+      "emerald-drop-pendant",
+      "chain-and-pendant",
+    ],
+    featuredSlugs: [
+      "emerald-silk-bridal-set",
+      "floral-kundan-collar",
+      "stacked-emerald-rings",
+      "kundan-bangles",
+    ],
+  },
 
   materials: {
     metals: [],
@@ -166,4 +277,12 @@ export function isSupplied(value: BrandField): value is string {
  */
 export function resolve(value: BrandField, field: string): string {
   return isSupplied(value) ? value : placeholder(field);
+}
+
+if (brand.occasions.length > 3) {
+  throw new Error("Occasions are capped at three.");
+}
+
+if (brand.heroSlides.length > 4) {
+  throw new Error("The hero slider is capped at four frames.");
 }

@@ -8,6 +8,7 @@ export {
   getProduct,
   getProductsByIds,
   getCollection,
+  getProductsBySlugs,
   listProducts,
   search,
 } from "./repository";

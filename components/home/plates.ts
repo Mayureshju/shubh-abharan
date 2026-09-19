@@ -136,3 +136,54 @@ export const CATEGORY_PLATES = {
     alt: "A gold kundan pendant with an emerald drop on a fine chain, resting on cream silk.",
   },
 } satisfies Readonly<Partial<Record<Category, EditorialPlate>>>;
+
+/**
+ * Hero slider frames. Same sources as the editorial plates, forced onto the
+ * hero's dual aspect so a still-life or square detail does not collapse the
+ * band when it becomes the active slide.
+ */
+export const HERO_SLIDE_PLATES = {
+  hero: HERO_PLATE,
+  campaign: {
+    ...CAMPAIGN_PLATE,
+    aspect: "4/5" as const,
+    aspectMd: "16/9" as const,
+  },
+  collection: {
+    ...COLLECTION_PLATE,
+    aspect: "4/5" as const,
+    aspectMd: "16/9" as const,
+    position: "50% 45%",
+  },
+  detail: {
+    ...DETAIL_PLATE,
+    aspect: "4/5" as const,
+    aspectMd: "16/9" as const,
+    position: "50% 50%",
+  },
+} satisfies Record<"hero" | "campaign" | "collection" | "detail", EditorialPlate>;
+
+export const OCCASION_PLATES = {
+  wedding: {
+    role: "worn",
+    aspect: "4/5",
+    src: "/images/hero.jpg",
+    position: "72% 40%",
+    crop: "bridal set worn against foliage",
+    alt: "A woman in an emerald silk saree wearing a gold kundan necklace, chandbali earrings and a maang tikka.",
+  },
+  festive: {
+    role: "macro",
+    aspect: "4/5",
+    src: "/images/collection.jpg",
+    crop: "kundan collar on marble",
+    alt: "A gold kundan necklace with emerald stones and pearl drops, laid across cream marble.",
+  },
+  everyday: {
+    role: "macro",
+    aspect: "4/5",
+    src: "/images/category-pendants.jpg",
+    crop: "pendant on a fine chain",
+    alt: "A gold kundan pendant with an emerald drop on a fine chain, resting on cream silk.",
+  },
+} satisfies Record<string, EditorialPlate>;

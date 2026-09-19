@@ -12,7 +12,7 @@
 import { products } from "./data/products";
 import { collections } from "./data/collections";
 import { lowestPrice } from "./money";
-import { isSupplied } from "../brand";
+import { brand, isSupplied } from "../brand";
 import type {
   Availability,
   Category,
@@ -28,6 +28,8 @@ export interface ListCriteria {
   readonly category?: Category;
   /** Collection slug. */
   readonly collection?: string;
+  /** Occasion slug from the brand record. */
+  readonly occasion?: string;
   readonly option?: { readonly axis: VariantAxis; readonly value: string };
   readonly availability?: Availability;
   /** Inclusive bounds, in minor units, against the product's lowest variant price. */
@@ -65,6 +67,16 @@ export async function getCollection(slug: string): Promise<CollectionWithProduct
   };
 }
 
+/**
+ * Editorial order is the caller's list. Unknown slugs are dropped — the
+ * catalog check is what fails the build when a brand list names one.
+ */
+export async function getProductsBySlugs(slugs: readonly string[]): Promise<readonly Product[]> {
+  return slugs
+    .map((slug) => products.find((product) => product.slug === slug))
+    .filter((product): product is Product => product !== undefined);
+}
+
 export async function listProducts(criteria: ListCriteria = {}): Promise<readonly Product[]> {
   const filtered = products.filter((product) => matches(product, criteria));
   return sortProducts(filtered, criteria.sort ?? "display");
@@ -99,6 +111,11 @@ function haystack(product: Product): string[] {
     if (collection !== undefined) values.push(collection.name);
   }
 
+  for (const slug of product.occasions ?? []) {
+    const occasion = brand.occasions.find((entry) => entry.slug === slug);
+    if (occasion !== undefined) values.push(occasion.name);
+  }
+
   if (isSupplied(product.materialLine)) values.push(product.materialLine);
   if (isSupplied(product.description)) values.push(product.description);
   for (const attribute of product.attributes ?? []) values.push(attribute.value);
@@ -110,6 +127,10 @@ function matches(product: Product, criteria: ListCriteria): boolean {
   if (criteria.category !== undefined && product.category !== criteria.category) return false;
 
   if (criteria.collection !== undefined && !product.collections.includes(criteria.collection)) {
+    return false;
+  }
+
+  if (criteria.occasion !== undefined && !(product.occasions ?? []).includes(criteria.occasion)) {
     return false;
   }
 

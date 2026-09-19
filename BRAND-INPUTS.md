@@ -47,11 +47,16 @@ The homepage renders mood-board copy from this record, supplied 2026-09-20 with
 the board. Several sentences do not carry a measurable fact; they render as
 given and the exception is recorded here rather than being rewritten.
 
+Hero slides 2–4 and the merchandising / journal blocks below are **development
+content** (2026-09-20): they describe photographs already on disk so the rails
+can be reviewed. They are not business-supplied inventory or a CMS.
+
 | Field | Status | Value |
 | --- | --- | --- |
 | Hero eyebrow | SUPPLIED 2026-09-20 | Timeless elegance in every detail |
 | Hero heading | SUPPLIED 2026-09-20 | Shubha Abharan (the brand name) |
 | Hero support | SUPPLIED 2026-09-20 | Exquisite Jewellery for Every Moment of Your Life |
+| Hero slides | DEVELOPMENT 2026-09-20 | Four frames: `hero`, `campaign`, `collection`, `detail` — copy in `brand.heroSlides` |
 | Closing statement | SUPPLIED 2026-09-20 | Because You Deserve to Shine |
 | Closing support | SUPPLIED 2026-09-20 | Jewellery that celebrates you. |
 | Footer brand statement | SUPPLIED 2026-09-20 | Grace in Every Gem |
@@ -60,6 +65,9 @@ given and the exception is recorded here rather than being rewritten.
 | Reasons — Trusted Heritage | SUPPLIED 2026-09-20 | A legacy of elegance and trust |
 | Reasons — Elegant Packaging | SUPPLIED 2026-09-20 | Beautifully packed for every occasion |
 | Reasons — Secure Shopping | SUPPLIED 2026-09-20 | Safe & hassle-free experience |
+| Occasions | DEVELOPMENT 2026-09-20 | Wedding, Festive, Everyday |
+| New arrival slugs | DEVELOPMENT 2026-09-20 | emerald-drop-kundan-necklace, chandbali-earrings, emerald-drop-pendant, chain-and-pendant |
+| Featured slugs | DEVELOPMENT 2026-09-20 | emerald-silk-bridal-set, floral-kundan-collar, stacked-emerald-rings, kundan-bangles |
 
 The four reasons are the Why Choose row. They are claims. They render because
 the business supplied them on the mood board, not because the copy rule was
@@ -113,10 +121,9 @@ The description names only what is in the collection's photograph, which is how 
 line here clears the copy rule without making a claim about the pieces. Replace it
 when the business writes its own.
 
-Which products belong to the collection is still UNFILLED — `PRODUCT_ORDER` in
-`lib/catalog/data/collections.ts` is empty, so `/collections/modern-classics`
-presents no products. The homepage's Collection section does not read that list,
-so it renders correctly regardless.
+Collection membership for the development merchandise is filled in
+`PRODUCT_ORDER` (`modern-classics`). Structural fixtures still declare none. The
+homepage Collection section does not read that list.
 
 ## Materials vocabulary
 
@@ -150,26 +157,38 @@ policies.** Policies still omit their footer links while unsupplied.
 
 ## Catalog
 
-The per-product values the business must supply. Until they are, `lib/catalog/data/products.ts`
-holds structural specimens whose brand-owned values are all `null` and render as marked
-placeholders. Filling these in is an edit to that file and this table — no component changes.
+Structural fixtures in `products.ts` stay unfilled. Development merchandise in
+`lib/catalog/data/merchandise.ts` carries sample INR prices and photography from
+`public/images/`. Currency for those records is **INR**.
 
 | Field | Status | Value |
 | --- | --- | --- |
-| Product names, and the slug for each | UNFILLED | |
-| Category per product (ring, necklace, pendant, earring, bracelet, set) | UNFILLED | |
-| Price per variant, and the currency the brand sells in | UNFILLED | |
-| Material line per product (e.g. "9ct recycled gold · 1.2mm") | UNFILLED | |
-| Product description per product | UNFILLED | |
+| Product names, and the slug for each | DEVELOPMENT 2026-09-20 | Eight sample pieces in `merchandise.ts`; fixtures remain named as fixtures |
+| Category per product (ring, necklace, pendant, earring, bracelet, set) | DEVELOPMENT 2026-09-20 | Covered by the sample set plus fixtures |
+| Price per variant, and the currency the brand sells in | DEVELOPMENT 2026-09-20 | Sample INR on merchandise only; fixtures `null` |
+| Material line per product | DEVELOPMENT 2026-09-20 | Names what the photograph shows (kundan, emerald drops, pearl drops) |
+| Product description per product | DEVELOPMENT 2026-09-20 | Photographable nouns from the same frames |
 | Care copy per product, where it differs from the brand-level care policy | UNFILLED | |
-| Ring sizes offered, and the convention used (UK letter, US numeric, or both) | UNFILLED | |
-| Chain and bracelet lengths offered, with units | UNFILLED | |
+| Ring sizes offered, and the convention used (UK letter, US numeric, or both) | UNFILLED | Sample rings keep `[SIZE A]` placeholders |
+| Chain and bracelet lengths offered, with units | UNFILLED | Sample chain keeps `[LENGTH A]` placeholders |
 | Finish names offered, matching the finishes vocabulary above | UNFILLED | |
 | Metal options offered, matching the metals vocabulary above | UNFILLED | |
-| Availability per variant — available, made-to-order, sold-out, or unavailable | UNFILLED | |
+| Availability per variant — available, made-to-order, sold-out, or unavailable | DEVELOPMENT 2026-09-20 | Stated per sample variant |
 | Specification table rows per product (label and value pairs) | UNFILLED | |
-| Which products compose each set | UNFILLED | |
-| Collection membership per product, and the order within each collection | UNFILLED | |
+| Which products compose each set | DEVELOPMENT 2026-09-20 | `emerald-silk-bridal-set` → necklace + chandbalis |
+| Collection membership per product, and the order within each collection | DEVELOPMENT 2026-09-20 | See `PRODUCT_ORDER` for `modern-classics` |
+| Occasion membership | DEVELOPMENT 2026-09-20 | wedding / festive / everyday as declared on each sample product |
+
+## Journal
+
+Three development posts in `lib/journal/data/posts.ts`. Copy describes the
+photograph. Not business editorial.
+
+| Slug | Title | Date | Frame |
+| --- | --- | --- | --- |
+| `kundan-collar-on-marble` | A collar on marble | 2026-09-12 | `collection.jpg` |
+| `chandbali-on-cream-marble` | Chandbalis, paired | 2026-09-08 | `category-earrings.jpg` |
+| `kundan-in-lamplight` | Kundan in lamplight | 2026-09-02 | `campaign.jpg` |
 
 Availability must be stated for every variant. The model has no default, because
 `available` would be an inventory claim the business did not make and `unavailable`

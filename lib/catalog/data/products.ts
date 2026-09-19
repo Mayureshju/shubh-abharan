@@ -31,8 +31,9 @@
 // under Node's type stripping, and Node's ESM resolver requires the extension.
 import { asProductId, asVariantId } from "../types.ts";
 import type { Product } from "../types.ts";
+import { merchandise } from "./merchandise.ts";
 
-export const products: readonly Product[] = [
+const fixtures: readonly Product[] = [
   {
     // Two axes: the selector, the filter and the "from" price all need this.
     id: asProductId("p_ring_multi"),
@@ -171,3 +172,5 @@ export const products: readonly Product[] = [
     care: null,
   },
 ];
+
+export const products: readonly Product[] = [...fixtures, ...merchandise];

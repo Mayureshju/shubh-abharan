@@ -119,9 +119,13 @@ The homepage's score, as an example of the shape:
 | Join | Value |
 | --- | --- |
 | Hero → Types | `normal` |
-| Types → Collection | `tight` |
-| Collection → Reasons | `normal` |
-| Reasons → Statement | `normal` |
+| Types → New arrivals | `tight` |
+| New arrivals → Occasions | `normal` |
+| Occasions → Collection | `tight` |
+| Collection → Featured | `normal` |
+| Featured → Reasons | `normal` |
+| Reasons → Journal | `tight` |
+| Journal → Statement | `normal` |
 | Statement → footer | `breath` *(fixed by `SiteFooter`)* |
 
 One `tight` present, no two `breath` adjacent.

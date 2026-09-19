@@ -6,17 +6,22 @@
  */
 
 import { placeholder } from "../brand";
-import type { Money, Product } from "./types";
+import type { CurrencyCode, Money, Product } from "./types";
 
 /**
- * Fixed, not the visitor's locale.
+ * Fixed per currency, never the visitor's locale.
  *
  * Rendering is server-first, so `Intl` runs once on the server and again on
  * hydration. A visitor-derived locale produces a different string on each side
  * and a hydration mismatch. Pinning it also means every visitor sees the same
  * price, which is correct for a single-currency brand.
  */
-const PRICE_LOCALE = "en-GB";
+const PRICE_LOCALE: Record<CurrencyCode, string> = {
+  GBP: "en-GB",
+  EUR: "en-GB",
+  USD: "en-US",
+  INR: "en-IN",
+};
 
 /**
  * Accepts null so the placeholder path is the same call — no caller can forget
@@ -30,9 +35,9 @@ export function formatMoney(money: Money | null): string {
   // because leaving the maximum at the currency default renders 4250 as "£42.5".
   const whole = money.amount % 100 === 0;
 
-  // ponytail: assumes a two-decimal minor unit, true of GBP/EUR/USD. A
+  // ponytail: assumes a two-decimal minor unit, true of GBP/EUR/USD/INR. A
   // zero-decimal currency (JPY) would need a per-currency exponent here.
-  return new Intl.NumberFormat(PRICE_LOCALE, {
+  return new Intl.NumberFormat(PRICE_LOCALE[money.currency], {
     style: "currency",
     currency: money.currency,
     minimumFractionDigits: whole ? 0 : 2,

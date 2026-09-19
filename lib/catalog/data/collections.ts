@@ -22,7 +22,15 @@ import type { Collection } from "../types.ts";
  * Collection slug -> product slugs, in the order that collection presents them.
  * A collection absent from this map presents no products.
  */
-const PRODUCT_ORDER: Readonly<Record<string, readonly string[]>> = {};
+const PRODUCT_ORDER: Readonly<Record<string, readonly string[]>> = {
+  "modern-classics": [
+    "floral-kundan-collar",
+    "emerald-drop-kundan-necklace",
+    "chandbali-earrings",
+    "stacked-emerald-rings",
+    "emerald-silk-bridal-set",
+  ],
+};
 
 export const collections: readonly Collection[] = brand.collections.map((collection) => ({
   slug: collection.slug,

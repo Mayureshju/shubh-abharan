@@ -24,6 +24,7 @@ import { join } from "node:path";
 
 import { products } from "../lib/catalog/data/products.ts";
 import { collections } from "../lib/catalog/data/collections.ts";
+import { brand } from "../lib/brand.ts";
 
 const CATALOG_ROOT = join("lib", "catalog");
 const EXTENSIONS = new Set([".ts", ".tsx"]);
@@ -84,6 +85,7 @@ function checkUniqueness() {
 function checkReferences() {
   const productSlugs = new Set(products.map((p) => p.slug));
   const collectionSlugs = new Set(collections.map((c) => c.slug));
+  const occasionSlugs = new Set(brand.occasions.map((o) => o.slug));
 
   for (const product of products) {
     const where = `product "${product.slug}"`;
@@ -94,6 +96,16 @@ function checkReferences() {
           where,
           `declares membership of collection "${slug}", which is not in the brand record. ` +
             `Collections come from brand.collections — see BRAND-INPUTS.md.`,
+        );
+      }
+    }
+
+    for (const slug of product.occasions ?? []) {
+      if (!occasionSlugs.has(slug)) {
+        fail(
+          where,
+          `declares membership of occasion "${slug}", which is not in the brand record. ` +
+            `Occasions come from brand.occasions — see BRAND-INPUTS.md.`,
         );
       }
     }
@@ -115,6 +127,17 @@ function checkReferences() {
     for (const slug of collection.productSlugs) {
       if (!productSlugs.has(slug)) {
         fail(`collection "${collection.slug}"`, `orders product "${slug}", which does not exist.`);
+      }
+    }
+  }
+
+  for (const [label, slugs] of [
+    ["new arrivals", brand.homepage.newArrivalSlugs],
+    ["featured", brand.homepage.featuredSlugs],
+  ]) {
+    for (const slug of slugs) {
+      if (!productSlugs.has(slug)) {
+        fail(`brand.homepage ${label}`, `names product "${slug}", which does not exist.`);
       }
     }
   }

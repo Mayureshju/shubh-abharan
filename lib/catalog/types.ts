@@ -49,7 +49,7 @@ export const asVariantId = (value: string): VariantId => value as VariantId;
 /* Money                                                                       */
 /* -------------------------------------------------------------------------- */
 
-export type CurrencyCode = "GBP" | "EUR" | "USD";
+export type CurrencyCode = "GBP" | "EUR" | "USD" | "INR";
 
 /**
  * Integer minor units, never a float and never a preformatted string.
@@ -63,7 +63,7 @@ export type CurrencyCode = "GBP" | "EUR" | "USD";
  * by editing data versus editing every price site.
  */
 export interface Money {
-  /** Integer, in the currency's minor unit. 4250 = £42.50. */
+  /** Integer, in the currency's minor unit. 4250 = £42.50; 8500000 = ₹85,000. */
   readonly amount: number;
   readonly currency: CurrencyCode;
 }
@@ -190,6 +190,12 @@ export interface Product {
   readonly images: ProductImages;
   /** Collection slugs. Empty is valid — the piece is still reachable by shop and search. */
   readonly collections: readonly string[];
+  /**
+   * Occasion slugs from the brand record. Absence or empty is valid — the piece
+   * is still reachable by shop and search. Membership is editorial, like
+   * collections; it is not a new-arrival or featured flag.
+   */
+  readonly occasions?: readonly string[];
 
   /* Brand-owned — null until the business supplies it. Never defaulted. */
   readonly materialLine: BrandField;
