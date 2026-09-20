@@ -72,9 +72,9 @@ export function SiteHeader() {
           "z-20 border-b " +
           "transition-[background-color,color,border-color,padding] duration-[var(--duration-quick)] ease-[var(--ease-out)] " +
           (overlay
-            ? "border-transparent bg-transparent py-5 text-paper "
+            ? "border-transparent bg-transparent py-3 text-paper md:py-5 "
             : "bg-surface text-on-surface ") +
-          (overlay ? "" : scrolled ? "border-line py-3" : "border-transparent py-5")
+          (overlay ? "" : scrolled ? "border-line py-3" : "border-transparent py-3 md:py-5")
         }
       >
         <div className="page-gutter grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 lg:grid-cols-[1fr_auto_1fr]">

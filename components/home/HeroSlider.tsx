@@ -83,7 +83,7 @@ export function HeroSlider({ slides }: { slides: readonly HeroSlideView[] }) {
                   <div className="pointer-events-none absolute inset-0 z-[1] flex items-end md:items-center">
                     <div
                       data-surface="ink"
-                      className="w-full max-w-[22rem] bg-transparent px-6 pb-20 pt-24 md:max-w-[42rem] md:px-12 md:pb-28 md:pt-28 lg:px-16"
+                      className="w-full max-w-[22rem] bg-transparent px-6 pb-24 pt-24 md:max-w-[42rem] md:px-12 md:pb-28 md:pt-28 lg:px-16"
                     >
                       <p
                         data-hero-step={slideIndex === 0 ? "2" : undefined}

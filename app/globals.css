@@ -418,7 +418,7 @@
     }
   }
 
-  /* Featured merchandising grid. Mobile is a slightly wider snap than .rail;
+  /* Featured merchandising grid. Mobile is a two-up snap with a peek;
      from 768px a 2-column set (four rows at eight pieces), from 1024px four
      columns. Same photographs, no second crop. */
   .featured-set {
@@ -462,11 +462,12 @@
     }
   }
 
-  /* Occasions. Mobile snap rail; from 768px the first tile (wedding) is tall. */
+  /* Occasions. Mobile snap rail; from 768px the first tile (wedding) is tall.
+     Wider than .rail so overlay titles stay readable. */
   .occasion-set {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 46%;
+    grid-auto-columns: 68%;
     gap: 0.75rem;
     overflow-x: auto;
     overscroll-behavior-x: contain;
