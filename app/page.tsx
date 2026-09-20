@@ -11,7 +11,7 @@ import { Statement } from "@/components/home/Statement";
 /**
  * Merchandising homepage.
  *
- *   Hero         → Types        normal
+ *   Hero         → Types        tight on phone, normal from 768
  *   Types        → Arrivals     tight
  *   Arrivals     → Occasions    normal
  *   Occasions    → Collection   tight
@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Types className="mt-normal" />
+      <Types className="mt-tight md:mt-normal" />
       <NewArrivals className="mt-tight" />
       <Occasions className="mt-normal" />
       <Collection className="mt-tight" />

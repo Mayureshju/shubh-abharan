@@ -60,6 +60,12 @@ interface PlateCommon {
   /** Responsive sizes hint. Default assumes a full-width frame. */
   sizes?: string;
   priority?: boolean;
+  /**
+   * Fill the containing block instead of sizing from `aspect`. The parent must
+   * be positioned and have a height — the viewport hero and the collection
+   * split. Aspect remains on the record so a missing file still shows the brief.
+   */
+  cover?: boolean;
 }
 
 export type PlateProps = PlateCommon & (Described | Decorative) & (ScaleRole | OtherRole);
@@ -76,6 +82,7 @@ export function Plate(props: PlateProps) {
     position,
     role,
     dimension,
+    cover = false,
   } = props;
 
   const alt = "decorative" in props && props.decorative ? "" : (props.alt ?? "");
@@ -85,21 +92,31 @@ export function Plate(props: PlateProps) {
   // resolved value has to be reachable from a media query, and an inline style
   // cannot be overridden by a class — so the value moves into a custom
   // property that globals.css re-points at 768px.
-  const frameStyle: CSSProperties = aspectMd
-    ? ({
-        aspectRatio: "var(--plate-aspect)",
-        "--plate-aspect-sm": aspect,
-        "--plate-aspect-md": aspectMd,
-      } as CSSProperties)
-    : { aspectRatio: aspect };
+  const frameStyle: CSSProperties | undefined = cover
+    ? undefined
+    : aspectMd
+      ? ({
+          aspectRatio: "var(--plate-aspect)",
+          "--plate-aspect-sm": aspect,
+          "--plate-aspect-md": aspectMd,
+        } as CSSProperties)
+      : { aspectRatio: aspect };
+
+  const figureClass = [cover ? "absolute inset-0" : null, className]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <figure className={className}>
+    <figure className={figureClass || undefined}>
       <div
-        className="relative w-full overflow-hidden bg-[color-mix(in_oklab,var(--surface-fg)_6%,var(--surface-bg))]"
+        className={
+          cover
+            ? "absolute inset-0 overflow-hidden bg-[color-mix(in_oklab,var(--surface-fg)_6%,var(--surface-bg))]"
+            : "relative w-full overflow-hidden bg-[color-mix(in_oklab,var(--surface-fg)_6%,var(--surface-bg))]"
+        }
         style={frameStyle}
         data-plate-role={role}
-        data-plate-aspect-md={aspectMd ? "" : undefined}
+        data-plate-aspect-md={!cover && aspectMd ? "" : undefined}
       >
         {src ? (
           <Image
@@ -109,6 +126,7 @@ export function Plate(props: PlateProps) {
             fill
             sizes={sizes}
             priority={priority}
+            loading={priority ? "eager" : undefined}
             aria-hidden={isDecorative || undefined}
             style={position ? { objectPosition: position } : undefined}
             className="object-cover"

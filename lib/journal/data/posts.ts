@@ -17,7 +17,7 @@ export const posts: readonly JournalPost[] = [
       role: "macro",
       aspect: "4/5",
       aspectMd: "5/4",
-      src: "/images/collection.jpg",
+      src: "/images/collection-v2.jpg",
       crop: "kundan collar filling a still-life frame",
       alt: "A gold kundan necklace with emerald stones and pearl drops, laid across cream marble beside a fold of emerald silk.",
     },
@@ -34,7 +34,7 @@ export const posts: readonly JournalPost[] = [
     image: {
       role: "detail",
       aspect: "1/1",
-      src: "/images/category-earrings.jpg",
+      src: "/images/category-earrings-v2.jpg",
       crop: "pair of chandbalis centred on cream ground",
       alt: "A pair of gold chandbali earrings with emerald drops, laid on cream marble against emerald silk.",
     },

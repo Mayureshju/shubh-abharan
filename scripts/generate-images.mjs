@@ -53,6 +53,85 @@ const HOUSE_STYLE =
  * with `object-cover`, so a frame shot at the wrong ratio loses its composition
  * at the edges instead of being letterboxed.
  */
+/**
+ * Product-card stills. Category frames are shot for a circular CSS crop on the
+ * type index — some models return an actual circular vignette, which then sits
+ * in a square card as a round photograph. These eight are the catalog's card
+ * photographs: full-bleed 1:1, marble to every corner, no mask.
+ */
+const PRODUCT_CARD_STILL =
+  "Square 1:1 full-bleed catalog photograph for a product card. " +
+  "The picture must fill all four corners of the square — marble or silk must reach the edges. " +
+  "Forbidden: circular vignette, round mask, white or empty corners, oval crop, " +
+  "round marble disc used as a circular frame, circular studio sweep. " +
+  "Set: a rectangular cream marble slab and a fold of emerald green silk, " +
+  "soft daylight from camera-left, camera looking slightly down, same colour grade as the house. " +
+  "Jewellery centred, occupying most of the square. No person. No text. No logo.";
+
+const PRODUCT_CARD_FRAMES = [
+  {
+    id: "product-necklace",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: a circular gold kundan necklace with emerald drops, laid flat on the marble. " +
+      "The necklace is round; the photograph is not.",
+  },
+  {
+    id: "product-collar",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: a floral gold kundan collar with emerald stones, uncut diamonds and pearl drops, " +
+      "laid across the marble so the central pendant is visible.",
+  },
+  {
+    id: "product-earrings",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: a pair of gold chandbali earrings with emerald drops, laid as a pair on the marble.",
+  },
+  {
+    id: "product-pendant",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: a gold kundan pendant with an emerald drop on a short chain, resting on the marble. " +
+      "Do not place it on a round stone.",
+  },
+  {
+    id: "product-rings",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: two stacked gold rings with emerald and uncut-diamond settings, sitting on the marble.",
+  },
+  {
+    id: "product-bangles",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: a pair of gold kundan bangles with emerald stones, overlapping on the marble.",
+  },
+  {
+    id: "product-bridal-set",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: the bridal set laid out — circular gold kundan necklace with emerald drops and " +
+      "the matching pair of chandbali earrings, together on the marble.",
+  },
+  {
+    id: "product-chain",
+    aspect: "1:1",
+    prompt:
+      `${PRODUCT_CARD_STILL} ` +
+      "Subject: a longer fine gold chain with the same kundan pendant and emerald drop, " +
+      "the chain looping across the marble so the piece reads as a chain-and-pendant, not a stud.",
+  },
+];
+
 const FRAMES = [
   {
     id: "hero",
@@ -66,6 +145,23 @@ const FRAMES = [
       "eye contact with camera.",
   },
   {
+    id: "hero-2",
+    aspect: "16:9",
+    prompt:
+      "Same sitting as the hero frame: the same South Asian woman, same emerald green silk saree, " +
+      "same gold kundan necklace with emerald drops, same chandbali earrings, same maang tikka, " +
+      "same palm foliage. She turns slightly toward the camera, right hand still at the collarbone. " +
+      "Wide 16:9, figure in the right half, darker foliage on the left for overlay type. No text.",
+  },
+  {
+    id: "hero-3",
+    aspect: "16:9",
+    prompt:
+      "Same sitting as the hero frame: the same woman, same jewellery, same saree, same foliage. " +
+      "Three-quarter profile looking left, necklace fully visible, no hand on the collar. " +
+      "Wide 16:9, figure in the right half, darker foliage on the left. No text.",
+  },
+  {
     id: "collection",
     aspect: "5:4",
     prompt:
@@ -73,6 +169,21 @@ const FRAMES = [
       "collar with a central pendant — filling most of the frame on a cream marble slab. " +
       "Warm side light, the piece centred so a circular or rectangular crop keeps the necklace intact. " +
       "No person. No text.",
+  },
+  {
+    id: "collection-2",
+    aspect: "4:3",
+    prompt:
+      "The same floral gold kundan collar with emerald stones, uncut diamonds and pearl drops as the " +
+      "collection frame, photographed more frontally on cream marble with a fold of emerald silk. " +
+      "No person. No text.",
+  },
+  {
+    id: "collection-3",
+    aspect: "4:3",
+    prompt:
+      "The same floral gold kundan collar with emerald stones, uncut diamonds and pearl drops as the " +
+      "collection frame, now laid on dark green marble so the piece fills the frame. No person. No text.",
   },
   {
     id: "detail",
@@ -128,6 +239,14 @@ const FRAMES = [
       "Square product still life on a soft cream ground. A single gold pendant on a short chain, " +
       "centred so a circular crop keeps the whole piece. Soft even light, no person.",
   },
+  {
+    id: "category-bangles",
+    aspect: "1:1",
+    prompt:
+      "Square product still life on a soft cream ground. Three stacked gold kundan bangles with " +
+      "emerald stones, perfectly centred so a circular crop keeps the stack. Soft even light, no person.",
+  },
+  ...PRODUCT_CARD_FRAMES,
 ];
 
 function loadKey() {

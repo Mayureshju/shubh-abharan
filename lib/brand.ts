@@ -28,7 +28,7 @@ export interface HeroSlide {
    * Key into the homepage slide plates. The photograph is declared in
    * `components/home/plates.ts`, not here — this record owns the copy.
    */
-  readonly plate: "hero" | "campaign" | "collection" | "detail";
+  readonly plate: "hero" | "heroTwo" | "heroThree";
   readonly eyebrow: BrandField;
   /**
    * Overlay title for slides after the first. The first slide uses the brand
@@ -43,6 +43,12 @@ export interface HeroSlide {
 export interface HomepageMerchandising {
   /** Product slugs, editorial order. Empty omits the section. */
   readonly newArrivalSlugs: readonly string[];
+  /**
+   * Desktop pages of the new-arrivals rail. 1–4 rows × 4 columns per page.
+   * Mobile ignores this and stays a snap rail. Same product photographs at
+   * every row count — the grid only changes how many cards sit on a page.
+   */
+  readonly newArrivalRows: 1 | 2 | 3 | 4;
   /** Product slugs, editorial order. Empty omits the section. */
   readonly featuredSlugs: readonly string[];
 }
@@ -163,26 +169,18 @@ export const brand: Brand = {
       ctaHref: "/shop",
     },
     {
-      plate: "campaign",
-      eyebrow: "Worn in lamplight",
-      heading: "Kundan against silk",
-      support: "Necklace, stacked bangles and rings in a lamp-lit interior.",
+      plate: "heroTwo",
+      eyebrow: "Timeless elegance in every detail",
+      heading: "The set, toward the camera",
+      support: "Necklace, chandbalis and maang tikka — a second frame from the same sitting.",
       ctaLabel: "Shop Now",
       ctaHref: "/shop",
     },
     {
-      plate: "collection",
-      eyebrow: "Still life",
-      heading: "A collar on marble",
-      support: "Gold kundan, emerald stones and pearl drops on cream stone.",
-      ctaLabel: "Shop the collection",
-      ctaHref: "/collections/modern-classics",
-    },
-    {
-      plate: "detail",
-      eyebrow: "Close work",
-      heading: "Bezel and granulation",
-      support: "A gold disc closed by hand around a cabochon.",
+      plate: "heroThree",
+      eyebrow: "Timeless elegance in every detail",
+      heading: "Collar in profile",
+      support: "The kundan collar and chandbali in three-quarter against palm foliage.",
       ctaLabel: "Shop Now",
       ctaHref: "/shop",
     },
@@ -230,11 +228,16 @@ export const brand: Brand = {
       "emerald-drop-pendant",
       "chain-and-pendant",
     ],
+    newArrivalRows: 1,
     featuredSlugs: [
       "emerald-silk-bridal-set",
       "floral-kundan-collar",
       "stacked-emerald-rings",
       "kundan-bangles",
+      "emerald-drop-kundan-necklace",
+      "chandbali-earrings",
+      "emerald-drop-pendant",
+      "chain-and-pendant",
     ],
   },
 
@@ -285,4 +288,8 @@ if (brand.occasions.length > 3) {
 
 if (brand.heroSlides.length > 4) {
   throw new Error("The hero slider is capped at four frames.");
+}
+
+if (![1, 2, 3, 4].includes(brand.homepage.newArrivalRows)) {
+  throw new Error("New-arrival rows must be 1, 2, 3 or 4.");
 }

@@ -56,7 +56,7 @@ can be reviewed. They are not business-supplied inventory or a CMS.
 | Hero eyebrow | SUPPLIED 2026-09-20 | Timeless elegance in every detail |
 | Hero heading | SUPPLIED 2026-09-20 | Shubha Abharan (the brand name) |
 | Hero support | SUPPLIED 2026-09-20 | Exquisite Jewellery for Every Moment of Your Life |
-| Hero slides | DEVELOPMENT 2026-09-20 | Four frames: `hero`, `campaign`, `collection`, `detail` — copy in `brand.heroSlides` |
+| Hero slides | DEVELOPMENT 2026-09-20 | Three frames from the same sitting: `hero`, `heroTwo`, `heroThree` — copy in `brand.heroSlides` |
 | Closing statement | SUPPLIED 2026-09-20 | Because You Deserve to Shine |
 | Closing support | SUPPLIED 2026-09-20 | Jewellery that celebrates you. |
 | Footer brand statement | SUPPLIED 2026-09-20 | Grace in Every Gem |
@@ -67,7 +67,8 @@ can be reviewed. They are not business-supplied inventory or a CMS.
 | Reasons — Secure Shopping | SUPPLIED 2026-09-20 | Safe & hassle-free experience |
 | Occasions | DEVELOPMENT 2026-09-20 | Wedding, Festive, Everyday |
 | New arrival slugs | DEVELOPMENT 2026-09-20 | emerald-drop-kundan-necklace, chandbali-earrings, emerald-drop-pendant, chain-and-pendant |
-| Featured slugs | DEVELOPMENT 2026-09-20 | emerald-silk-bridal-set, floral-kundan-collar, stacked-emerald-rings, kundan-bangles |
+| New arrival rows | DEVELOPMENT 2026-09-20 | `1` — desktop grid pages at 1–4 rows; same photographs |
+| Featured slugs | DEVELOPMENT 2026-09-20 | emerald-silk-bridal-set, floral-kundan-collar, stacked-emerald-rings, kundan-bangles, emerald-drop-kundan-necklace, chandbali-earrings, emerald-drop-pendant, chain-and-pendant |
 
 The four reasons are the Why Choose row. They are claims. They render because
 the business supplied them on the mood board, not because the copy rule was
@@ -84,19 +85,45 @@ and `alt` in `plates.ts` and this table, and no component changes.
 `position` is set where the subject is deliberately off-axis and a narrower crop
 would otherwise cut it.
 
+Hero slides 2–3 and the extra collection frames reuse the same jewellery as the
+primary hero and collection stills — a different pose or surface, not a
+different piece.
+
 | Slot | Role | Aspect | Intended crop | Status | Prompt id |
 | --- | --- | --- | --- | --- | --- |
 | Hero | `worn` | `4/5` below 768px, `16/9` from 768px, position `72% 40%` | Figure right, room at left for overlay type | GENERATED 2026-09-19 | `hero` |
+| Hero 2 | `worn` | `4/5` below 768px, `16/9` from 768px, position `68% 40%` | Same sitting, toward camera | GENERATED 2026-09-20 | `hero-2` |
+| Hero 3 | `worn` | `4/5` below 768px, `16/9` from 768px, position `72% 38%` | Same sitting, three-quarter profile | GENERATED 2026-09-20 | `hero-3` |
 | Collection | `macro` | `4/5` below 768px, `5/4` from 768px | Necklace filling a split panel | GENERATED 2026-09-19 | `collection` |
+| Collection 2 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar, frontal on cream marble | GENERATED 2026-09-20 | `collection-2` |
+| Collection 3 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar on dark green marble | GENERATED 2026-09-20 | `collection-3` |
 | Detail | `detail` | `1/1` | Unused on the homepage after `clone-shubha-moodboard` | GENERATED 2026-09-19 | `detail` |
 | Closing campaign | `worn` | `4/5` below 768px, `16/9` from 768px, position `60% 50%` | Figure in a lit interior, room for overlay type | GENERATED 2026-09-19 | `campaign` |
 | Type — Necklaces | `macro` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-necklaces` |
 | Type — Rings | `macro` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-rings` |
 | Type — Bracelets | `worn` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-bracelets` |
 | Type — Earrings | `detail` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-earrings` |
-| Type — Pendants | `macro` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-pendants` |
+| Type — Bangles | `macro` | `1/1` | Centred stack, circular crop | GENERATED 2026-09-20 | `category-bangles` |
+| Type — Pendants | `macro` | `1/1` | Product photography; not on the type index | GENERATED 2026-09-19 | `category-pendants` |
 
-The five type frames are identically square so a circular crop can take them.
+The type-index frames are identically square so a circular crop can take them.
+Bracelets and Bangles both resolve to the catalog `bracelet` filter; the
+photographs differ.
+
+Product cards do **not** reuse those type stills. Eight dedicated `product-*`
+frames are full-bleed 1:1 catalog photographs (no circular vignette) so every
+card in New arrivals and Featured is the same square.
+
+| Slot | Role | Aspect | Intended crop | Status | Prompt id |
+| --- | --- | --- | --- | --- | --- |
+| Card — Necklace | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-necklace` |
+| Card — Collar | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-collar` |
+| Card — Earrings | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-earrings` |
+| Card — Pendant | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-pendant` |
+| Card — Rings | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-rings` |
+| Card — Bangles | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-bangles` |
+| Card — Bridal set | `macro` | `1/1` | Necklace and chandbalis on cream marble | GENERATED 2026-09-20 | `product-bridal-set` |
+| Card — Chain | `macro` | `1/1` | Pendant on a looping chain, cream marble | GENERATED 2026-09-20 | `product-chain` |
 
 The hero and the closing frame are shot to two ratios. Overlay type sits on both.
 

@@ -40,7 +40,7 @@ export const HERO_PLATE: EditorialPlate = {
   role: "worn",
   aspect: "4/5",
   aspectMd: "16/9",
-  src: "/images/hero.jpg",
+  src: "/images/hero-worn.jpg",
   position: "72% 40%",
   crop: "figure at three-quarter, jewellery on the collarbone, empty ground to the left for overlay type",
   alt: "A woman in an emerald silk saree stands against palm foliage, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka, one hand at her collarbone.",
@@ -56,7 +56,7 @@ export const COLLECTION_PLATE: EditorialPlate = {
   role: "macro",
   aspect: "4/5",
   aspectMd: "5/4",
-  src: "/images/collection.jpg",
+  src: "/images/collection-v2.jpg",
   crop: "necklace filling the right half of a split, cream ground, centre-weighted",
   alt: "A gold kundan necklace with emerald stones and pearl drops, laid across cream marble beside a fold of emerald silk.",
 };
@@ -103,28 +103,28 @@ export const CATEGORY_PLATES = {
   necklace: {
     role: "macro",
     aspect: "1/1",
-    src: "/images/category-necklaces.jpg",
+    src: "/images/category-necklaces-v2.jpg",
     crop: "necklace centred on cream ground, circular crop",
     alt: "A circular gold kundan necklace with emerald drops, centred on cream marble beside emerald silk.",
   },
   ring: {
     role: "macro",
     aspect: "1/1",
-    src: "/images/category-rings.jpg",
+    src: "/images/category-rings-v2.jpg",
     crop: "rings centred on cream ground, circular crop",
     alt: "Two stacked gold rings set with emeralds and uncut diamonds, centred on cream linen.",
   },
   bracelet: {
     role: "worn",
     aspect: "1/1",
-    src: "/images/category-bracelets.jpg",
+    src: "/images/category-bracelets-v2.jpg",
     crop: "bracelet centred on cream ground, circular crop",
     alt: "A pair of gold kundan bangles with emerald stones, resting on emerald and cream silk.",
   },
   earring: {
     role: "detail",
     aspect: "1/1",
-    src: "/images/category-earrings.jpg",
+    src: "/images/category-earrings-v2.jpg",
     crop: "earrings centred on cream ground, circular crop",
     alt: "A pair of gold chandbali earrings with emerald drops, laid on cream marble against emerald silk.",
   },
@@ -138,36 +138,86 @@ export const CATEGORY_PLATES = {
 } satisfies Readonly<Partial<Record<Category, EditorialPlate>>>;
 
 /**
- * Hero slider frames. Same sources as the editorial plates, forced onto the
- * hero's dual aspect so a still-life or square detail does not collapse the
- * band when it becomes the active slide.
+ * Second and third hero frames. Same sitting, same jewellery as `HERO_PLATE` —
+ * a different pose, not a different piece. Forced onto the hero's dual aspect
+ * so the viewport band does not collapse.
+ */
+export const HERO_TWO_PLATE: EditorialPlate = {
+  role: "worn",
+  aspect: "4/5",
+  aspectMd: "16/9",
+  src: "/images/hero-2.jpg",
+  position: "68% 40%",
+  crop: "figure at three-quarter toward camera, jewellery on the collarbone, empty ground to the left for overlay type",
+  alt: "A woman in an emerald silk saree looks toward the camera, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka, one hand at her collarbone.",
+};
+
+export const HERO_THREE_PLATE: EditorialPlate = {
+  role: "worn",
+  aspect: "4/5",
+  aspectMd: "16/9",
+  src: "/images/hero-3.jpg",
+  position: "72% 38%",
+  crop: "figure in three-quarter profile, full collar visible, empty ground to the left for overlay type",
+  alt: "A woman in an emerald silk saree in three-quarter profile against palm foliage, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka.",
+};
+
+/**
+ * Hero slider frames. Three portraits from the same sitting so the jewellery
+ * does not change between slides.
  */
 export const HERO_SLIDE_PLATES = {
   hero: HERO_PLATE,
-  campaign: {
-    ...CAMPAIGN_PLATE,
-    aspect: "4/5" as const,
-    aspectMd: "16/9" as const,
-  },
-  collection: {
-    ...COLLECTION_PLATE,
-    aspect: "4/5" as const,
-    aspectMd: "16/9" as const,
-    position: "50% 45%",
-  },
-  detail: {
-    ...DETAIL_PLATE,
-    aspect: "4/5" as const,
-    aspectMd: "16/9" as const,
-    position: "50% 50%",
-  },
-} satisfies Record<"hero" | "campaign" | "collection" | "detail", EditorialPlate>;
+  heroTwo: HERO_TWO_PLATE,
+  heroThree: HERO_THREE_PLATE,
+} satisfies Record<"hero" | "heroTwo" | "heroThree", EditorialPlate>;
+
+/**
+ * The same floral kundan collar as `COLLECTION_PLATE`, two further frames —
+ * one more frontal on cream marble, one on dark green marble for the split.
+ */
+export const COLLECTION_TWO_PLATE: EditorialPlate = {
+  role: "macro",
+  aspect: "4/5",
+  aspectMd: "5/4",
+  src: "/images/collection-2.jpg",
+  crop: "floral kundan collar filling the frame on cream marble",
+  alt: "A gold kundan necklace with emerald stones and pearl drops, photographed frontally on cream marble beside a fold of emerald silk.",
+};
+
+export const COLLECTION_THREE_PLATE: EditorialPlate = {
+  role: "macro",
+  aspect: "4/5",
+  aspectMd: "5/4",
+  src: "/images/collection-3.jpg",
+  crop: "floral kundan collar filling the frame on dark green marble",
+  alt: "A gold kundan necklace with emerald stones and pearl drops, laid across dark green marble.",
+};
+
+/** Collection split: dark-marble frame first, then the two cream-marble frames. */
+export const COLLECTION_SLIDES: readonly EditorialPlate[] = [
+  COLLECTION_THREE_PLATE,
+  COLLECTION_PLATE,
+  COLLECTION_TWO_PLATE,
+];
+
+/**
+ * Stacked bangles for the fifth type still. Same metalwork as the bracelet
+ * plate; a different arrangement so Bracelets and Bangles do not share a frame.
+ */
+export const BANGLES_PLATE: EditorialPlate = {
+  role: "macro",
+  aspect: "1/1",
+  src: "/images/category-bangles.jpg",
+  crop: "three stacked gold kundan bangles centred on cream marble, circular crop",
+  alt: "Three stacked gold kundan bangles with emerald stones, centred on cream marble beside a fold of emerald silk.",
+};
 
 export const OCCASION_PLATES = {
   wedding: {
     role: "worn",
     aspect: "4/5",
-    src: "/images/hero.jpg",
+    src: "/images/hero-worn.jpg",
     position: "72% 40%",
     crop: "bridal set worn against foliage",
     alt: "A woman in an emerald silk saree wearing a gold kundan necklace, chandbali earrings and a maang tikka.",
@@ -175,7 +225,7 @@ export const OCCASION_PLATES = {
   festive: {
     role: "macro",
     aspect: "4/5",
-    src: "/images/collection.jpg",
+    src: "/images/collection-v2.jpg",
     crop: "kundan collar on marble",
     alt: "A gold kundan necklace with emerald stones and pearl drops, laid across cream marble.",
   },

@@ -1,14 +1,16 @@
+import Link from "next/link";
 import { Reveal } from "@/components/primitives/Reveal";
 import { ProductCard } from "@/components/product/ProductCard";
+import { buttonClass } from "@/components/ui/buttonClass";
+import { ArrowIcon } from "@/components/ui/icons";
 import { brand } from "@/lib/brand";
 import { getProductsBySlugs, toProductCardProduct } from "@/lib/catalog";
-import type { PlateRole } from "@/components/editorial/Plate";
-
-const ROLES: readonly PlateRole[] = ["worn", "macro", "macro", "detail"];
 
 /**
- * Brand-owned featured slugs. Mixed grid from 768px — not a second copy of
- * the new-arrivals rail. Empty list omits the section.
+ * Brand-owned featured slugs in a regular merchandising grid — 2 columns
+ * from 768px (four rows at eight pieces), 4 columns from 1024px. Same 1/1
+ * crop as new arrivals so the two sections differ by composition, not by
+ * card geometry. Empty list omits the section.
  */
 
 export async function Featured({ className }: { className?: string }) {
@@ -27,18 +29,22 @@ export async function Featured({ className }: { className?: string }) {
         </div>
 
         <div className="featured-set mt-tight">
-          {products.map((product, index) => (
+          {products.map((product) => (
             <ProductCard
               key={product.slug}
-              product={toProductCardProduct(product, ROLES[index] ?? "macro")}
-                sizes={
-                  index === 0
-                    ? "(min-width: 768px) 45vw, 80vw"
-                    : "(min-width: 768px) 28vw, 80vw"
-                }
+              product={toProductCardProduct(product, "macro")}
+              portrait
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 46vw"
             />
           ))}
         </div>
+
+        <p className="mt-tight">
+          <Link href="/shop" className={buttonClass("quiet")}>
+            See all
+            <ArrowIcon />
+          </Link>
+        </p>
       </div>
     </Reveal>
   );

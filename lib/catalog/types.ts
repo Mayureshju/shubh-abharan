@@ -259,6 +259,7 @@ export type CardImage =
       alt: string;
       aspect: string;
       crop?: string;
+      position?: string;
     }
   | {
       role: Exclude<PlateProps["role"], "scale">;
@@ -267,6 +268,7 @@ export type CardImage =
       alt: string;
       aspect: string;
       crop?: string;
+      position?: string;
     };
 
 export interface ProductCardProduct {

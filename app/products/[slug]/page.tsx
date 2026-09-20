@@ -85,7 +85,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
               <ProductCard
                 key={item.slug}
                 product={toProductCardProduct(item)}
-                sizes="(min-width: 768px) 25vw, 72vw"
+                sizes="(min-width: 768px) 25vw, 46vw"
               />
             ))}
           </div>

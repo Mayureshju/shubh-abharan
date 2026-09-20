@@ -30,12 +30,18 @@ export function ProductCard({
   className,
   sizes = "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw",
   priority = false,
+  portrait = false,
 }: {
   product: ProductCardProduct;
   /** Grid span is the parent's decision — listings vary it deliberately. */
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /**
+   * Shared 1/1 crop for merchandising rails. Specimen and mixed listings
+   * leave this off so role still drives aspect and padding.
+   */
+  portrait?: boolean;
 }) {
   const { image } = product;
 
@@ -52,11 +58,20 @@ export function ProductCard({
     <article className={className}>
       {/* One link, one tab stop, whole card is the pointer target. */}
       <Link href={`/products/${product.slug}`} className="group block focus-visible:outline-2 focus-visible:outline-offset-4">
-        <div className={`plate-zoom bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))] ${frame}`}>
-          <Plate {...image} sizes={sizes} priority={priority} />
-        </div>
+        {portrait ? (
+          <div
+            className="plate-zoom relative overflow-hidden bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))]"
+            style={{ aspectRatio: "1/1" }}
+          >
+            <Plate {...image} cover sizes={sizes} priority={priority} />
+          </div>
+        ) : (
+          <div className={`plate-zoom bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))] ${frame}`}>
+            <Plate {...image} sizes={sizes} priority={priority} />
+          </div>
+        )}
 
-        <div className="mt-4 flex items-baseline justify-between gap-4">
+        <div className="mt-2.5 flex items-baseline justify-between gap-3 md:mt-4 md:gap-4">
           <h3 className="text-body group-hover:underline underline-offset-4">{product.name}</h3>
           <p className="text-caption uppercase text-muted">{product.price}</p>
         </div>

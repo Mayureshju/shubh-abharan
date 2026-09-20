@@ -33,13 +33,13 @@ export function Occasions({ className }: { className?: string }) {
                   className="group block focus-visible:outline-2 focus-visible:outline-offset-4"
                 >
                   {plate ? (
-                    <Plate {...plate} sizes="(min-width: 768px) 50vw, 78vw" />
+                    <Plate {...plate} sizes="(min-width: 768px) 50vw, 46vw" />
                   ) : null}
                   {/* slop-check: allow scrim — overlay type on photography */}
                   <div className="pointer-events-none absolute inset-0 bg-ink/45" />
                   <div
                     data-surface="ink"
-                    className="absolute inset-0 flex flex-col justify-end bg-transparent px-6 py-6"
+                    className="absolute inset-0 flex flex-col justify-end bg-transparent px-4 py-4 md:px-6 md:py-6"
                   >
                     <h3 className="text-title text-paper">{occasion.name}</h3>
                     <p className="mt-2 max-w-measure text-caption text-muted">

@@ -2,13 +2,11 @@ import { Reveal } from "@/components/primitives/Reveal";
 import { ProductCard } from "@/components/product/ProductCard";
 import { brand } from "@/lib/brand";
 import { getProductsBySlugs, toProductCardProduct } from "@/lib/catalog";
-import type { PlateRole } from "@/components/editorial/Plate";
-
-const ROLES: readonly PlateRole[] = ["macro", "worn", "detail", "macro"];
+import { RowSlider } from "./RowSlider";
 
 /**
- * Brand-owned new-arrival slugs, in declared order. Mixed roles stop the rail
- * reading as four identical cards. Empty list omits the section.
+ * Brand-owned new-arrival slugs, in declared order. Cards share a 1/1 crop
+ * so the looping rail reads as one strip, not mixed frames. Empty omits.
  */
 
 export async function NewArrivals({ className }: { className?: string }) {
@@ -21,20 +19,25 @@ export async function NewArrivals({ className }: { className?: string }) {
   return (
     <Reveal as="section" className={className}>
       <div className="page-gutter">
-        <div>
-          <p className="text-caption uppercase tracking-[0.22em] text-gold">New arrivals</p>
-          <h2 className="mt-3 text-title">Just in</h2>
-        </div>
-
-        <div className="rail mt-tight [--rail-columns:4]">
+        <RowSlider
+          label="New arrivals"
+          heading={
+            <div>
+              <p className="text-caption uppercase tracking-[0.22em] text-gold">New arrivals</p>
+              <h2 className="mt-3 text-title">Just in</h2>
+            </div>
+          }
+        >
           {products.map((product, index) => (
             <ProductCard
               key={product.slug}
-              product={toProductCardProduct(product, ROLES[index] ?? "macro")}
-              sizes="(min-width: 768px) 25vw, 72vw"
+              product={toProductCardProduct(product, "macro")}
+              portrait
+              priority={index < 4}
+              sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 46vw"
             />
           ))}
-        </div>
+        </RowSlider>
       </div>
     </Reveal>
   );
