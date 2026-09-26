@@ -18,7 +18,7 @@ export async function Journal({ className }: { className?: string }) {
     <Reveal as="section" className={className}>
       <div className="page-gutter">
         <div>
-          <p className="text-caption uppercase tracking-[0.22em] text-gold">From the journal</p>
+          <p className="text-caption uppercase tracking-[0.22em] text-accent">From the journal</p>
           <h2 className="mt-3 text-title">Three frames</h2>
         </div>
 
@@ -31,7 +31,7 @@ export async function Journal({ className }: { className?: string }) {
               <div className="plate-zoom overflow-hidden rounded-frame">
                 <Plate {...featured.image} sizes="(min-width: 1024px) 55vw, 100vw" />
               </div>
-              <p className="mt-4 text-caption uppercase tracking-[0.18em] text-gold">
+              <p className="mt-4 text-caption uppercase tracking-[0.18em] text-accent">
                 {formatPublishedOn(featured.publishedOn)}
               </p>
               <h3 className="mt-2 text-title group-hover:underline underline-offset-4">
@@ -52,7 +52,7 @@ export async function Journal({ className }: { className?: string }) {
                     <Plate {...post.image} sizes="144px" />
                   </div>
                   <div className="min-w-0 self-center">
-                    <p className="text-caption uppercase tracking-[0.18em] text-gold">
+                    <p className="text-caption uppercase tracking-[0.18em] text-accent">
                       {formatPublishedOn(post.publishedOn)}
                     </p>
                     <h3 className="mt-2 text-body group-hover:underline underline-offset-4">

@@ -36,7 +36,7 @@ export async function Collection({ className }: { className?: string }) {
           data-surface="ink"
           className="flex flex-col justify-center px-6 py-8 md:px-12 md:py-normal lg:px-16"
         >
-          <p className="text-caption uppercase tracking-[0.22em] text-gold">Featured collection</p>
+          <p className="text-caption uppercase tracking-[0.22em] text-accent">Featured collection</p>
           <h2 className="mt-4 text-title text-paper">
             {name}
             <span className="mt-1 block">{tagline}</span>

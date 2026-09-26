@@ -9,10 +9,9 @@
  * Two rules govern what may exist in this file:
  *
  *   1. There is no field for a rating, review, review count, testimonial,
- *      compare-at price, discount, sale flag, stock count, countdown or
- *      bestseller marker. Their absence is the enforcement — a surface cannot
- *      render what the type does not carry. `scripts/check-catalog.mjs` fails
- *      the build if one is reintroduced.
+ *      stock count, countdown or bestseller marker. Sale price is an authored
+ *      offer on a variant, never a generated badge. `scripts/check-catalog.mjs`
+ *      allows `salePrice` and fails the build if a forbidden field is reintroduced.
  *
  *   2. Values owned by the business are nullable and resolve through
  *      `lib/brand.ts`. Structural values — identity, category, axes, image
@@ -73,10 +72,11 @@ export interface Money {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Closed by design. Category is the type filter on the shop surface; it is
- * never top-level navigation, which is collection-led.
+ * Category is the type filter on the shop surface, keyed by the category
+ * record's slug. It is never top-level navigation, which is collection-led.
+ * Seeded slugs remain ring, necklace, pendant, earring, bracelet, set.
  */
-export type Category = "ring" | "necklace" | "pendant" | "earring" | "bracelet" | "set";
+export type Category = string;
 
 /**
  * A named editorial grouping, sourced from the brand record. Membership is
@@ -88,6 +88,7 @@ export interface Collection {
   readonly description: BrandField;
   /** Product slugs, in the order the collection presents them. */
   readonly productSlugs: readonly string[];
+  readonly tags?: readonly string[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -115,6 +116,11 @@ export interface ProductVariant {
   readonly options: Readonly<Partial<Record<VariantAxis, string>>>;
   /** Null until the business supplies it. Price is carried here because configuration affects cost. */
   readonly price: Money | null;
+  /** Authored offer. Absent or null means there is no sale on this variant. */
+  readonly salePrice?: Money | null;
+  /** Derived at read time from list, sale, and active hike rules. Never persisted. */
+  readonly payablePrice?: Money | null;
+  readonly comparePrice?: Money | null;
   /**
    * Required and non-nullable, deliberately. An absent availability has no safe
    * default: `available` is an invented inventory claim and `unavailable`
@@ -184,6 +190,12 @@ export interface Product {
   readonly slug: string;
   readonly name: string;
   readonly category: Category;
+  readonly tags?: readonly string[];
+  readonly isNew?: boolean;
+  readonly isFeatured?: boolean;
+  /** When true, the product offers a size axis; `sizes` is the ordered value list. */
+  readonly isSize?: boolean;
+  readonly sizes?: readonly string[];
   /** The axes this product offers. Empty when it offers no choice. */
   readonly options: readonly ProductOption[];
   readonly variants: readonly [ProductVariant, ...ProductVariant[]];
@@ -202,6 +214,10 @@ export interface Product {
   readonly description: BrandField;
   readonly care: BrandField;
 
+  /* Admin-authored search metadata. Absent means fall back to name/description. */
+  readonly seoTitle?: string | null;
+  readonly seoDescription?: string | null;
+
   /* Optional. Absence is the default. */
   readonly attributes?: readonly ProductAttribute[];
   readonly labels?: readonly ProductLabel[];
@@ -209,6 +225,11 @@ export interface Product {
   readonly relatedSlugs?: readonly string[];
   /** For the `set` category: the products that compose it. */
   readonly componentSlugs?: readonly string[];
+  /** Derived at read time from the cheapest variant after sale and hike. */
+  readonly quote?: {
+    readonly payable: Money | null;
+    readonly compare: Money | null;
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -274,8 +295,10 @@ export type CardImage =
 export interface ProductCardProduct {
   slug: string;
   name: string;
-  /** Already formatted, or a marked placeholder. See money.ts. */
+  /** Already formatted payable amount, or a marked placeholder. See money.ts. */
   price: string;
+  /** Formatted compare figure when higher than payable. Struck in type, never a badge. */
+  comparePrice?: string;
   /** e.g. "9ct recycled gold · 1.2mm" — a measurable fact, per the copy rule. */
   materialLine: string;
   image: CardImage;

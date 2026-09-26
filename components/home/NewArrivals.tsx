@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/primitives/Reveal";
 import { ProductCard } from "@/components/product/ProductCard";
 import { brand } from "@/lib/brand";
-import { getProductsBySlugs, toProductCardProduct } from "@/lib/catalog";
+import { getProductsBySlugs, listProducts, toProductCardProduct } from "@/lib/catalog";
 import { RowSlider } from "./RowSlider";
 
 /**
@@ -10,10 +10,9 @@ import { RowSlider } from "./RowSlider";
  */
 
 export async function NewArrivals({ className }: { className?: string }) {
-  const slugs = brand.homepage.newArrivalSlugs;
-  if (slugs.length === 0) return null;
-
-  const products = await getProductsBySlugs(slugs);
+  const flagged = await listProducts({ isNew: true });
+  const products =
+    flagged.length > 0 ? flagged : await getProductsBySlugs(brand.homepage.newArrivalSlugs);
   if (products.length === 0) return null;
 
   return (
@@ -23,7 +22,7 @@ export async function NewArrivals({ className }: { className?: string }) {
           label="New arrivals"
           heading={
             <div>
-              <p className="text-caption uppercase tracking-[0.22em] text-gold">New arrivals</p>
+              <p className="text-caption uppercase tracking-[0.22em] text-accent">New arrivals</p>
               <h2 className="mt-3 text-title">Just in</h2>
             </div>
           }

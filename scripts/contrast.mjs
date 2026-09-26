@@ -70,8 +70,8 @@ function contrastLinear(fgLinear, bg) {
 
 // ---------------------------------------------------------------------------
 // Tokens. Cream / charcoal / brown sit under a chroma ceiling of 0.02.
-// Royal green (`ink`) and gold are named exemptions — see
-// clone-shubha-moodboard/design.md, Decision 1. An unnamed token above the
+// Aubergine (`ink`), gold and lavender are named exemptions — see
+// apply-logo-palette/proposal.md. An unnamed token above the
 // ceiling still fails. Gold is allowed in the metal hue band because it is
 // named; any other metal-band token is not.
 // ---------------------------------------------------------------------------
@@ -79,20 +79,24 @@ const CHROMA_CEILING = 0.02;
 
 /** Tokens permitted past the ceiling, and why. */
 const EXEMPT = {
-  ink: "royal green surface supplied by the mood board (#0F3D33)",
-  gold: "gold accent supplied by the mood board (#D4AF37)",
+  ink: "aubergine surface, the deep shade of the logo lilac",
+  gold: "soft gold of the logo outlines",
+  lavender: "lilac fill of the Shubh Abharan logo",
+  lilac: "deep lilac of the logo's small capitals, the accent text colour on paper",
 };
 
 /** Hue band reserved for unnamed metal. Named `gold` is exempted above. */
 const HUE_EXCLUSION = { from: 60, to: 110, label: "warm metal" };
 
 export const TOKENS = {
-  paper: [0.9793, 0.007, 88.64], // Cream          #FAF8F3
-  charcoal: [0.2178, 0, 89.88], // Charcoal        #1A1A1A
-  ink: [0.326, 0.0523, 175.48], // Royal Green     #0F3D33
-  graphite: [0.3185, 0.0176, 18.11], // Deep Brown  #3B2F2F
-  "graphite-inverse": [0.8156, 0.0178, 84.59], // Cream-grey #C8C2B6
-  gold: [0.7665, 0.1387, 91.06], // Gold            #D4AF37
+  paper: [0.975, 0.01, 80], // Ivory
+  charcoal: [0.2178, 0, 89.88], // Charcoal
+  ink: [0.31, 0.06, 305], // Aubergine
+  graphite: [0.36, 0.02, 310], // Plum-grey
+  "graphite-inverse": [0.84, 0.02, 305], // Lilac-mist
+  gold: [0.73, 0.09, 80], // Soft gold
+  lavender: [0.72, 0.1, 300], // Logo lilac
+  lilac: [0.5, 0.11, 300], // Deep lilac
 };
 
 const HAIRLINE_ALPHA = 0.14;
@@ -109,6 +113,12 @@ const CHECKS = [
   ["charcoal on gold", TOKENS.charcoal, TOKENS.gold, 4.5],
   // gold rules and icons on the green surface
   ["gold on ink", TOKENS.gold, TOKENS.ink, 4.5],
+  // primary fill and active states: charcoal label on lavender
+  ["charcoal on lavender", TOKENS.charcoal, TOKENS.lavender, 4.5],
+  // accent text: deep lilac on paper, gold on ink
+  ["lilac on paper", TOKENS.lilac, TOKENS.paper, 4.5],
+  // lavender active indicator on the aubergine surface (non-text)
+  ["lavender on ink", TOKENS.lavender, TOKENS.ink, 3],
 ];
 
 function main() {

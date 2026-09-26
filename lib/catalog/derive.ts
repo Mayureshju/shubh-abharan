@@ -39,10 +39,14 @@ export function toProductCardProduct(
   product: Product,
   role: PlateRole = "macro",
 ): ProductCardProduct {
+  const payable = lowestPrice(product);
+  const compare = product.quote?.compare ?? null;
   return {
     slug: product.slug,
     name: product.name,
-    price: formatMoney(lowestPrice(product)),
+    price: formatMoney(payable),
+    comparePrice:
+      compare && payable && compare.amount > payable.amount ? formatMoney(compare) : undefined,
     materialLine: resolve(product.materialLine, "material line"),
     image: imageForRole(product, role),
   };

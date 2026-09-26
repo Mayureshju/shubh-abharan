@@ -28,7 +28,7 @@ export function NumberedPager({
 }) {
   if (count < 2) return null;
 
-  const currentClass = tone === "on-ink" ? "text-gold" : "text-gold";
+  const currentClass = tone === "on-ink" ? "text-gold" : "text-accent";
   const idleClass = tone === "on-ink" ? "text-paper/55" : "text-muted";
   const ruleClass = tone === "on-ink" ? "text-gold/40" : "text-gold/50";
   const iconClass = tone === "on-ink" ? `${buttonClass("icon")} text-gold` : buttonClass("icon");

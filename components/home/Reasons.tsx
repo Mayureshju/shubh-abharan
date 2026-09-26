@@ -20,7 +20,7 @@ export function Reasons({ className }: { className?: string }) {
   return (
     <Reveal as="section" className={className}>
       <div className="page-gutter text-center">
-        <p className="text-caption uppercase tracking-[0.22em] text-gold">
+        <p className="text-caption uppercase tracking-[0.22em] text-accent">
           Why choose {brand.name ?? "us"}
         </p>
         <h2 className="mt-3 text-title">More Than Just Jewellery</h2>
@@ -30,7 +30,7 @@ export function Reasons({ className }: { className?: string }) {
             const Icon = ICONS[index] ?? DiamondIcon;
             return (
               <li key={reason.title} className="text-center">
-                <span className="mx-auto inline-flex size-[44px] items-center justify-center text-gold">
+                <span className="mx-auto inline-flex size-[44px] items-center justify-center text-accent">
                   <Icon />
                 </span>
                 <h3 className="mt-4 text-body">{reason.title}</h3>

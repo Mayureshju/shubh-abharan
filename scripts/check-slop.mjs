@@ -18,7 +18,7 @@
  * Run: node scripts/check-slop.mjs
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOTS = ["app", "components", "lib"];
@@ -125,7 +125,10 @@ function checkRules() {
  * ponytail: counts occurrences in source, not renders.
  */
 function checkHomepageTypeBudget() {
-  const files = [join("app", "page.tsx"), ...walk(join("components", "home"))];
+  const homepage = existsSync(join("app", "(storefront)", "page.tsx"))
+    ? join("app", "(storefront)", "page.tsx")
+    : join("app", "page.tsx");
+  const files = [homepage, ...walk(join("components", "home"))];
   const findings = [];
   let displays = 0;
 

@@ -141,39 +141,50 @@ One `tight` present, no two `breath` adjacent.
 
 ## Palette and contrast
 
-The palette is the mood board's, recorded in `clone-shubha-moodboard`. Token
-names stayed as structural roles; only the values changed.
+The palette is the Shubh Abharan logo's (ivory, lilac, soft gold), recorded in
+`apply-logo-palette`. It supersedes the royal-green mood board from
+`clone-shubha-moodboard`. Token names stayed as structural roles.
 
 | Token | Brand name | Hex | Chroma |
 | --- | --- | --- | --- |
-| `paper` | Cream | `#FAF8F3` | 0.0070 |
+| `paper` | Ivory | `#FAF6EF` | 0.010 |
 | `charcoal` | Charcoal | `#1A1A1A` | 0 |
-| `ink` | Royal Green | `#0F3D33` | **0.0523** |
-| `graphite` | Deep Brown | `#3B2F2F` | 0.0176 |
-| `graphite-inverse` | Cream-grey | `#C8C2B6` | 0.0178 |
-| `gold` | Gold | `#D4AF37` | **0.1387** |
+| `ink` | Aubergine | `#372849` | **0.06** |
+| `graphite` | Plum-grey | `#403A45` | 0.02 |
+| `graphite-inverse` | Lilac-mist | `#CDC7D5` | 0.02 |
+| `gold` | Soft gold | `#C6A264` | **0.09** |
+| `lavender` | Logo lilac | `#AE96DA` | **0.10** |
+| `lilac` | Deep lilac | `#6D5398` | **0.11** |
+
+### Roles
+
+- `lavender` is a **fill**: the primary button and selected states, always with a charcoal label.
+- `accent` is surface-relative: `lilac` on paper, `gold` on ink. Use `text-accent` for eyebrows and legends. Never put `text-gold` on paper (it measures about 2.3:1).
+- `gold` is line and ornament (rules, outlines, icons on ink), as in the logo.
+- Flat colour only. Lilac never appears as a gradient.
 
 ### Named exemptions
 
-`ink` and `gold` sit past the 0.02 chroma ceiling and are named in `EXEMPT`.
-Gold is also in the metal hue band; the hue exclusion skips named exemptions
-so that unnamed metal tokens still fail.
-
-`primary` is gold fill with a charcoal label — cream on gold is 1.98:1.
+`ink`, `gold`, `lavender` and `lilac` sit past the 0.02 chroma ceiling and are
+named in `EXEMPT`. Gold is also in the metal hue band; the hue exclusion skips
+named exemptions so that unnamed metal tokens still fail.
 
 ### Measurements
 
 `node scripts/contrast.mjs` converts the OKLCH tokens to linear sRGB and
 measures every pairing the system renders. Re-run it after any colour change.
 
-| Pair | Floor |
-| --- | --- |
-| charcoal on paper | 4.5:1 |
-| graphite on paper | 4.5:1 |
-| paper on ink | 4.5:1 |
-| graphite-inverse on ink | 4.5:1 |
-| charcoal on gold | 4.5:1 |
-| gold on ink | 4.5:1 |
+| Pair | Ratio | Floor |
+| --- | --- | --- |
+| charcoal on paper | 16.19 | 4.5:1 |
+| graphite on paper | 10.18 | 4.5:1 |
+| lilac on paper | 5.84 | 4.5:1 |
+| paper on ink | 12.51 | 4.5:1 |
+| graphite-inverse on ink | 8.18 | 4.5:1 |
+| charcoal on gold | 7.22 | 4.5:1 |
+| gold on ink | 5.58 | 4.5:1 |
+| charcoal on lavender | 6.79 | 4.5:1 |
+| lavender on ink | 5.25 | 3:1 |
 
 ## Font licensing — operational constraint
 
@@ -183,20 +194,17 @@ are unused by the live storefront.
 
 ## Routes the shell links to that do not exist
 
-Every top-level destination in the header and footer resolves to a 404 today.
-That was already true when `build-homepage` shipped and was recorded there as the
-honest state rather than hidden by removing the links; `apply-shubha-abharan`
-adds to the list rather than changing the policy.
+`build-shop-and-collections` delivered `/shop` (with its query filters), `/types`,
+`/collections`, `/collections/[slug]`, and `/contact`. The remaining destinations
+the shell still links to are:
 
 | Route | Owed by |
 | --- | --- |
-| `/shop` (and its `?category=` filter), `/collections`, `/collections/modern-classics`, `/types` | `build-shop-and-collections` |
 | `/cart`, `/wishlist` | `build-cart-and-wishlist` |
-| `/search`, `/about`, `/contact` | unassigned |
+| `/search`, `/about` | unassigned |
 
-`/types` may reasonably be delivered as a redirect to `/shop` rather than as a
-page — it exists because the business asked for a category entry in the primary
-navigation, and the navigation requirement permits exactly one such index.
+`/types` is a photographed index whose entries resolve to `/shop?category=`, not
+a parallel per-type route tree.
 
 ## The photography
 
@@ -224,14 +232,12 @@ These are generated photographs, not photographs of pieces the business sells.
 Every `alt` describes the frame as it actually exists rather than as it was
 briefed — when a frame is re-shot, its `alt` is rewritten with it.
 
-## Known gap carried forward
+## Overlay dialogs
 
-The responsive spec requires filters to present as a **bottom sheet** at mobile
-widths. No filter UI exists yet, so no `Sheet` component was built. Implement it
-in `build-shop-and-collections` by generalising `components/nav/NavOverlay.tsx`
-— the native `<dialog>` already supplies focus containment, Escape and focus
-return; only geometry and the entry transform differ. Do not write a second
-dialog wrapper.
+`components/ui/ModalDialog.tsx` is the native `<dialog>` primitive shared by the
+navigation overlay and the shop filter sheet. `showModal()` supplies focus
+containment, Escape and focus return; only geometry differs (`overlay` vs
+`sheet`). Do not write a second dialog wrapper.
 
 ## Running the gates
 

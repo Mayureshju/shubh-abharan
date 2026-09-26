@@ -78,7 +78,9 @@ export function HeroSlider({ slides }: { slides: readonly HeroSlideView[] }) {
                     <Plate {...slide.plate} cover priority={slideIndex === 0} sizes="100vw" />
                   </div>
 
-                  <div className="pointer-events-none absolute inset-0 bg-ink/30" />
+                  {/* Heavier on mobile: the 4/5 crop puts copy over pale lilac drapery,
+                      not the dark drape the desktop frame reserves for it. */}
+                  <div className="pointer-events-none absolute inset-0 bg-ink/60 md:bg-ink/30" />
 
                   <div className="pointer-events-none absolute inset-0 z-[1] flex items-end md:items-center">
                     <div
@@ -87,7 +89,7 @@ export function HeroSlider({ slides }: { slides: readonly HeroSlideView[] }) {
                     >
                       <p
                         data-hero-step={slideIndex === 0 ? "2" : undefined}
-                        className="max-w-[16rem] text-caption uppercase tracking-[0.22em] text-gold"
+                        className="max-w-[16rem] text-caption uppercase tracking-[0.22em] text-accent"
                       >
                         {slide.eyebrow}
                       </p>
@@ -124,7 +126,7 @@ export function HeroSlider({ slides }: { slides: readonly HeroSlideView[] }) {
           })}
 
           {count > 1 ? (
-            <div className="absolute bottom-6 left-6 z-[2] md:bottom-10 md:left-12 lg:left-16">
+            <div data-surface="ink" className="absolute bottom-6 left-6 z-[2] bg-transparent md:bottom-10 md:left-12 lg:left-16">
               <NumberedPager
                 count={count}
                 index={index}

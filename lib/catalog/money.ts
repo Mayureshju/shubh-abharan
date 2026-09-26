@@ -50,19 +50,22 @@ export function formatMoney(money: Money | null): string {
  * Null when the business has supplied no price for any variant.
  */
 export function lowestPrice(product: Product): Money | null {
+  if (product.quote?.payable) return product.quote.payable;
   let lowest: Money | null = null;
   for (const variant of product.variants) {
-    if (variant.price === null) continue;
-    if (lowest === null || variant.price.amount < lowest.amount) lowest = variant.price;
+    const amount = variant.payablePrice ?? variant.price;
+    if (amount === null) continue;
+    if (lowest === null || amount.amount < lowest.amount) lowest = amount;
   }
   return lowest;
 }
 
-/** True when variants carry differing prices, so the display reads as a "from" price. */
+/** True when variants carry differing payable prices, so the display reads as a "from" price. */
 export function hasPriceRange(product: Product): boolean {
   const amounts = new Set<number>();
   for (const variant of product.variants) {
-    if (variant.price !== null) amounts.add(variant.price.amount);
+    const amount = variant.payablePrice ?? variant.price;
+    if (amount !== null) amounts.add(amount.amount);
   }
   return amounts.size > 1;
 }

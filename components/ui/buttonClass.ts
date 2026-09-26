@@ -49,10 +49,10 @@ export const BUTTON_TARGET = "min-h-[44px] px-[24px]";
 const ICON_BOX = "size-[44px]";
 
 export const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  // Gold fill, charcoal label — cream on gold is 1.98:1. Pill via the radius
-  // token, not `rounded-full`.
+  // Lavender fill, charcoal label (6.79:1) — the logo's lilac. Pill via the
+  // radius token, not `rounded-full`.
   primary:
-    "rounded-pill bg-gold text-charcoal border border-gold " +
+    "rounded-pill bg-lavender text-charcoal border border-lavender " +
     "hover:bg-transparent hover:text-on-surface hover:border-on-surface " +
     "active:opacity-90 " +
     "disabled:border-dashed disabled:bg-transparent disabled:text-muted " +

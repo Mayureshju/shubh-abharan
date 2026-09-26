@@ -17,11 +17,13 @@
    An overlay that legitimately needs a shadow must now write an arbitrary
    value, which is deliberate and greppable. See design.md, decision 1.
 
-   Colour is authored in OKLCH. Cream, charcoal and deep brown sit under a
-   chroma ceiling of 0.02. Royal green (`ink`) and gold are named exemptions
-   in `scripts/contrast.mjs`. Gold is a UI colour on this board — charcoal
-   labels on a gold fill, never gold running text on cream (1.98:1). Ratios
-   below are measured by `node scripts/contrast.mjs`.
+   Colour is authored in OKLCH. Ivory, charcoal and the plum greys sit under a
+   chroma ceiling of 0.02. Aubergine (`ink`), gold, lavender and lilac are
+   named exemptions in `scripts/contrast.mjs`. Gold is line and ornament on
+   paper, never text there; accent text resolves per surface through
+   `accent` (lilac on paper, gold on ink). Lavender is a fill with a charcoal
+   label. Flat colour only — no gradients. Ratios below are measured by
+   `node scripts/contrast.mjs`.
 --------------------------------------------------------------------------- */
 
 @theme {
@@ -36,15 +38,18 @@
   --text-shadow-*: initial;
   --blur-*: initial;
 
-  /* Palette — Shubha Abharan mood board. Token names are structural roles. */
-  --color-paper: oklch(97.93% 0.0070 88.64); /* Cream         #FAF8F3 */
+  /* Palette — the Shubh Abharan logo: ivory, lilac, soft gold. Token names
+     are structural roles; lavender and lilac are the brand's own colours. */
+  --color-paper: oklch(97.5% 0.010 80); /* Ivory           #FAF6EF */
   --color-charcoal: oklch(21.78% 0.0000 89.88); /* Charcoal    #1A1A1A */
-  --color-ink: oklch(32.60% 0.0523 175.48); /* Royal Green     #0F3D33 */
-  --color-graphite: oklch(31.85% 0.0176 18.11); /* Deep Brown  #3B2F2F */
-  --color-graphite-inverse: oklch(81.56% 0.0178 84.59); /* Cream-grey #C8C2B6 */
-  --color-gold: oklch(76.65% 0.1387 91.06); /* Gold            #D4AF37 */
+  --color-ink: oklch(31% 0.06 305); /* Aubergine           #372849 */
+  --color-graphite: oklch(36% 0.02 310); /* Plum-grey      #403A45 */
+  --color-graphite-inverse: oklch(84% 0.02 305); /* Lilac-mist #CDC7D5 */
+  --color-gold: oklch(73% 0.09 80); /* Soft gold           #C6A264 */
+  --color-lavender: oklch(72% 0.1 300); /* Logo lilac      #AE96DA */
+  --color-lilac: oklch(50% 0.11 300); /* Deep lilac        #6D5398 */
   --color-hairline: oklch(21.78% 0.0000 89.88 / 0.14);
-  --color-hairline-inverse: oklch(97.93% 0.0070 88.64 / 0.18);
+  --color-hairline-inverse: oklch(97.5% 0.010 80 / 0.18);
 
   /* Typefaces. Fallback stacks exist only for the load-failure path. */
   --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
@@ -116,6 +121,7 @@
   --color-on-surface: var(--surface-fg);
   --color-muted: var(--surface-muted);
   --color-line: var(--surface-line);
+  --color-accent: var(--surface-accent);
 }
 
 @layer base {
@@ -124,15 +130,17 @@
   [data-surface="paper"] {
     --surface-bg: var(--color-paper);
     --surface-fg: var(--color-charcoal);
-    --surface-muted: var(--color-graphite); /* 12.11:1 on paper */
+    --surface-muted: var(--color-graphite); /* 10.18:1 on paper */
     --surface-line: var(--color-hairline);
+    --surface-accent: var(--color-lilac); /* 5.84:1 on paper */
   }
 
   [data-surface="ink"] {
     --surface-bg: var(--color-ink);
     --surface-fg: var(--color-paper);
-    --surface-muted: var(--color-graphite-inverse); /* 7.67:1 on ink */
+    --surface-muted: var(--color-graphite-inverse); /* 8.18:1 on ink */
     --surface-line: var(--color-hairline-inverse);
+    --surface-accent: var(--color-gold); /* 5.58:1 on ink */
   }
 
   html {
@@ -500,6 +508,40 @@
 
     .occasion-set > :first-child {
       grid-row: span 2;
+    }
+  }
+
+  /* Shop / collection listing. Stacks on a phone; from 768px the first of
+     every four cards spans the row so the set is not a uniform repeating grid. */
+  .shop-set {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .shop-set {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .shop-set > *:nth-child(4n + 1) {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .shop-set {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .shop-set > *:nth-child(4n + 1) {
+      grid-column: span 4;
+    }
+
+    .shop-set > *:nth-child(4n + 2),
+    .shop-set > *:nth-child(4n + 3),
+    .shop-set > *:nth-child(4n + 4) {
+      grid-column: span 2;
     }
   }
 

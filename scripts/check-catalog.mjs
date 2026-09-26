@@ -44,7 +44,6 @@ const FORBIDDEN_FIELDS = [
   "compareAt",
   "compareAtPrice",
   "discount",
-  "salePrice",
   "stockCount",
   "stockLevel",
   "countdown",

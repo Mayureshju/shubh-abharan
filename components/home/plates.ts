@@ -43,7 +43,7 @@ export const HERO_PLATE: EditorialPlate = {
   src: "/images/hero-worn.jpg",
   position: "72% 40%",
   crop: "figure at three-quarter, jewellery on the collarbone, empty ground to the left for overlay type",
-  alt: "A woman in an emerald silk saree stands against palm foliage, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka, one hand at her collarbone.",
+  alt: "A woman in a lilac silk saree stands before lavender drapery and sprays of lisianthus, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka, one hand at her collarbone.",
 };
 
 /**
@@ -58,7 +58,7 @@ export const COLLECTION_PLATE: EditorialPlate = {
   aspectMd: "5/4",
   src: "/images/collection-v2.jpg",
   crop: "necklace filling the right half of a split, cream ground, centre-weighted",
-  alt: "A gold kundan necklace with emerald stones and pearl drops, laid across cream marble beside a fold of emerald silk.",
+  alt: "A floral gold kundan collar with a central pendant, laid on an ivory marble slab beside a fold of lilac silk and scattered lilac petals.",
 };
 
 /**
@@ -71,7 +71,7 @@ export const DETAIL_PLATE: EditorialPlate = {
   aspect: "1/1",
   src: "/images/detail.jpg",
   crop: "one piece filling the frame against dark ground, bezel and granulation legible",
-  alt: "Close view of a gold disc, its granulated and twisted-wire bezel closed by hand around a deep red garnet cabochon, the surface finely scratched from wear.",
+  alt: "Close view of a gold ring, its granulated bezel closed by hand around a deep red garnet cabochon, resting on lilac silk.",
 };
 
 /**
@@ -85,7 +85,7 @@ export const CAMPAIGN_PLATE: EditorialPlate = {
   src: "/images/campaign.jpg",
   position: "60% 50%",
   crop: "figure turned away in a lit interior, the piece at the nape, long light across the wall",
-  alt: "A woman seated in an emerald and maroon silk saree in a lamp-lit interior, wearing a gold kundan necklace, stacked bangles and rings, looking toward empty stone wall on the left.",
+  alt: "A woman seated in a lilac silk saree with a plum border in a lamp-lit room, wearing a gold kundan necklace and stacked bangles, a sunlit ivory wall on the left.",
 };
 
 /**
@@ -105,35 +105,35 @@ export const CATEGORY_PLATES = {
     aspect: "1/1",
     src: "/images/category-necklaces-v2.jpg",
     crop: "necklace centred on cream ground, circular crop",
-    alt: "A circular gold kundan necklace with emerald drops, centred on cream marble beside emerald silk.",
+    alt: "A circular gold kundan necklace with pearl drops, centred on ivory marble beside lilac silk and lisianthus.",
   },
   ring: {
     role: "macro",
     aspect: "1/1",
     src: "/images/category-rings-v2.jpg",
     crop: "rings centred on cream ground, circular crop",
-    alt: "Two stacked gold rings set with emeralds and uncut diamonds, centred on cream linen.",
+    alt: "A gold kundan ring on ivory marble, with lilac silk and lisianthus behind it.",
   },
   bracelet: {
     role: "worn",
     aspect: "1/1",
     src: "/images/category-bracelets-v2.jpg",
     crop: "bracelet centred on cream ground, circular crop",
-    alt: "A pair of gold kundan bangles with emerald stones, resting on emerald and cream silk.",
+    alt: "A pair of gold kundan bangles on ivory marble beside a fold of lilac silk.",
   },
   earring: {
     role: "detail",
     aspect: "1/1",
     src: "/images/category-earrings-v2.jpg",
     crop: "earrings centred on cream ground, circular crop",
-    alt: "A pair of gold chandbali earrings with emerald drops, laid on cream marble against emerald silk.",
+    alt: "A pair of gold kundan chandbali earrings, laid on ivory marble among lisianthus and lilac silk.",
   },
   pendant: {
     role: "macro",
     aspect: "1/1",
     src: "/images/category-pendants.jpg",
     crop: "pendant centred on cream ground, circular crop",
-    alt: "A gold kundan pendant with an emerald drop on a fine chain, resting on cream silk.",
+    alt: "A round gold kundan pendant on a fine chain, resting on ivory marble over lilac silk.",
   },
 } satisfies Readonly<Partial<Record<Category, EditorialPlate>>>;
 
@@ -149,7 +149,7 @@ export const HERO_TWO_PLATE: EditorialPlate = {
   src: "/images/hero-2.jpg",
   position: "68% 40%",
   crop: "figure at three-quarter toward camera, jewellery on the collarbone, empty ground to the left for overlay type",
-  alt: "A woman in an emerald silk saree looks toward the camera, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka, one hand at her collarbone.",
+  alt: "A woman in a lilac silk saree looks toward the camera, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka, one hand at her collarbone.",
 };
 
 export const HERO_THREE_PLATE: EditorialPlate = {
@@ -159,7 +159,7 @@ export const HERO_THREE_PLATE: EditorialPlate = {
   src: "/images/hero-3.jpg",
   position: "72% 38%",
   crop: "figure in three-quarter profile, full collar visible, empty ground to the left for overlay type",
-  alt: "A woman in an emerald silk saree in three-quarter profile against palm foliage, wearing a gold kundan necklace with emerald drops, matching chandbali earrings and a maang tikka.",
+  alt: "A woman in a lilac silk saree, seated in a plum velvet armchair in three-quarter profile, wearing a gold kundan necklace with emerald drops and matching chandbali earrings.",
 };
 
 /**
@@ -174,15 +174,15 @@ export const HERO_SLIDE_PLATES = {
 
 /**
  * The same floral kundan collar as `COLLECTION_PLATE`, two further frames —
- * one more frontal on cream marble, one on dark green marble for the split.
+ * one more frontal on lilac silk, one on aubergine velvet for the split.
  */
 export const COLLECTION_TWO_PLATE: EditorialPlate = {
   role: "macro",
   aspect: "4/5",
   aspectMd: "5/4",
   src: "/images/collection-2.jpg",
-  crop: "floral kundan collar filling the frame on cream marble",
-  alt: "A gold kundan necklace with emerald stones and pearl drops, photographed frontally on cream marble beside a fold of emerald silk.",
+  crop: "floral kundan collar filling the frame on lilac silk",
+  alt: "A gold kundan necklace with emerald stones and pearl drops, photographed frontally on lilac silk beside ivory marble.",
 };
 
 export const COLLECTION_THREE_PLATE: EditorialPlate = {
@@ -190,8 +190,8 @@ export const COLLECTION_THREE_PLATE: EditorialPlate = {
   aspect: "4/5",
   aspectMd: "5/4",
   src: "/images/collection-3.jpg",
-  crop: "floral kundan collar filling the frame on dark green marble",
-  alt: "A gold kundan necklace with emerald stones and pearl drops, laid across dark green marble.",
+  crop: "floral kundan collar filling the frame on aubergine velvet",
+  alt: "A gold kundan necklace with emerald stones and pearl drops, laid across deep aubergine velvet.",
 };
 
 /** Collection split: dark-marble frame first, then the two cream-marble frames. */
@@ -209,8 +209,8 @@ export const BANGLES_PLATE: EditorialPlate = {
   role: "macro",
   aspect: "1/1",
   src: "/images/category-bangles.jpg",
-  crop: "three stacked gold kundan bangles centred on cream marble, circular crop",
-  alt: "Three stacked gold kundan bangles with emerald stones, centred on cream marble beside a fold of emerald silk.",
+  crop: "three stacked gold kundan bangles centred on an ivory cushion, circular crop",
+  alt: "Three stacked gold kundan bangles with emerald stones, on an ivory cushion over lilac silk.",
 };
 
 export const OCCASION_PLATES = {
@@ -219,21 +219,21 @@ export const OCCASION_PLATES = {
     aspect: "4/5",
     src: "/images/hero-worn.jpg",
     position: "72% 40%",
-    crop: "bridal set worn against foliage",
-    alt: "A woman in an emerald silk saree wearing a gold kundan necklace, chandbali earrings and a maang tikka.",
+    crop: "bridal set worn against lavender drapery",
+    alt: "A woman in a lilac silk saree wearing a gold kundan necklace, chandbali earrings and a maang tikka.",
   },
   festive: {
     role: "macro",
     aspect: "4/5",
     src: "/images/collection-v2.jpg",
     crop: "kundan collar on marble",
-    alt: "A gold kundan necklace with emerald stones and pearl drops, laid across cream marble.",
+    alt: "A floral gold kundan collar with a central pendant, laid on ivory marble.",
   },
   everyday: {
     role: "macro",
     aspect: "4/5",
     src: "/images/category-pendants.jpg",
     crop: "pendant on a fine chain",
-    alt: "A gold kundan pendant with an emerald drop on a fine chain, resting on cream silk.",
+    alt: "A round gold kundan pendant on a fine chain, resting on ivory marble over lilac silk.",
   },
 } satisfies Record<string, EditorialPlate>;

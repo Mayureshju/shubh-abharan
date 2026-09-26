@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { brand, isSupplied, placeholder } from "@/lib/brand";
-import type { Category } from "@/lib/catalog";
+import type { Category } from "@/lib/catalog/types";
 
 /**
  * Caption type throughout. Columns whose entries are all unsupplied do not
@@ -40,13 +40,13 @@ function Column({
 
   return (
     <div>
-      <h2 className="text-caption text-gold">{heading}</h2>
+      <h2 className="text-caption text-accent">{heading}</h2>
       <ul className="mt-2">
         {links.map((link) => (
           <li key={link.href}>
             <Link
               href={link.href}
-              className="inline-flex min-h-11 items-center text-caption hover:text-gold"
+              className="inline-flex min-h-11 items-center text-caption hover:text-accent"
             >
               {link.label}
             </Link>
@@ -65,7 +65,7 @@ export function SiteFooter() {
       <div className="page-gutter border-t border-line pt-tight">
         <div className="grid gap-tight md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <p className="flex items-center gap-2 font-display text-title text-gold">
+            <p className="flex items-center gap-2 font-display text-title text-accent">
               {isSupplied(brand.wordmarkSrc) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={brand.wordmarkSrc} alt="" width={36} height={36} className="size-9" />

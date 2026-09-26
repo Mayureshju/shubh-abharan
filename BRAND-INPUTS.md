@@ -95,8 +95,8 @@ different piece.
 | Hero 2 | `worn` | `4/5` below 768px, `16/9` from 768px, position `68% 40%` | Same sitting, toward camera | GENERATED 2026-09-20 | `hero-2` |
 | Hero 3 | `worn` | `4/5` below 768px, `16/9` from 768px, position `72% 38%` | Same sitting, three-quarter profile | GENERATED 2026-09-20 | `hero-3` |
 | Collection | `macro` | `4/5` below 768px, `5/4` from 768px | Necklace filling a split panel | GENERATED 2026-09-19 | `collection` |
-| Collection 2 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar, frontal on cream marble | GENERATED 2026-09-20 | `collection-2` |
-| Collection 3 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar on dark green marble | GENERATED 2026-09-20 | `collection-3` |
+| Collection 2 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar, frontal on lilac silk | GENERATED 2026-09-26 | `collection-2` |
+| Collection 3 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar on aubergine velvet | GENERATED 2026-09-26 | `collection-3` |
 | Detail | `detail` | `1/1` | Unused on the homepage after `clone-shubha-moodboard` | GENERATED 2026-09-19 | `detail` |
 | Closing campaign | `worn` | `4/5` below 768px, `16/9` from 768px, position `60% 50%` | Figure in a lit interior, room for overlay type | GENERATED 2026-09-19 | `campaign` |
 | Type — Necklaces | `macro` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-necklaces` |
@@ -116,14 +116,14 @@ card in New arrivals and Featured is the same square.
 
 | Slot | Role | Aspect | Intended crop | Status | Prompt id |
 | --- | --- | --- | --- | --- | --- |
-| Card — Necklace | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-necklace` |
-| Card — Collar | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-collar` |
-| Card — Earrings | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-earrings` |
-| Card — Pendant | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-pendant` |
-| Card — Rings | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-rings` |
-| Card — Bangles | `macro` | `1/1` | Full-bleed square on cream marble | GENERATED 2026-09-20 | `product-bangles` |
-| Card — Bridal set | `macro` | `1/1` | Necklace and chandbalis on cream marble | GENERATED 2026-09-20 | `product-bridal-set` |
-| Card — Chain | `macro` | `1/1` | Pendant on a looping chain, cream marble | GENERATED 2026-09-20 | `product-chain` |
+| Card — Necklace | `macro` | `1/1` | Full-bleed square on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-necklace` |
+| Card — Collar | `macro` | `1/1` | Full-bleed square on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-collar` |
+| Card — Earrings | `macro` | `1/1` | Full-bleed square on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-earrings` |
+| Card — Pendant | `macro` | `1/1` | Full-bleed square on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-pendant` |
+| Card — Rings | `macro` | `1/1` | Full-bleed square on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-rings` |
+| Card — Bangles | `macro` | `1/1` | Full-bleed square on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-bangles` |
+| Card — Bridal set | `macro` | `1/1` | Necklace and chandbalis on ivory marble, lilac silk | GENERATED 2026-09-26 | `product-bridal-set` |
+| Card — Chain | `macro` | `1/1` | Pendant on a looping chain, ivory marble | GENERATED 2026-09-26 | `product-chain` |
 
 The hero and the closing frame are shot to two ratios. Overlay type sits on both.
 

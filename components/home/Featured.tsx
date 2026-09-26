@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { buttonClass } from "@/components/ui/buttonClass";
 import { ArrowIcon } from "@/components/ui/icons";
 import { brand } from "@/lib/brand";
-import { getProductsBySlugs, toProductCardProduct } from "@/lib/catalog";
+import { getProductsBySlugs, listProducts, toProductCardProduct } from "@/lib/catalog";
 
 /**
  * Brand-owned featured slugs in a regular merchandising grid — 2 columns
@@ -14,17 +14,16 @@ import { getProductsBySlugs, toProductCardProduct } from "@/lib/catalog";
  */
 
 export async function Featured({ className }: { className?: string }) {
-  const slugs = brand.homepage.featuredSlugs;
-  if (slugs.length === 0) return null;
-
-  const products = await getProductsBySlugs(slugs);
+  const flagged = await listProducts({ isFeatured: true });
+  const products =
+    flagged.length > 0 ? flagged : await getProductsBySlugs(brand.homepage.featuredSlugs);
   if (products.length === 0) return null;
 
   return (
     <Reveal as="section" className={className}>
       <div className="page-gutter">
         <div>
-          <p className="text-caption uppercase tracking-[0.22em] text-gold">Featured pieces</p>
+          <p className="text-caption uppercase tracking-[0.22em] text-accent">Featured pieces</p>
           <h2 className="mt-3 text-title">On the marble</h2>
         </div>
 

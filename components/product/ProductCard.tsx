@@ -73,7 +73,16 @@ export function ProductCard({
 
         <div className="mt-2.5 flex items-baseline justify-between gap-3 md:mt-4 md:gap-4">
           <h3 className="text-body group-hover:underline underline-offset-4">{product.name}</h3>
-          <p className="text-caption uppercase text-muted">{product.price}</p>
+          <p className="text-caption uppercase text-muted">
+            {product.comparePrice ? (
+              <>
+                <span className="mr-2 line-through">{product.comparePrice}</span>
+                {product.price}
+              </>
+            ) : (
+              product.price
+            )}
+          </p>
         </div>
         <p className="mt-1 text-caption uppercase text-muted">{product.materialLine}</p>
       </Link>

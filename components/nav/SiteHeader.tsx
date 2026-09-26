@@ -7,6 +7,7 @@ import { brand, isSupplied } from "@/lib/brand";
 import { Button } from "@/components/ui/Button";
 import { buttonClass } from "@/components/ui/buttonClass";
 import { BagIcon, MenuIcon, SearchIcon, WishlistIcon } from "@/components/ui/icons";
+import { AccountControl } from "@/components/auth/AccountControl";
 import { NavOverlay } from "./NavOverlay";
 
 /**
@@ -100,7 +101,7 @@ export function SiteHeader() {
                       aria-current={current ? "page" : undefined}
                       className={
                         "inline-flex min-h-11 items-center text-caption " +
-                        (overlay ? "text-paper hover:text-gold" : "hover:text-gold")
+                        (overlay ? "text-paper hover:text-gold" : "hover:text-accent")
                       }
                     >
                       <span className={current ? "border-b border-current pb-0.5" : undefined}>
@@ -114,6 +115,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center justify-end gap-1">
+            <AccountControl overlay={overlay} />
             {UTILITY.map((item) => (
               <Link
                 key={item.href}

@@ -180,7 +180,7 @@ export const brand: Brand = {
       plate: "heroThree",
       eyebrow: "Timeless elegance in every detail",
       heading: "Collar in profile",
-      support: "The kundan collar and chandbali in three-quarter against palm foliage.",
+      support: "The kundan collar and chandbali in three-quarter, seated in plum velvet.",
       ctaLabel: "Shop Now",
       ctaHref: "/shop",
     },

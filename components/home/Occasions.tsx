@@ -16,7 +16,7 @@ export function Occasions({ className }: { className?: string }) {
     <Reveal as="section" className={className}>
       <div className="page-gutter">
         <div>
-          <p className="text-caption uppercase tracking-[0.22em] text-gold">Shop by occasion</p>
+          <p className="text-caption uppercase tracking-[0.22em] text-accent">Shop by occasion</p>
           <h2 className="mt-3 text-title">Worn for the day</h2>
         </div>
 
