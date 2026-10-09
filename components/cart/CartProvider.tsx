@@ -1,71 +1,117 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import type { CartLineInput } from "@/lib/commerce/quote";
 import { loadRemoteCart, mergeRemoteCart, saveRemoteCart } from "@/lib/actions/cart";
 
+/**
+ * The bag lives in localStorage and is read through useSyncExternalStore: the
+ * server renders an empty bag, the client swaps in the stored one after
+ * hydration without a mismatch, and other tabs stay in step via `storage`.
+ */
+
 const STORAGE = "shubha-bag";
+/** Whose account bag the browser bag mirrors. See CartPersistence. */
+const OWNER = "shubha-bag-owner";
+const EMPTY: CartLineInput[] = [];
+
+const listeners = new Set<() => void>();
+let cachedRaw: string | null = null;
+let cachedLines: CartLineInput[] = EMPTY;
+
+function readStored(): CartLineInput[] {
+  let raw: string | null;
+  try {
+    raw = window.localStorage.getItem(STORAGE);
+  } catch {
+    return EMPTY;
+  }
+  // Same string, same array: useSyncExternalStore needs a stable snapshot.
+  if (raw === cachedRaw) return cachedLines;
+  cachedRaw = raw;
+  try {
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    cachedLines = Array.isArray(parsed) ? (parsed as CartLineInput[]) : EMPTY;
+  } catch {
+    cachedLines = EMPTY;
+  }
+  return cachedLines;
+}
+
+function writeStored(next: CartLineInput[]) {
+  try {
+    window.localStorage.setItem(STORAGE, JSON.stringify(next));
+  } catch {
+    // Storage refused (private mode, quota): the bag stays as it was.
+  }
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE) listener();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+const noSubscribe = () => () => {};
+
+function update(change: (current: CartLineInput[]) => CartLineInput[]) {
+  writeStored(change(readStored()));
+}
 
 type CartContextValue = {
+  /** False on the server and during hydration, when the bag is not yet known. */
+  ready: boolean;
   lines: CartLineInput[];
+  /** Total pieces across lines, for the header count. */
+  count: number;
   add: (line: CartLineInput) => void;
   setQuantity: (variantId: string, quantity: number) => void;
   remove: (variantId: string) => void;
   clear: () => void;
+  drawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function readLocal(): CartLineInput[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as CartLineInput[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [lines, setLines] = useState<CartLineInput[]>([]);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setLines(readLocal());
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    window.localStorage.setItem(STORAGE, JSON.stringify(lines));
-  }, [lines, ready]);
+  const lines = useSyncExternalStore(subscribe, readStored, () => EMPTY);
+  const ready = useSyncExternalStore(noSubscribe, () => true, () => false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const add = useCallback((line: CartLineInput) => {
-    setLines((current) => {
-      const existing = current.find((entry) => entry.variantId === line.variantId);
-      if (existing) {
-        return current.map((entry) =>
-          entry.variantId === line.variantId
-            ? { ...entry, quantity: entry.quantity + line.quantity }
-            : entry,
-        );
-      }
-      return [...current, line];
-    });
+    update((current) =>
+      current.some((entry) => entry.variantId === line.variantId)
+        ? current.map((entry) =>
+            entry.variantId === line.variantId
+              ? { ...entry, quantity: entry.quantity + line.quantity }
+              : entry,
+          )
+        : [...current, line],
+    );
   }, []);
 
   const setQuantity = useCallback((variantId: string, quantity: number) => {
-    setLines((current) =>
+    update((current) =>
       quantity < 1
         ? current.filter((entry) => entry.variantId !== variantId)
         : current.map((entry) => (entry.variantId === variantId ? { ...entry, quantity } : entry)),
@@ -73,56 +119,91 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const remove = useCallback((variantId: string) => {
-    setLines((current) => current.filter((entry) => entry.variantId !== variantId));
+    update((current) => current.filter((entry) => entry.variantId !== variantId));
   }, []);
 
-  const clear = useCallback(() => setLines([]), []);
+  const clear = useCallback(() => writeStored([]), []);
+  const openDrawer = useCallback(() => setDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   const value = useMemo(
-    () => ({ lines, add, setQuantity, remove, clear }),
-    [lines, add, setQuantity, remove, clear],
+    () => ({
+      ready,
+      lines,
+      count: lines.reduce((sum, line) => sum + line.quantity, 0),
+      add,
+      setQuantity,
+      remove,
+      clear,
+      drawerOpen,
+      openDrawer,
+      closeDrawer,
+    }),
+    [ready, lines, add, setQuantity, remove, clear, drawerOpen, openDrawer, closeDrawer],
   );
 
   return (
     <CartContext.Provider value={value}>
       {children}
-      {ready ? <CartPersistence lines={lines} setLines={setLines} /> : null}
+      {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? <CartPersistence lines={lines} /> : null}
     </CartContext.Provider>
   );
 }
 
-function CartPersistence({
-  lines,
-  setLines,
-}: {
-  lines: CartLineInput[];
-  setLines: (lines: CartLineInput[]) => void;
-}) {
-  const [synced, setSynced] = useState(false);
-  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+/**
+ * Mirrors the browser bag to the signed-in account. Mounted only when Clerk is
+ * configured, so useAuth always has its provider.
+ *
+ * The OWNER marker makes the merge happen once per sign-in: a new user merges
+ * the local lines into their account bag; the same user on a later load reads
+ * the account bag back (a second merge would double every quantity); signing
+ * out clears the browser copy.
+ */
+function CartPersistence({ lines }: { lines: CartLineInput[] }) {
+  const { isLoaded, userId } = useAuth();
+  const [syncedFor, setSyncedFor] = useState<string | null>(null);
+  const linesRef = useRef(lines);
 
   useEffect(() => {
-    if (!key || synced) return;
-    let cancelled = false;
-    const already = sessionStorage.getItem("bag-merged") === "1";
-    (async () => {
-      const next = already ? await loadRemoteCart() : await mergeRemoteCart(lines);
-      if (!cancelled) {
-        if (next.length > 0 || already) setLines(next.length > 0 ? next : lines);
-        sessionStorage.setItem("bag-merged", "1");
-        setSynced(true);
+    linesRef.current = lines;
+  }, [lines]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const owner = window.localStorage.getItem(OWNER);
+
+    if (!userId) {
+      if (owner) {
+        window.localStorage.removeItem(OWNER);
+        writeStored([]);
       }
-    })().catch(() => setSynced(true));
+      return;
+    }
+
+    let cancelled = false;
+    const sync = owner === userId ? loadRemoteCart() : mergeRemoteCart(linesRef.current);
+    sync
+      .then((next) => {
+        if (cancelled) return;
+        window.localStorage.setItem(OWNER, userId);
+        writeStored(next);
+        setSyncedFor(userId);
+      })
+      .catch(() => {
+        // Account sync failed: keep the browser bag; the next load retries.
+      });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [isLoaded, userId]);
 
   useEffect(() => {
-    if (!key || !synced) return;
+    // The marker check stops a stale `syncedFor` from saving an empty bag over
+    // the account bag when the same user signs back in before the merge lands.
+    if (!userId || syncedFor !== userId) return;
+    if (window.localStorage.getItem(OWNER) !== userId) return;
     void saveRemoteCart(lines);
-  }, [key, lines, synced]);
+  }, [lines, userId, syncedFor]);
 
   return null;
 }

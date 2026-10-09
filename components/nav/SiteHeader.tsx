@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { buttonClass } from "@/components/ui/buttonClass";
 import { BagIcon, MenuIcon, SearchIcon, WishlistIcon } from "@/components/ui/icons";
 import { AccountControl } from "@/components/auth/AccountControl";
+import { useCart } from "@/components/cart/CartProvider";
 import { NavOverlay } from "./NavOverlay";
 
 /**
@@ -42,6 +43,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const { count } = useCart();
   const home = pathname === "/";
   const overlay = home && !scrolled;
 
@@ -116,16 +118,34 @@ export function SiteHeader() {
 
           <div className="flex items-center justify-end gap-1">
             <AccountControl overlay={overlay} />
-            {UTILITY.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-label={item.label}
-                className={buttonClass("icon") + (overlay ? " text-paper hover:border-paper" : "")}
-              >
-                <item.Icon />
-              </Link>
-            ))}
+            {UTILITY.map((item) => {
+              const bagCount = item.href === "/cart" ? count : 0;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-label={
+                    bagCount > 0
+                      ? `${item.label}, ${bagCount} ${bagCount === 1 ? "item" : "items"}`
+                      : item.label
+                  }
+                  className={
+                    buttonClass("icon") + " relative" + (overlay ? " text-paper hover:border-paper" : "")
+                  }
+                >
+                  <item.Icon />
+                  {bagCount > 0 ? (
+                    // Fixed px: a badge is chrome, not text, like the icon box.
+                    <span
+                      aria-hidden="true"
+                      className="absolute right-[3px] top-[3px] grid h-[18px] min-w-[18px] place-items-center rounded-pill bg-lavender px-[5px] text-caption leading-none text-charcoal"
+                    >
+                      {bagCount}
+                    </span>
+                  ) : null}
+                </Link>
+              );
+            })}
             <Button
               ref={menuButtonRef}
               variant="icon"

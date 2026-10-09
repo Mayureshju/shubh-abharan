@@ -23,6 +23,7 @@ export default async function AdminOrderDetail({
   }
 
   const address = order.shippingAddress;
+  const billing = order.billing;
   const next = nextStatuses(order.status);
 
   return (
@@ -97,20 +98,35 @@ export default async function AdminOrderDetail({
         </div>
         <div>
           <section className="admin-card">
-            <h2>Customer</h2>
-            <p>{address?.name ?? "—"}</p>
+            <h2>Billed to</h2>
+            {/* Orders before billing was collected show the receiver here. */}
+            <p>{billing?.name ?? address?.name ?? "—"}</p>
             {order.email && <p className="admin-muted">{order.email}</p>}
-            {address?.phone && <p className="admin-muted">{address.phone}</p>}
+            {(billing?.phone ?? address?.phone) && (
+              <p className="admin-muted">{billing?.phone ?? address?.phone}</p>
+            )}
+            {billing?.address && (
+              <address style={{ fontStyle: "normal", whiteSpace: "pre-line" }}>{billing.address}</address>
+            )}
+            <p className="admin-muted">{order.clerkUserId ? "Signed-in customer" : "Guest checkout"}</p>
           </section>
           <section className="admin-card">
-            <h2>Shipping address</h2>
-            <address style={{ fontStyle: "normal" }}>
+            <h2>Receiver</h2>
+            {address?.name && <p>{address.name}</p>}
+            {address?.phone && <p className="admin-muted">{address.phone}</p>}
+            <address style={{ fontStyle: "normal", whiteSpace: "pre-line" }}>
               {[address?.line1, address?.line2, address?.city, address?.state, address?.pincode]
                 .filter(Boolean)
-                .join(", ")}
+                .join("\n")}
             </address>
             {order.deliveryAreaName && <p className="admin-muted">Area: {order.deliveryAreaName}</p>}
           </section>
+          {order.giftMessage && (
+            <section className="admin-card">
+              <h2>Gift message</h2>
+              <p style={{ whiteSpace: "pre-line" }}>{order.giftMessage}</p>
+            </section>
+          )}
           <section className="admin-card">
             <h2>Payment</h2>
             <p>

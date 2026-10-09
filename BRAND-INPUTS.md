@@ -41,6 +41,17 @@ Copy written against this system must satisfy the rule in
 `specs/design-system/visual-language`: **every sentence carries either a
 measurable fact or a physically photographable noun.**
 
+## About
+
+The `/about` page reads its story from here. Unlike the homepage reasons, an
+empty story does not omit its section — it renders `[BRAND STORY]` until filled,
+because the story is what the page is for. Founding year, place of business and
+the materials vocabulary below also render on About, placeheld while unfilled.
+
+| Field | Status | Value |
+| --- | --- | --- |
+| Brand story — one entry per paragraph in `brand.story` | UNFILLED | |
+
 ## Homepage
 
 The homepage renders mood-board copy from this record, supplied 2026-09-20 with
@@ -97,7 +108,7 @@ different piece.
 | Collection | `macro` | `4/5` below 768px, `5/4` from 768px | Necklace filling a split panel | GENERATED 2026-09-19 | `collection` |
 | Collection 2 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar, frontal on lilac silk | GENERATED 2026-09-26 | `collection-2` |
 | Collection 3 | `macro` | `4/5` below 768px, `5/4` from 768px | Same collar on aubergine velvet | GENERATED 2026-09-26 | `collection-3` |
-| Detail | `detail` | `1/1` | Unused on the homepage after `clone-shubha-moodboard` | GENERATED 2026-09-19 | `detail` |
+| Detail | `detail` | `1/1` | Unused on the homepage after `clone-shubha-moodboard`; now the About materials frame | GENERATED 2026-09-19 | `detail` |
 | Closing campaign | `worn` | `4/5` below 768px, `16/9` from 768px, position `60% 50%` | Figure in a lit interior, room for overlay type | GENERATED 2026-09-19 | `campaign` |
 | Type — Necklaces | `macro` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-necklaces` |
 | Type — Rings | `macro` | `1/1` | Centred still, circular crop | GENERATED 2026-09-19 | `category-rings` |
@@ -126,6 +137,20 @@ card in New arrivals and Featured is the same square.
 | Card — Chain | `macro` | `1/1` | Pendant on a looping chain, ivory marble | GENERATED 2026-09-26 | `product-chain` |
 
 The hero and the closing frame are shot to two ratios. Overlay type sits on both.
+
+### About photography
+
+No new photography. Every frame on disk except Detail is already on the
+homepage — `hero.jpg` and `collection.jpg` are byte-identical copies of
+`hero-worn.jpg` and `collection-v2.jpg` — so About reuses the two least prominent
+slider frames, recropped, plus Detail. Records are in the same `plates.ts`. The
+About copy beside them names only what is visible, never a workshop or a process.
+
+| Slot | Role | Aspect | Intended crop | Status | Prompt id |
+| --- | --- | --- | --- | --- | --- |
+| About masthead | `worn` | `4/5`, position `74% 40%` | Hero 3 recropped to the seated figure | GENERATED 2026-09-20 | `hero-3` |
+| About story | `macro` | `5/4` | Collection 2 at a single ratio | GENERATED 2026-09-26 | `collection-2` |
+| About materials | `detail` | `1/1` | The Detail frame, moved from the homepage | GENERATED 2026-09-19 | `detail` |
 
 ## Collections
 
@@ -181,6 +206,9 @@ policies.** Policies still omit their footer links while unsupplied.
 | Care instructions | UNFILLED | |
 | Hallmarking or certification, if any actually held | UNFILLED | |
 | Contact address and email shown to customers | UNFILLED | |
+| Contact phone (shown as given; dialled as `+` and digits) | UNFILLED | |
+| WhatsApp number, international format with country code (e.g. `+91 …`) | UNFILLED | |
+| Social profile links — label and full URL each (`brand.social`) | UNFILLED | |
 
 ## Catalog
 

@@ -148,20 +148,32 @@ const PriceRuleSchema = new Schema(
   { timestamps: true },
 );
 
-const DeliveryAreaSchema = new Schema(
+// A city is an India Post district. A pincode is served when it and its city are active.
+const DeliveryCitySchema = new Schema(
   {
+    state: { type: String, required: true },
     name: { type: String, required: true },
-    pincodes: { type: [String], required: true },
-    charge: { type: MoneySchema, required: true },
+    // Paise; null uses Settings.defaultDeliveryCharge.
+    charge: { type: Number, default: null },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );
+DeliveryCitySchema.index({ state: 1, name: 1 }, { unique: true });
+
+const PincodeSchema = new Schema({
+  pincode: { type: String, required: true, unique: true },
+  state: { type: String, required: true },
+  city: { type: String, required: true },
+  isActive: { type: Boolean, default: true },
+});
+PincodeSchema.index({ state: 1, city: 1 });
 
 const SettingsSchema = new Schema(
   {
     key: { type: String, required: true, unique: true, default: "store" },
     freeDeliveryMin: { type: Number, default: null },
+    defaultDeliveryCharge: { type: Number, default: 0 },
     codEnabled: { type: Boolean, default: true },
     currency: { type: String, default: "INR" },
   },
@@ -228,8 +240,11 @@ const OrderLineSchema = new Schema(
 
 const OrderSchema = new Schema(
   {
-    clerkUserId: { type: String, required: true, index: true },
+    // Absent on guest orders; set when the order was placed signed in.
+    clerkUserId: { type: String, index: true },
     email: String,
+    // Secret in the confirmation link (/order/[id]?t=). Older orders have none.
+    accessToken: { type: String, index: true },
     lines: { type: [OrderLineSchema], required: true },
     pricing: {
       subtotal: { type: Number, required: true },
@@ -240,6 +255,14 @@ const OrderSchema = new Schema(
       couponCode: String,
       shippingWaived: { type: Boolean, default: false },
     },
+    // The person paying. Carries no pincode; it never affects delivery.
+    billing: {
+      name: String,
+      phone: String,
+      address: String,
+    },
+    // The receiver. New orders put the whole address text in line1; city and
+    // state come from the pincode via deliveryAreaName.
     shippingAddress: {
       name: String,
       phone: String,
@@ -249,6 +272,7 @@ const OrderSchema = new Schema(
       state: String,
       pincode: { type: String, required: true },
     },
+    giftMessage: String,
     deliveryAreaName: String,
     payment: {
       method: { type: String, required: true, enum: ["razorpay", "cod"] },
@@ -276,7 +300,8 @@ export type ProductDoc = InferSchemaType<typeof ProductSchema> & { _id: mongoose
 export type CollectionDoc = InferSchemaType<typeof CollectionSchema> & { _id: mongoose.Types.ObjectId };
 export type CouponDoc = InferSchemaType<typeof CouponSchema> & { _id: mongoose.Types.ObjectId };
 export type PriceRuleDoc = InferSchemaType<typeof PriceRuleSchema> & { _id: mongoose.Types.ObjectId };
-export type DeliveryAreaDoc = InferSchemaType<typeof DeliveryAreaSchema> & { _id: mongoose.Types.ObjectId };
+export type DeliveryCityDoc = InferSchemaType<typeof DeliveryCitySchema> & { _id: mongoose.Types.ObjectId };
+export type PincodeDoc = InferSchemaType<typeof PincodeSchema> & { _id: mongoose.Types.ObjectId };
 export type SettingsDoc = InferSchemaType<typeof SettingsSchema> & { _id: mongoose.Types.ObjectId };
 export type UserDoc = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId };
 export type CartDoc = InferSchemaType<typeof CartSchema> & { _id: mongoose.Types.ObjectId };
@@ -296,7 +321,8 @@ export const ProductModel = modelOf<ProductDoc>("Product", ProductSchema);
 export const CollectionModel = modelOf<CollectionDoc>("Collection", CollectionSchema);
 export const CouponModel = modelOf<CouponDoc>("Coupon", CouponSchema);
 export const PriceRuleModel = modelOf<PriceRuleDoc>("PriceRule", PriceRuleSchema);
-export const DeliveryAreaModel = modelOf<DeliveryAreaDoc>("DeliveryArea", DeliveryAreaSchema);
+export const DeliveryCityModel = modelOf<DeliveryCityDoc>("DeliveryCity", DeliveryCitySchema);
+export const PincodeModel = modelOf<PincodeDoc>("Pincode", PincodeSchema);
 export const SettingsModel = modelOf<SettingsDoc>("Settings", SettingsSchema);
 export const UserModel = modelOf<UserDoc>("User", UserSchema);
 export const CartModel = modelOf<CartDoc>("Cart", CartSchema);

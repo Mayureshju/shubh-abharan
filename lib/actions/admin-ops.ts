@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { connectDb } from "@/lib/db/connect";
-import { CouponModel, DeliveryAreaModel, PriceRuleModel, SettingsModel } from "@/lib/db/models";
+import { isValidObjectId } from "mongoose";
+import { CouponModel, DeliveryCityModel, PincodeModel, PriceRuleModel, SettingsModel } from "@/lib/db/models";
 import { requireAdmin } from "@/lib/auth/roles";
 
 function num(value: FormDataEntryValue | null): number | null {
@@ -76,22 +77,34 @@ export async function savePriceRule(formData: FormData) {
   return;
 }
 
-export async function saveDeliveryArea(formData: FormData) {
+export async function saveDeliveryCity(formData: FormData) {
   await requireAdmin();
   await connectDb();
   const id = String(formData.get("id") ?? "");
-  const name = String(formData.get("name") ?? "").trim();
-  const charge = rupeesToPaise(formData.get("charge")) ?? 0;
-  const payload = {
-    name,
-    pincodes: list(formData.get("pincodes")),
-    charge: { amount: charge, currency: "INR" },
-    isActive: formData.get("isActive") !== "false",
-  };
-  if (!name) return;
-  if (id) await DeliveryAreaModel.findByIdAndUpdate(id, { $set: payload });
-  else await DeliveryAreaModel.create(payload);
-  revalidatePath("/admin/delivery");
+  if (!isValidObjectId(id)) return;
+  const charge = rupeesToPaise(formData.get("charge"));
+  await DeliveryCityModel.findByIdAndUpdate(id, {
+    $set: {
+      // Blank charge falls back to the store default.
+      charge: charge != null && charge >= 0 ? charge : null,
+      isActive: formData.get("isActive") === "on",
+    },
+  });
+  revalidatePath("/admin/delivery", "layout");
+  return;
+}
+
+export async function setPincodesActive(formData: FormData) {
+  await requireAdmin();
+  await connectDb();
+  // Any separator: pasted lists come comma-, space-, or newline-separated.
+  const pincodes = String(formData.get("pincodes") ?? "").match(/\b\d{6}\b/g) ?? [];
+  if (pincodes.length === 0) return;
+  await PincodeModel.updateMany(
+    { pincode: { $in: pincodes } },
+    { $set: { isActive: formData.get("active") === "true" } },
+  );
+  revalidatePath("/admin/delivery", "layout");
   return;
 }
 
@@ -104,6 +117,7 @@ export async function saveSettings(formData: FormData) {
       $set: {
         key: "store",
         freeDeliveryMin: rupeesToPaise(formData.get("freeDeliveryMin")),
+        defaultDeliveryCharge: rupeesToPaise(formData.get("defaultDeliveryCharge")) ?? 0,
         codEnabled: formData.get("codEnabled") === "on",
         currency: "INR",
       },

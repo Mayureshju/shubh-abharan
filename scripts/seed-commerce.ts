@@ -3,7 +3,6 @@ import {
   CategoryModel,
   CollectionModel,
   CouponModel,
-  DeliveryAreaModel,
   ProductModel,
   SettingsModel,
   TagModel,
@@ -131,19 +130,6 @@ async function seed() {
         freeDeliveryMin: 500000,
         codEnabled: true,
         currency: "INR",
-      },
-    },
-    { upsert: true },
-  );
-
-  await DeliveryAreaModel.updateOne(
-    { name: "Mumbai" },
-    {
-      $setOnInsert: {
-        name: "Mumbai",
-        pincodes: ["400001", "400002", "400003", "400004", "400005"],
-        charge: { amount: 25000, currency: "INR" },
-        isActive: true,
       },
     },
     { upsert: true },

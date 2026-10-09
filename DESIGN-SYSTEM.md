@@ -91,8 +91,10 @@ an optional `labels` field typed as a closed union of **manufacturing facts** �
 `made-to-order`, `one-of-a-kind`, `hallmarked`, `limited-run` — supplied by the
 business. `"Sale"`, `"Only 2 left"` and `"Bestseller"` are not expressible, and
 labels **never render on a product card**: the product-card requirement in
-`specs/design-system/core-components` forbids badge affordances there and is
-unmodified, so labels surface on the product detail page only.
+`specs/design-system/core-components` forbids badge affordances there, so labels
+surface on the product detail page only. (`streamline-purchase-flow` changed
+that requirement so every card in a listing — shop, collections, wishlist —
+shares one square frame at one size; the badge prohibition is unchanged.)
 
 Availability is a four-state union with no quantity field, so scarcity messaging
 has nothing to render from.
@@ -195,13 +197,16 @@ are unused by the live storefront.
 ## Routes the shell links to that do not exist
 
 `build-shop-and-collections` delivered `/shop` (with its query filters), `/types`,
-`/collections`, `/collections/[slug]`, and `/contact`. The remaining destinations
-the shell still links to are:
+`/collections`, `/collections/[slug]`, and `/contact`. `add-about-and-refine-contact`
+delivered `/about` and recomposed `/contact`. `build-commerce-platform` delivered
+`/cart`, `/wishlist`, `/checkout` and `/account/orders`; `streamline-purchase-flow`
+opened checkout to guests and added `/order/[id]?t=<token>`, the private order
+confirmation (not indexed, no referrer). The remaining destination the shell
+still links to is:
 
 | Route | Owed by |
 | --- | --- |
-| `/cart`, `/wishlist` | `build-cart-and-wishlist` |
-| `/search`, `/about` | unassigned |
+| `/search` | unassigned |
 
 `/types` is a photographed index whose entries resolve to `/shop?category=`, not
 a parallel per-type route tree.
@@ -235,13 +240,14 @@ briefed — when a frame is re-shot, its `alt` is rewritten with it.
 ## Overlay dialogs
 
 `components/ui/ModalDialog.tsx` is the native `<dialog>` primitive shared by the
-navigation overlay and the shop filter sheet. `showModal()` supplies focus
-containment, Escape and focus return; only geometry differs (`overlay` vs
-`sheet`). Do not write a second dialog wrapper.
+navigation overlay, the shop filter sheet, the bag drawer and the product image
+view. `showModal()` supplies focus containment, Escape and focus return; only
+geometry differs (`overlay` full viewport, `sheet` bottom of a phone, `drawer`
+right-hand panel). Do not write a second dialog wrapper.
 
 ## Running the gates
 
 ```
-npm run check     # lint, typecheck, contrast, anti-slop, catalog integrity
+npm run check     # lint, typecheck, contrast, anti-slop, catalog integrity, checkout validation
 npm run build
 ```

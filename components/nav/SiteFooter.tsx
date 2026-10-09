@@ -4,7 +4,8 @@ import type { Category } from "@/lib/catalog/types";
 
 /**
  * Caption type throughout. Columns whose entries are all unsupplied do not
- * render. Social is omitted until URLs are supplied.
+ * render. Follow renders `brand.social` and is omitted until URLs are supplied
+ * (`Column` returns nothing for an empty list).
  */
 
 const TYPES = [
@@ -91,6 +92,7 @@ export function SiteFooter() {
               }))}
             />
             {policies.length > 0 ? <Column heading="Legal" links={policies} /> : null}
+            <Column heading="Follow" links={brand.social} />
           </nav>
         </div>
 

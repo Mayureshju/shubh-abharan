@@ -31,9 +31,14 @@ export default function WishlistPage() {
           </Link>
         </p>
       ) : (
-        <div className="mt-tight grid gap-8 md:grid-cols-3">
+        <div className="shop-set mt-tight">
           {products.map((product) => (
-            <ProductCard key={product.slug} product={toProductCardProduct(product)} portrait />
+            <ProductCard
+              key={product.slug}
+              product={toProductCardProduct(product)}
+              portrait
+              sizes="(min-width: 1024px) 33vw, 50vw"
+            />
           ))}
         </div>
       )}

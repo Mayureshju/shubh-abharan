@@ -1,13 +1,15 @@
 import { connectDb } from "@/lib/db/connect";
 import {
   CouponModel,
-  DeliveryAreaModel,
+  DeliveryCityModel,
+  PincodeModel,
   ProductModel,
   SettingsModel,
   type CouponDoc,
   type ProductDoc,
 } from "@/lib/db/models";
 import { mapProduct } from "@/lib/catalog/mapDoc";
+import { imageForRole } from "@/lib/catalog/derive";
 import { resolveVariantPrice, type HikeRule } from "@/lib/pricing/resolve";
 import { PriceRuleModel, type PriceRuleDoc } from "@/lib/db/models";
 import type { Money, Product } from "@/lib/catalog/types";
@@ -45,6 +47,8 @@ export type QuoteResult = {
   readonly couponCode: string | null;
   readonly deliveryAreaName: string | null;
   readonly codEnabled: boolean;
+  /** True only when a pincode was given and the store does not deliver there. */
+  readonly unservedPincode: boolean;
 };
 
 function toHike(doc: PriceRuleDoc): HikeRule {
@@ -91,6 +95,7 @@ export async function quoteCart(
       couponCode: null,
       deliveryAreaName: null,
       codEnabled,
+      unservedPincode: false,
     });
   }
 
@@ -113,6 +118,10 @@ export async function quoteCart(
     if (!variant) {
       return emptyError("A selected size is no longer offered.", codEnabled);
     }
+    if (variant.availability === "sold-out" || variant.availability === "unavailable") {
+      const size = variant.options.size ? ` in size ${variant.options.size}` : "";
+      return emptyError(`${product.name} is no longer available${size}. Remove it to continue.`, codEnabled);
+    }
     const payable = variant.payablePrice ?? variant.price;
     if (!payable) {
       return emptyError(`${product.name} has no price.`, codEnabled);
@@ -124,7 +133,8 @@ export async function quoteCart(
       slug: product.slug,
       name: product.name,
       sizeLabel: variant.options.size ?? null,
-      imageSrc: product.images[0]?.src ?? null,
+      // The square still, matching the listing card, not a lifestyle crop.
+      imageSrc: imageForRole(product, "macro").src ?? null,
       quantity,
       unitPayable: { amount: payable.amount, currency: payable.currency },
       lineTotal: payable.amount * quantity,
@@ -132,7 +142,7 @@ export async function quoteCart(
     });
   }
 
-  let subtotal = quoted.reduce((sum, line) => sum + line.lineTotal, 0);
+  const subtotal = quoted.reduce((sum, line) => sum + line.lineTotal, 0);
   let discount = 0;
   let couponCode: string | null = null;
 
@@ -185,11 +195,11 @@ export async function quoteCart(
 
   const pin = options.pincode?.trim();
   if (pin) {
-    const area = await DeliveryAreaModel.findOne({
-      isActive: true,
-      pincodes: pin,
-    }).lean();
-    if (!area) {
+    const place = await PincodeModel.findOne({ pincode: pin, isActive: true }).lean();
+    const city = place
+      ? await DeliveryCityModel.findOne({ state: place.state, name: place.city, isActive: true }).lean()
+      : null;
+    if (!city) {
       return finish({
         ok: false,
         error: "This pincode is not in a served delivery area.",
@@ -203,10 +213,11 @@ export async function quoteCart(
         couponCode,
         deliveryAreaName: null,
         codEnabled,
+        unservedPincode: true,
       });
     }
-    deliveryAreaName = area.name;
-    shipping = area.charge.amount;
+    deliveryAreaName = `${city.name}, ${city.state}`;
+    shipping = city.charge ?? settings?.defaultDeliveryCharge ?? 0;
     const threshold = settings?.freeDeliveryMin ?? null;
     const freeShippingCoupon = couponCode
       ? await CouponModel.findOne({ code: couponCode, type: "free_shipping", isActive: true }).lean()
@@ -230,6 +241,7 @@ export async function quoteCart(
     couponCode,
     deliveryAreaName,
     codEnabled,
+    unservedPincode: false,
   });
 }
 
@@ -247,6 +259,7 @@ function fail(error: string, lines: QuotedLine[], subtotal: number, codEnabled: 
     couponCode: null,
     deliveryAreaName: null,
     codEnabled,
+    unservedPincode: false,
   });
 }
 

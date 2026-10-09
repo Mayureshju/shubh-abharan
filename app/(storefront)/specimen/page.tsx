@@ -267,6 +267,26 @@ export default async function SpecimenPage() {
               <p className="mt-2 text-caption uppercase text-muted">input · radius 2px</p>
             </div>
             <div>
+              <input
+                aria-label="Specimen invalid input"
+                aria-invalid
+                aria-describedby="specimen-input-error"
+                placeholder="Invalid input"
+                className="rounded-input border border-on-surface bg-transparent px-3 py-2 text-body placeholder:text-muted aria-[invalid=true]:border-2"
+              />
+              <p id="specimen-input-error" className="mt-2 text-caption text-accent">
+                Fill in this field.
+              </p>
+              <p className="mt-1 text-caption uppercase text-muted">input · invalid, 2px + message</p>
+            </div>
+            <div>
+              <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-3 rounded-input border border-on-surface px-4 text-body has-checked:bg-lavender has-checked:text-charcoal">
+                <input type="radio" name="specimen-topic" defaultChecked className="size-4 accent-charcoal" />
+                Checked option
+              </label>
+              <p className="mt-2 text-caption uppercase text-muted">option · checked, lavender fill</p>
+            </div>
+            <div>
               <hr className="w-24 border-t border-line" />
               <p className="mt-2 text-caption uppercase text-muted">hairline rule</p>
             </div>
@@ -353,7 +373,7 @@ export default async function SpecimenPage() {
         <Section
           title="Product card"
           rhythm="tight"
-          intent="Presentation follows the declared image role. Aspect ratio and grid span vary deliberately — a uniform repeating row fails review. Rendered with specimen data, not brand content."
+          intent="Presentation follows the declared image role in editorial sets. In product listings (shop, collections, wishlist) every card shares one square frame at one size. Rendered with specimen data, not brand content."
         >
           <div className="rail" style={{ ["--rail-columns" as string]: "3" }}>
             {specimenCards.map(({ span, ...product }) => (

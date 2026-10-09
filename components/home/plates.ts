@@ -71,7 +71,7 @@ export const DETAIL_PLATE: EditorialPlate = {
   aspect: "1/1",
   src: "/images/detail.jpg",
   crop: "one piece filling the frame against dark ground, bezel and granulation legible",
-  alt: "Close view of a gold ring, its granulated bezel closed by hand around a deep red garnet cabochon, resting on lilac silk.",
+  alt: "Close view of a gold ring, a beaded gold border around a domed deep-red cabochon, resting on lilac silk beside a marble slab, with four small round gold settings in the foreground.",
 };
 
 /**
@@ -211,6 +211,25 @@ export const BANGLES_PLATE: EditorialPlate = {
   src: "/images/category-bangles.jpg",
   crop: "three stacked gold kundan bangles centred on an ivory cushion, circular crop",
   alt: "Three stacked gold kundan bangles with emerald stones, on an ivory cushion over lilac silk.",
+};
+
+/**
+ * About page frames. No new photography exists — `hero.jpg` and
+ * `collection.jpg` are copies of the homepage hero and collection stills — so
+ * About recrops the two slider frames a visitor is least likely to have seen,
+ * each at a single ratio because neither sits in a viewport band.
+ */
+export const ABOUT_PLATE: EditorialPlate = {
+  ...HERO_THREE_PLATE,
+  aspectMd: undefined,
+  position: "74% 40%",
+  crop: "the seated figure from Hero 3, collar and bangles in frame, armchair edge at right",
+};
+
+export const STORY_PLATE: EditorialPlate = {
+  ...COLLECTION_TWO_PLATE,
+  aspect: "5/4",
+  aspectMd: undefined,
 };
 
 export const OCCASION_PLATES = {

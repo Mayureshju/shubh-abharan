@@ -511,37 +511,78 @@
     }
   }
 
-  /* Shop / collection listing. Stacks on a phone; from 768px the first of
-     every four cards spans the row so the set is not a uniform repeating grid. */
+  /* From 768px the tiles take their height from the grid, not the photo:
+     the tall lead spans two rows, so a photo sized by its own aspect ratio
+     stops short and leaves the scrim showing below it. The photo fills
+     the tile instead (object-fit: cover keeps the crop). */
+  @media (min-width: 768px) {
+    .occasion-set {
+      grid-template-rows: repeat(2, clamp(15rem, 22vw, 24rem));
+    }
+
+    .occasion-set > article > a,
+    .occasion-set figure {
+      position: absolute;
+      inset: 0;
+    }
+
+    .occasion-set figure > div {
+      height: 100%;
+      /* Overrides the Plate's inline aspect-ratio. */
+      aspect-ratio: auto !important;
+    }
+  }
+
+  /* Product listings: shop, collections, wishlist. Every card is one column
+     of one square size so pieces compare at the same scale. Two up on a
+     phone, three from 1024px beside the filter column. */
   .shop-set {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 2.5rem 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 0.75rem;
   }
 
   @media (min-width: 768px) {
     .shop-set {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .shop-set > *:nth-child(4n + 1) {
-      grid-column: span 2;
+      gap: 2.5rem 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .shop-set {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+  }
 
-    .shop-set > *:nth-child(4n + 1) {
-      grid-column: span 4;
-    }
+  /* Product gallery: one square slide per image, swiped natively, scrolled
+     by the thumbnails. The reduced-motion block above cancels the smooth
+     scroll. */
+  .pdp-slides {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    /* Keeps a fractional-width neighbour from showing as a 1px sliver. */
+    column-gap: 1rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
 
-    .shop-set > *:nth-child(4n + 2),
-    .shop-set > *:nth-child(4n + 3),
-    .shop-set > *:nth-child(4n + 4) {
-      grid-column: span 2;
+  .pdp-slides::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pdp-slides > * {
+    scroll-snap-align: start;
+  }
+
+  /* The product page's purchase bar is fixed to the bottom on a phone; pad
+     the page so the footer's last line scrolls clear of it. */
+  @media (max-width: 767px) {
+    body:has([data-buy-bar]) {
+      padding-bottom: 5rem;
     }
   }
 

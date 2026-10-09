@@ -308,7 +308,7 @@ export const merchandise: readonly Product[] = [
         aspect: "1/1",
         src: "/images/detail.jpg",
         crop: "close bezel work",
-        alt: "Close view of a gold ring, its granulated bezel closed by hand around a deep red garnet cabochon, resting on lilac silk.",
+        alt: "Close view of a gold ring, a beaded gold border around a domed deep-red cabochon, resting on lilac silk beside a marble slab, with four small round gold settings in the foreground.",
       },
     ],
     collections: [],

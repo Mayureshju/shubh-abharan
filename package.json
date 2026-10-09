@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "seed": "npx tsx scripts/seed-commerce.ts",
-    "check": "npm run lint && npm run typecheck && node scripts/contrast.mjs && node scripts/check-slop.mjs && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-catalog.mjs"
+    "import:pincodes": "npx tsx scripts/import-pincodes.ts",
+    "check": "npm run lint && npm run typecheck && node scripts/contrast.mjs && node scripts/check-slop.mjs && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-catalog.mjs && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-checkout.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1141.0",

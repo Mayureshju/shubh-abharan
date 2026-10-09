@@ -3,10 +3,10 @@ import { Plate } from "@/components/editorial/Plate";
 import type { ProductCardProduct } from "@/lib/catalog/types";
 
 /**
- * Presentation follows the declared image role rather than a fixed template,
- * and aspect ratio and grid span vary per card. A listing that renders every
- * card at identical size in a repeating row fails review — see the
- * product-card requirement in specs/design-system/core-components.
+ * In product listings every card shares one square frame (`portrait`) so
+ * pieces compare at the same scale — see the product-card requirement in
+ * specs/design-system/core-components. Outside listings, presentation still
+ * follows the declared image role.
  *
  * There is deliberately no rating, review, badge, discount or scarcity
  * affordance. Those have no prop here, so no listing can render one. Product
@@ -33,7 +33,7 @@ export function ProductCard({
   portrait = false,
 }: {
   product: ProductCardProduct;
-  /** Grid span is the parent's decision — listings vary it deliberately. */
+  /** Placement is the parent's decision. */
   className?: string;
   sizes?: string;
   priority?: boolean;
@@ -71,9 +71,10 @@ export function ProductCard({
           </div>
         )}
 
-        <div className="mt-2.5 flex items-baseline justify-between gap-3 md:mt-4 md:gap-4">
+        {/* Name over price on a two-up phone grid, side by side from 768px. */}
+        <div className="mt-2.5 flex flex-col gap-0.5 md:mt-4 md:flex-row md:items-baseline md:justify-between md:gap-4">
           <h3 className="text-body group-hover:underline underline-offset-4">{product.name}</h3>
-          <p className="text-caption uppercase text-muted">
+          <p className="shrink-0 text-caption uppercase text-muted">
             {product.comparePrice ? (
               <>
                 <span className="mr-2 line-through">{product.comparePrice}</span>
@@ -84,7 +85,7 @@ export function ProductCard({
             )}
           </p>
         </div>
-        <p className="mt-1 text-caption uppercase text-muted">{product.materialLine}</p>
+        <p className="mt-1 line-clamp-2 text-caption uppercase text-muted">{product.materialLine}</p>
       </Link>
     </article>
   );

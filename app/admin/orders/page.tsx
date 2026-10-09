@@ -29,6 +29,8 @@ export default async function AdminOrders({
     const pattern = new RegExp(escapeRegex(term), "i");
     filter.$or = [
       { email: pattern },
+      { "billing.name": pattern },
+      { "billing.phone": pattern },
       { "shippingAddress.name": pattern },
       { "shippingAddress.phone": pattern },
       // Order numbers are the last six characters of the id.

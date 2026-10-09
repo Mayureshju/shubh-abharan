@@ -107,9 +107,30 @@ export interface Brand {
   /** Policy facts. A null policy means the surface showing it is omitted. */
   policies: Policies;
 
+  /**
+   * About-page story, one string per paragraph. Unlike `reasons`, an empty
+   * list does not omit its section: the story is the page's subject, so the
+   * section renders a marked placeholder until the business writes it.
+   */
+  story: readonly string[];
+
   /** Contact shown to customers. */
   contactEmail: BrandField;
   contactAddress: BrandField;
+  /**
+   * Optional channels: unsupplied, the row omits itself rather than
+   * placeholding. Phone is shown as given and dialled with `+` and digits.
+   * WhatsApp must be in international format — `wa.me` needs the country code.
+   */
+  contactPhone: BrandField;
+  contactWhatsapp: BrandField;
+  /** Profile links, e.g. { label: "Instagram", href: "https://instagram.com/…" }. */
+  social: readonly SocialLink[];
+}
+
+export interface SocialLink {
+  readonly label: string;
+  readonly href: string;
 }
 
 export interface Collection {
@@ -257,8 +278,13 @@ export const brand: Brand = {
     hallmarking: null,
   },
 
+  story: [],
+
   contactEmail: null,
   contactAddress: null,
+  contactPhone: null,
+  contactWhatsapp: null,
+  social: [],
 };
 
 /**

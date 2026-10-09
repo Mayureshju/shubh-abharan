@@ -40,7 +40,7 @@ export function OrdersTable({ orders }: { orders: OrderRow[] }) {
                       {orderNumber(id)}
                     </Link>
                   </td>
-                  <td>{order.shippingAddress?.name ?? order.email ?? "—"}</td>
+                  <td>{order.billing?.name ?? order.shippingAddress?.name ?? order.email ?? "—"}</td>
                   <td className="admin-muted">
                     {order.createdAt
                       ? new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Plate } from "@/components/editorial/Plate";
 import { AddToBag } from "@/components/product/AddToBag";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { resolve } from "@/lib/brand";
 import {
   categoryLabel,
@@ -14,6 +14,14 @@ import {
   relatedProducts,
   toProductCardProduct,
 } from "@/lib/catalog";
+import type { ProductLabel } from "@/lib/catalog/types";
+
+const LABEL_TEXT: Record<ProductLabel, string> = {
+  "made-to-order": "Made to order",
+  "one-of-a-kind": "One of a kind",
+  hallmarked: "Hallmarked",
+  "limited-run": "Limited run",
+};
 
 export async function generateMetadata({
   params,
@@ -44,21 +52,15 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
   const displayPrice = hasPriceRange(product) ? `From ${price}` : price;
   const all = await listProducts();
   const related = relatedProducts(product, all, 4);
+  const attributes = product.attributes ?? [];
+  const labels = product.labels ?? [];
+  const hasDetails = attributes.length > 0 || labels.length > 0 || Boolean(product.care);
 
   return (
     <article className="page-gutter py-tight">
       <div className="md:grid md:grid-cols-12 md:gap-12 lg:gap-16">
         <div className="md:col-span-7">
-          <div className="grid gap-3">
-            {product.images.map((image, index) => (
-              <Plate
-                key={`${image.role}-${index}`}
-                {...image}
-                sizes="(min-width: 768px) 55vw, 100vw"
-                priority={index === 0}
-              />
-            ))}
-          </div>
+          <ProductGallery images={product.images} name={product.name} />
         </div>
 
         <div className="mt-tight md:col-span-5 md:mt-0 md:sticky md:top-24 md:self-start">
@@ -79,25 +81,57 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
           <p className="mt-2 text-caption uppercase text-muted">
             {resolve(product.materialLine, "material line")}
           </p>
-          <p className="mt-tight max-w-measure text-body text-muted">
-            {resolve(product.description, "description")}
-          </p>
-          {product.care ? (
-            <p className="mt-4 max-w-measure text-caption text-muted">{product.care}</p>
-          ) : null}
+
           <AddToBag
             product={{
               id: product.id,
               isSize: Boolean(product.isSize),
               sizes: product.sizes ?? [],
               sizeValues: product.options.find((option) => option.axis === "size")?.values ?? [],
-              variants: product.variants.map((variant) => ({
-                id: variant.id,
-                size: variant.options.size ?? null,
-                availability: variant.availability,
-              })),
+              displayPrice,
+              variants: product.variants.map((variant) => {
+                const payable = variant.payablePrice ?? variant.price;
+                return {
+                  id: variant.id,
+                  size: variant.options.size ?? null,
+                  availability: variant.availability,
+                  price: payable ? formatMoney(payable) : null,
+                };
+              }),
             }}
           />
+
+          <p className="mt-tight max-w-measure text-body text-muted">
+            {resolve(product.description, "description")}
+          </p>
+
+          {hasDetails ? (
+            <details className="mt-6 border-t border-line pt-4">
+              <summary className="flex min-h-11 cursor-pointer items-center text-caption uppercase tracking-[0.22em] text-accent">
+                Details and care
+              </summary>
+              {attributes.length > 0 ? (
+                <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-body">
+                  {attributes.map((attribute) => (
+                    <div key={attribute.label} className="contents">
+                      <dt className="text-muted">{attribute.label}</dt>
+                      <dd>{attribute.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+              {labels.length > 0 ? (
+                <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-caption uppercase text-muted">
+                  {labels.map((label) => (
+                    <li key={label}>{LABEL_TEXT[label]}</li>
+                  ))}
+                </ul>
+              ) : null}
+              {product.care ? (
+                <p className="mt-3 max-w-measure text-caption text-muted">{product.care}</p>
+              ) : null}
+            </details>
+          ) : null}
         </div>
       </div>
 
