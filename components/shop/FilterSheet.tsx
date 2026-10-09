@@ -8,8 +8,8 @@ import { ShopFilters } from "./ShopFilters";
 import { shopQueryKey, type ShopSearch } from "./query";
 
 /**
- * Mobile entry to the shop GET form. The form itself is identical to the
- * desktop aside; this island only opens and closes the sheet.
+ * Phone and tablet entry to the shop GET form (below 1024px; FilterBar takes
+ * over above). This island only opens and closes the sheet.
  */
 
 export function FilterSheet({
@@ -24,7 +24,7 @@ export function FilterSheet({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <Button variant="quiet" onClick={() => setOpen(true)}>
         Filter
       </Button>

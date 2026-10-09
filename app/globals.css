@@ -535,7 +535,7 @@
 
   /* Product listings: shop, collections, wishlist. Every card is one column
      of one square size so pieces compare at the same scale. Two up on a
-     phone, three from 1024px beside the filter column. */
+     phone, three from 1024px. */
   .shop-set {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

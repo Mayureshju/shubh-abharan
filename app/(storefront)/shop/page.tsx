@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FilterBar } from "@/components/shop/FilterBar";
 import { FilterSheet } from "@/components/shop/FilterSheet";
+import { PAGE_SIZE } from "@/components/shop/pages";
+import { Pagination } from "@/components/shop/Pagination";
 import { ProductListing } from "@/components/shop/ProductListing";
-import { ShopFilters } from "@/components/shop/ShopFilters";
-import {
-  parseShopSearch,
-  shopHasFilters,
-  shopQueryKey,
-  toListCriteria,
-} from "@/components/shop/query";
+import { parseShopSearch, shopHasFilters, toListCriteria } from "@/components/shop/query";
 import { buttonClass } from "@/components/ui/buttonClass";
 import { categoryLabel, listCategories, listProducts, listTags } from "@/lib/catalog";
 
@@ -40,6 +37,9 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
   const match = categories.find((entry) => entry.slug === query.category);
   const heading = query.category ? categoryLabel(query.category, match?.name) : "All pieces";
   const countLabel = `${products.length} ${products.length === 1 ? "piece" : "pieces"}`;
+  const pageCount = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+  const page = Math.min(query.page ?? 1, pageCount);
+  const pageProducts = products.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const filtered = shopHasFilters(query);
   const filterCategories = categories.map((entry) => ({ slug: entry.slug, name: entry.name }));
 
@@ -52,31 +52,31 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
       </div>
       <p className="mt-4 text-caption uppercase text-muted">{countLabel}</p>
 
-      <div className="mt-tight md:grid md:grid-cols-12 md:gap-12 lg:gap-16">
-        <aside className="hidden md:col-span-3 md:block">
-          <ShopFilters
-            key={shopQueryKey(query)}
-            query={query}
-            idPrefix="desktop"
-            categories={filterCategories}
-            tags={tags}
-          />
-        </aside>
+      <FilterBar
+        query={query}
+        categories={filterCategories}
+        tags={tags}
+        start={(page - 1) * PAGE_SIZE + 1}
+        end={(page - 1) * PAGE_SIZE + pageProducts.length}
+        total={products.length}
+      />
 
-        <div className="md:col-span-9">
-          {products.length > 0 ? (
-            <ProductListing products={products} />
-          ) : (
-            <p className="text-body text-muted">
-              {filtered ? "No pieces match these filters." : "No pieces listed yet."}{" "}
-              {filtered ? (
-                <Link href="/shop" className={buttonClass("inline")}>
-                  Clear filters
-                </Link>
-              ) : null}
-            </p>
-          )}
-        </div>
+      <div className="mt-tight">
+        {products.length > 0 ? (
+          <>
+            <ProductListing products={pageProducts} />
+            <Pagination query={query} page={page} pageCount={pageCount} />
+          </>
+        ) : (
+          <p className="text-body text-muted">
+            {filtered ? "No pieces match these filters." : "No pieces listed yet."}{" "}
+            {filtered ? (
+              <Link href="/shop" className={buttonClass("inline")}>
+                Clear filters
+              </Link>
+            ) : null}
+          </p>
+        )}
       </div>
     </section>
   );

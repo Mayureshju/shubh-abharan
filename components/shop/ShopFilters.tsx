@@ -12,8 +12,7 @@ import {
 import { shopHasFilters, type ShopSearch } from "./query";
 
 /**
- * GET form for the shop surface. Desktop renders it inline; the mobile sheet
- * mounts a second copy with a distinct id prefix. Submitting reloads /shop
+ * GET form inside the filter sheet (below 1024px). Submitting reloads /shop
  * with the query, so filters work without the sheet's client script.
  */
 
@@ -179,12 +178,8 @@ export function ShopFilters({
         </div>
       </fieldset>
 
-      <p
-        className={
-          "flex flex-wrap items-center gap-4 bg-surface " +
-          (idPrefix === "sheet" ? "sticky bottom-0 pt-4" : "")
-        }
-      >
+      {/* Pinned to the bottom of the sheet's scroll area. */}
+      <p className="sticky bottom-0 flex flex-wrap items-center gap-4 bg-surface pt-4 pb-1">
         <button type="submit" className={buttonClass("quiet")}>
           Apply
         </button>

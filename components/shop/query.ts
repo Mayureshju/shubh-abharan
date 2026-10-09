@@ -17,6 +17,7 @@ export type ShopSearch = {
   readonly min?: number;
   readonly max?: number;
   readonly tag?: string;
+  readonly page?: number;
 };
 
 export type SearchParamsInput = Record<string, string | string[] | undefined>;
@@ -54,7 +55,19 @@ export function parseShopSearch(params: SearchParamsInput): ShopSearch {
     min: parseMajor(first(params.min)),
     max: parseMajor(first(params.max)),
     tag: tagRaw !== undefined && /^[a-z0-9-]+$/.test(tagRaw) ? tagRaw : undefined,
+    page: parseMajor(first(params.page)) || undefined,
   };
+}
+
+/** The shop URL for `search` at `page`; page 1 carries no parameter. */
+export function shopHref(search: ShopSearch, page: number): string {
+  const params = new URLSearchParams();
+  for (const key of ["category", "sort", "availability", "min", "max", "tag"] as const) {
+    if (search[key] !== undefined) params.set(key, String(search[key]));
+  }
+  if (page > 1) params.set("page", String(page));
+  const queryString = params.toString();
+  return queryString === "" ? "/shop" : `/shop?${queryString}`;
 }
 
 export function toListCriteria(search: ShopSearch): ListCriteria {
