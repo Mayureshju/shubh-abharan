@@ -7,11 +7,12 @@ import type { Availability, Money, ProductImage } from "@/lib/catalog/types";
  */
 
 /**
- * The product page's two columns. The page and the fixed purchase bar's inner
- * row both use it, so the bar's actions sit exactly under the details column.
+ * The product page's two columns. Phones stack. From 768px the photo and
+ * the details share the row. From 1280px the photo stops at 32rem and the
+ * details column keeps the rest, so add-ons have room on a wide screen.
  */
 export const PDP_COLUMNS =
-  "md:grid md:grid-cols-2 md:gap-x-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-16";
+  "md:grid md:items-start md:grid-cols-2 md:gap-x-8 xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] xl:gap-x-12";
 
 export const buyable = (availability: Availability | undefined) =>
   availability === "available" || availability === "made-to-order";

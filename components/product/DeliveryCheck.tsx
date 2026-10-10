@@ -61,7 +61,7 @@ export function DeliveryCheck({ productId, variantId }: { productId: string; var
       <label htmlFor={id} className="text-caption uppercase tracking-[0.22em] text-accent">
         Check delivery
       </label>
-      <div className="mt-3 flex items-stretch gap-2">
+      <div className="mt-3 flex min-w-0 flex-wrap items-end gap-x-4 gap-y-2">
         <input
           id={id}
           ref={(element) => {
@@ -82,9 +82,9 @@ export function DeliveryCheck({ productId, variantId }: { productId: string; var
           maxLength={6}
           placeholder="Pincode"
           aria-describedby={`${id}-result`}
-          className="w-36 rounded-input border border-on-surface bg-transparent px-3 text-body"
+          className="h-11 w-full min-w-0 max-w-40 border-0 border-b border-line bg-transparent px-0 text-body placeholder:text-muted focus-visible:border-on-surface"
         />
-        <Button type="submit" variant="quiet" pending={pending} pendingLabel="Checking">
+        <Button type="submit" variant="inline" pending={pending} pendingLabel="Checking" className="shrink-0 self-end">
           Check
         </Button>
       </div>

@@ -101,6 +101,7 @@ export const merchandise: readonly Product[] = [
   {
     id: asProductId("p_merch_chandbali"),
     slug: "chandbali-earrings",
+    isAddon: true,
     name: "Chandbali earrings",
     category: "earring",
     options: [],

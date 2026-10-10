@@ -332,73 +332,76 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
 
       <form noValidate className="mt-tight grid gap-tight md:grid-cols-12" onSubmit={onSubmit}>
         <div className="grid content-start gap-tight md:col-span-7">
-          <fieldset className="grid gap-4 border-0 p-0">
-            <legend className="mb-4 text-caption uppercase tracking-[0.22em] text-accent">
+          <fieldset className="border-0 p-0">
+            <legend className="mb-3 text-caption uppercase tracking-[0.22em] text-accent">
               Billing details
             </legend>
-            <TextField
-              path="billing.name"
-              label="Full name"
-              value={draft.billing.name}
-              onChange={(value) => setBilling("name", value)}
-              error={errors["billing.name"]}
-              autoComplete="billing name"
-            />
-            <TextField
-              path="billing.phone"
-              label="Mobile number"
-              value={draft.billing.phone}
-              onChange={(value) => setBilling("phone", value)}
-              error={errors["billing.phone"]}
-              autoComplete="billing tel-national"
-              inputMode="tel"
-              type="tel"
-              prefix="+91"
-            />
-            <TextField
-              path="billing.address"
-              label="Address"
-              hint="House or flat, street, area and city."
-              value={draft.billing.address}
-              onChange={(value) => setBilling("address", value)}
-              error={errors["billing.address"]}
-              autoComplete="billing street-address"
-              multiline
-            />
+            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+              <TextField
+                path="billing.name"
+                label="Full name"
+                value={draft.billing.name}
+                onChange={(value) => setBilling("name", value)}
+                error={errors["billing.name"]}
+                autoComplete="billing name"
+              />
+              <TextField
+                path="billing.phone"
+                label="Mobile number"
+                value={draft.billing.phone}
+                onChange={(value) => setBilling("phone", value)}
+                error={errors["billing.phone"]}
+                autoComplete="billing tel-national"
+                inputMode="tel"
+                type="tel"
+                prefix="+91"
+              />
+              <TextField
+                path="billing.address"
+                label="Address"
+                hint="House or flat, street, area and city."
+                value={draft.billing.address}
+                onChange={(value) => setBilling("address", value)}
+                error={errors["billing.address"]}
+                autoComplete="billing street-address"
+                multiline
+                wide
+              />
+            </div>
           </fieldset>
 
-          <fieldset className="grid gap-4 border-0 p-0">
-            <legend className="mb-4 text-caption uppercase tracking-[0.22em] text-accent">
+          <fieldset className="border-0 p-0">
+            <legend className="mb-3 text-caption uppercase tracking-[0.22em] text-accent">
               Receiver details
             </legend>
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-body">
-              <input
-                type="checkbox"
-                checked={draft.sameAsBilling}
-                onChange={(event) => {
-                  const checked = event.target.checked;
-                  setDraft((current) => ({ ...current, sameAsBilling: checked }));
-                }}
-                className="size-4 accent-charcoal"
+            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 text-body sm:col-span-2">
+                <input
+                  type="checkbox"
+                  checked={draft.sameAsBilling}
+                  onChange={(event) => {
+                    const checked = event.target.checked;
+                    setDraft((current) => ({ ...current, sameAsBilling: checked }));
+                  }}
+                  className="size-4 accent-charcoal"
+                />
+                Deliver to my billing address
+              </label>
+              <TextField
+                path="receiver.pincode"
+                label="Delivery pincode"
+                value={draft.receiver.pincode}
+                onChange={(value) => setReceiver("pincode", value)}
+                error={
+                  errors["receiver.pincode"] ?? (unserved ? "We don't deliver to this pincode yet." : undefined)
+                }
+                hint={pincodeNote}
+                autoComplete="shipping postal-code"
+                inputMode="numeric"
+                maxLength={6}
               />
-              Deliver to my billing address
-            </label>
-            <TextField
-              path="receiver.pincode"
-              label="Delivery pincode"
-              value={draft.receiver.pincode}
-              onChange={(value) => setReceiver("pincode", value)}
-              error={
-                errors["receiver.pincode"] ?? (unserved ? "We don't deliver to this pincode yet." : undefined)
-              }
-              hint={pincodeNote}
-              autoComplete="shipping postal-code"
-              inputMode="numeric"
-              maxLength={6}
-              narrow
-            />
-            {draft.sameAsBilling ? null : (
-              <>
+              {draft.sameAsBilling ? null : (
+                <>
                 <TextField
                   path="receiver.name"
                   label="Receiver's full name"
@@ -406,44 +409,48 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
                   onChange={(value) => setReceiver("name", value)}
                   error={errors["receiver.name"]}
                   autoComplete="shipping name"
+                  className="sm:col-start-1"
                 />
-                <TextField
-                  path="receiver.phone"
-                  label="Receiver's mobile number"
-                  value={draft.receiver.phone}
-                  onChange={(value) => setReceiver("phone", value)}
-                  error={errors["receiver.phone"]}
-                  autoComplete="shipping tel-national"
-                  inputMode="tel"
-                  type="tel"
-                  prefix="+91"
-                />
-                <TextField
-                  path="receiver.address"
-                  label="Receiver's address"
-                  hint="House or flat, street, area and city."
-                  value={draft.receiver.address}
-                  onChange={(value) => setReceiver("address", value)}
-                  error={errors["receiver.address"]}
-                  autoComplete="shipping street-address"
-                  multiline
-                />
-              </>
-            )}
-            <TextField
-              path="giftMessage"
-              label="Gift message (optional)"
-              hint={`${draft.giftMessage.length}/${GIFT_MESSAGE_MAX}`}
-              value={draft.giftMessage}
-              onChange={(value) => {
-                setDraft((current) => ({ ...current, giftMessage: value }));
-                clearError("giftMessage");
-              }}
-              error={errors.giftMessage}
-              maxLength={GIFT_MESSAGE_MAX}
-              autoComplete="off"
-              multiline
-            />
+                  <TextField
+                    path="receiver.phone"
+                    label="Receiver's mobile number"
+                    value={draft.receiver.phone}
+                    onChange={(value) => setReceiver("phone", value)}
+                    error={errors["receiver.phone"]}
+                    autoComplete="shipping tel-national"
+                    inputMode="tel"
+                    type="tel"
+                    prefix="+91"
+                  />
+                  <TextField
+                    path="receiver.address"
+                    label="Receiver's address"
+                    hint="House or flat, street, area and city."
+                    value={draft.receiver.address}
+                    onChange={(value) => setReceiver("address", value)}
+                    error={errors["receiver.address"]}
+                    autoComplete="shipping street-address"
+                    multiline
+                    wide
+                  />
+                </>
+              )}
+              <TextField
+                path="giftMessage"
+                label="Gift message (optional)"
+                hint={`${draft.giftMessage.length}/${GIFT_MESSAGE_MAX}`}
+                value={draft.giftMessage}
+                onChange={(value) => {
+                  setDraft((current) => ({ ...current, giftMessage: value }));
+                  clearError("giftMessage");
+                }}
+                error={errors.giftMessage}
+                maxLength={GIFT_MESSAGE_MAX}
+                autoComplete="off"
+                multiline
+                wide
+              />
+            </div>
           </fieldset>
         </div>
 
@@ -635,7 +642,8 @@ function TextField({
   hint,
   multiline = false,
   prefix,
-  narrow = false,
+  wide = false,
+  className,
   ...rest
 }: {
   path: string;
@@ -646,7 +654,9 @@ function TextField({
   hint?: string;
   multiline?: boolean;
   prefix?: string;
-  narrow?: boolean;
+  /** Spans both columns from 640px. Address and gift message use this. */
+  wide?: boolean;
+  className?: string;
 } & Pick<InputHTMLAttributes<HTMLInputElement>, "autoComplete" | "inputMode" | "maxLength" | "type">) {
   const id = fieldId(path);
   const describedBy =
@@ -660,12 +670,12 @@ function TextField({
   };
 
   return (
-    <div>
+    <div className={[wide ? "sm:col-span-2" : "", className].filter(Boolean).join(" ") || undefined}>
       <label htmlFor={id} className="text-caption uppercase text-muted">
         {label}
         {prefix ? <span className="sr-only"> (India, {prefix})</span> : null}
       </label>
-      <div className={`mt-1 flex ${narrow ? "max-w-48" : ""}`}>
+      <div className="mt-1 flex">
         {prefix ? (
           <span
             aria-hidden="true"
@@ -677,7 +687,7 @@ function TextField({
         {multiline ? (
           <textarea
             {...shared}
-            rows={3}
+            rows={2}
             maxLength={rest.maxLength}
             autoComplete={rest.autoComplete}
             onChange={(event) => onChange(event.target.value)}

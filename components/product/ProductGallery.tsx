@@ -117,10 +117,10 @@ export function ProductGallery({
     <div
       className={
         "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 [grid-template-areas:'frame_frame'_'thumbs_more'] " +
-        "md:gap-x-4 " +
+        "md:w-full md:gap-x-4 " +
         (many
-          ? "md:max-w-[calc(100svh-9.5rem)] md:grid-cols-[4.5rem_minmax(0,1fr)] md:[grid-template-areas:'thumbs_frame'_'._more']"
-          : "md:max-w-[calc(100svh-15rem)] md:[grid-template-areas:'frame_frame'_'more_more']")
+          ? "md:grid-cols-[4.5rem_minmax(0,1fr)] md:[grid-template-areas:'thumbs_frame'_'._more']"
+          : "md:[grid-template-areas:'frame_frame'_'more_more']")
       }
     >
       <div

@@ -116,7 +116,7 @@ export function SiteHeader() {
             </ul>
           </nav>
 
-          <div className="flex items-center justify-end gap-1">
+          <div className="flex min-w-0 items-center justify-end gap-0 sm:gap-1">
             <AccountControl overlay={overlay} />
             {UTILITY.map((item) => {
               const bagCount = item.href === "/cart" ? count : 0;

@@ -53,7 +53,7 @@ function parseWishlist(raw: string | null): { productId: string; variantId?: str
 
 /** Purchase-bar actions only. Square, equal, not the site's lavender pill. */
 const BAR_ACTION =
-  "inline-flex w-full min-h-[44px] items-center justify-center px-[24px] text-center text-caption uppercase " +
+  "grid w-full min-w-0 min-h-[44px] place-items-center px-3 text-center text-caption uppercase text-balance sm:px-[24px] " +
   "rounded-input border " +
   "transition-[background-color,color,border-color,opacity] duration-[var(--duration-quick)] ease-[var(--ease-out)] " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 " +
@@ -246,8 +246,8 @@ export function ProductPurchase({
 
       {variant ? <DeliveryCheck productId={product.id} variantId={variant.id} /> : null}
 
-      <div data-buy-bar className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-surface">
-        <div className="page-gutter grid grid-cols-2 gap-2 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:gap-3">
+      <div data-buy-bar className="fixed inset-x-0 bottom-0 z-10 overflow-x-clip border-t border-line bg-surface">
+        <div className="page-gutter grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:gap-3">
           <button type="button" className={BAR_ADD} disabled={!canBuy} onClick={addToBag}>
             {canBuy ? "Add to bag" : "Sold out"}
           </button>

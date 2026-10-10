@@ -59,7 +59,7 @@ export function AddonRail({
   return (
     <section
       aria-labelledby="addons-heading"
-      className="mt-8 rounded-frame border border-line bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))] p-4"
+      className="addon-panel mt-8 min-w-0 rounded-frame border border-line bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))] p-4"
     >
       <div className="flex items-center justify-between gap-4">
         <div>
@@ -87,6 +87,8 @@ export function AddonRail({
         ) : null}
       </div>
 
+      {/* contain:paint stops the row's extra cards from widening the page. */}
+      <div className="min-w-0 overflow-hidden contain-paint">
       <ul ref={railRef} className="addon-rail mt-4">
         {addons.map((addon) => {
           const on = chosen.has(addon.variantId);
@@ -106,7 +108,7 @@ export function AddonRail({
                   checked={on}
                   onChange={() => onToggle(addon.variantId)}
                 />
-                <span className="relative block size-24 overflow-hidden rounded-pill bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))]">
+                <span className="relative block size-20 overflow-hidden rounded-pill bg-[color-mix(in_oklab,var(--surface-fg)_4%,var(--surface-bg))]">
                   <Plate {...addon.image} alt={undefined} decorative cover sizes="96px" />
                 </span>
                 <span className="mt-3 line-clamp-2 min-h-[2lh] text-caption">{addon.name}</span>
@@ -125,6 +127,7 @@ export function AddonRail({
           );
         })}
       </ul>
+      </div>
 
       <p role="status" className="mt-3 min-h-[1lh] text-caption">
         {picked.length > 0

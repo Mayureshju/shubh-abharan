@@ -180,6 +180,13 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* The body is a column flex. min-width:auto would let one wide child — the
+     add-on rail, a product rail — set the page width and slide the phone
+     sideways. Each direct child shrinks to the viewport instead. */
+  body > * {
+    min-width: 0;
+  }
+
   [data-surface] {
     background-color: var(--surface-bg);
     color: var(--surface-fg);
@@ -375,6 +382,7 @@
   .rail {
     display: grid;
     grid-auto-flow: column;
+    min-width: 0;
     /* Two tiles plus a peek of the third — 72% left a single empty cell. */
     --rail-item: 46%;
     grid-auto-columns: var(--rail-item);
@@ -584,6 +592,7 @@
   .pdp-slides {
     display: grid;
     grid-auto-flow: column;
+    min-width: 0;
     grid-auto-columns: 100%;
     /* Keeps a fractional-width neighbour from showing as a 1px sliver. */
     column-gap: 1rem;
@@ -624,12 +633,22 @@
     }
   }
 
-  /* Add-ons sit inside the inset panel. Two cards and a peek; previous/next
-     page the row from 768px when it overflows. */
+  /* Add-ons sit inside the inset panel. Card count follows the panel, not
+     the viewport: two across until the panel can hold three readable cards,
+     four once it is wide enough. Previous/next page the row on overflow. */
+  .addon-panel {
+    container-type: inline-size;
+    container-name: addons;
+  }
+
   .addon-rail {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 10.5rem;
+    /* Definite width, or the percentage columns size to the cards and the
+       page grows past the phone. */
+    min-width: 0;
+    max-width: 100%;
+    grid-auto-columns: calc((100% - 0.75rem) / 2);
     gap: 0.75rem;
     overflow-x: auto;
     overscroll-behavior-x: contain;
@@ -650,9 +669,15 @@
     scroll-snap-align: start;
   }
 
-  @media (min-width: 768px) {
+  @container addons (min-width: 32rem) {
     .addon-rail {
-      grid-auto-columns: 10.5rem;
+      grid-auto-columns: calc((100% - 1.5rem) / 3);
+    }
+  }
+
+  @container addons (min-width: 46rem) {
+    .addon-rail {
+      grid-auto-columns: calc((100% - 2.25rem) / 4);
     }
   }
 
