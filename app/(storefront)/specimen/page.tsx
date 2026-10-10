@@ -262,7 +262,7 @@ export default async function SpecimenPage() {
               <input
                 aria-label="Specimen input"
                 placeholder="Form input"
-                className="rounded-input border border-on-surface bg-transparent px-3 py-2 text-body placeholder:text-muted"
+                className="h-9 rounded-input border border-on-surface bg-transparent px-2.5 text-[0.875rem] leading-5 placeholder:text-muted"
               />
               <p className="mt-2 text-caption uppercase text-muted">input · radius 2px</p>
             </div>
@@ -272,7 +272,7 @@ export default async function SpecimenPage() {
                 aria-invalid
                 aria-describedby="specimen-input-error"
                 placeholder="Invalid input"
-                className="rounded-input border border-on-surface bg-transparent px-3 py-2 text-body placeholder:text-muted aria-[invalid=true]:border-2"
+                className="h-9 rounded-input border border-on-surface bg-transparent px-2.5 text-[0.875rem] leading-5 placeholder:text-muted aria-[invalid=true]:border-2"
               />
               <p id="specimen-input-error" className="mt-2 text-caption text-accent">
                 Fill in this field.

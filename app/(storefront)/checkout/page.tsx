@@ -65,9 +65,12 @@ const FIELD_ORDER = [
 const fieldId = (path: string) => `checkout-${path.replace(".", "-")}`;
 const inr = (amount: number) => formatMoney({ amount, currency: "INR" });
 
-const INPUT =
-  "block w-full rounded-input border border-on-surface bg-transparent px-3 py-2 text-body " +
+/** Single-line controls are 36px with 14px type. Textareas share the type and add their own padding. */
+const INPUT_BOX =
+  "block w-full rounded-input border border-on-surface bg-transparent px-2.5 text-[0.875rem] leading-5 " +
   "placeholder:text-muted aria-[invalid=true]:border-2";
+const INPUT = `${INPUT_BOX} h-9`;
+const AREA = `${INPUT_BOX} py-1.5`;
 
 /** Runs only in the browser: CheckoutForm never renders on the server. */
 function readDraft(): Draft {
@@ -493,7 +496,7 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
             <summary className="flex min-h-11 cursor-pointer items-center text-caption uppercase">
               Have a code?
             </summary>
-            <div className="mt-2 flex gap-2">
+            <div className="mt-2 flex items-center gap-2">
               <input
                 id="checkout-code"
                 aria-label="Discount code"
@@ -679,7 +682,7 @@ function TextField({
         {prefix ? (
           <span
             aria-hidden="true"
-            className="inline-flex items-center rounded-l-input border border-r-0 border-on-surface px-3 text-body text-muted"
+            className="inline-flex h-9 items-center rounded-l-input border border-r-0 border-on-surface px-2.5 text-[0.875rem] text-muted"
           >
             {prefix}
           </span>
@@ -691,7 +694,7 @@ function TextField({
             maxLength={rest.maxLength}
             autoComplete={rest.autoComplete}
             onChange={(event) => onChange(event.target.value)}
-            className={INPUT}
+            className={AREA}
           />
         ) : (
           <input

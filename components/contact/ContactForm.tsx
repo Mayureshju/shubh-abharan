@@ -26,9 +26,11 @@ const TOPICS = [
   { id: "other", label: "Something else" },
 ] as const;
 
-const FIELD =
-  "mt-1 w-full rounded-input border border-on-surface bg-transparent px-3 py-2 text-body " +
+const FIELD_BOX =
+  "mt-1 w-full rounded-input border border-on-surface bg-transparent px-2.5 text-[0.875rem] leading-5 " +
   "placeholder:text-muted aria-[invalid=true]:border-2";
+const FIELD = `${FIELD_BOX} h-9`;
+const AREA = `${FIELD_BOX} py-1.5`;
 const LABEL = "text-caption uppercase text-muted";
 
 type Errors = Partial<Record<string, string>>;
@@ -158,7 +160,7 @@ export function ContactForm({ to }: { to: string | null }) {
 
       <div className="mt-6">
         <label htmlFor="contact-message" className={LABEL}>Message</label>
-        <textarea id="contact-message" name="message" required rows={6} className={FIELD} {...describedBy("message")} />
+        <textarea id="contact-message" name="message" required rows={5} className={AREA} {...describedBy("message")} />
         <FieldError name="message" message={errors.message} />
       </div>
 
