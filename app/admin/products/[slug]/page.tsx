@@ -158,6 +158,17 @@ export default async function ProductEditor({
                 <strong>Featured</strong>
               </span>
             </label>
+            <label className="switch">
+              <input name="isAddon" type="checkbox" role="switch" defaultChecked={product?.isAddon} />
+              <span className="switch-track" aria-hidden="true" />
+              <span>
+                <strong>Add-on</strong>
+                <small className="admin-muted">
+                  Offered on every other product page and left out of the shop. Give it no sizes and
+                  keep it in a hidden category.
+                </small>
+              </span>
+            </label>
           </section>
 
           <section className="admin-card admin-form" aria-labelledby="sec-org">

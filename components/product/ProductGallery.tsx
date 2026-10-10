@@ -111,9 +111,20 @@ export function ProductGallery({
   const image = images[current] ?? images[0];
 
   return (
-    <div>
+    // Phone: the frame runs full-bleed, thumbnails and "View larger" share the
+    // row beneath. From 768px the thumbnails form a column on the left of the
+    // frame, aligned to the top, and scroll when they are taller than it.
+    <div
+      className={
+        "grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 [grid-template-areas:'frame_frame'_'thumbs_more'] " +
+        "md:gap-x-4 " +
+        (many
+          ? "md:max-w-[calc(100svh-9.5rem)] md:grid-cols-[4.5rem_minmax(0,1fr)] md:[grid-template-areas:'thumbs_frame'_'._more']"
+          : "md:max-w-[calc(100svh-15rem)] md:[grid-template-areas:'frame_frame'_'more_more']")
+      }
+    >
       <div
-        className="relative overflow-hidden"
+        className="relative -mx-[var(--page-gutter)] overflow-hidden [grid-area:frame] md:mx-0"
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
       >
@@ -150,30 +161,33 @@ export function ProductGallery({
         ) : null}
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-4">
-        {many ? (
-          <ul className="flex flex-wrap gap-2">
-            {images.map((entry, index) => (
-              <li key={`${entry.role}-${index}`}>
-                <button
-                  type="button"
-                  aria-label={`Show image ${index + 1} of ${images.length}`}
-                  aria-current={index === current ? "true" : undefined}
-                  onClick={() => show(index)}
-                  className={
-                    `relative block size-16 overflow-hidden border md:size-20 ${FRAME_TINT} ` +
-                    "focus-visible:outline-2 focus-visible:outline-offset-2 " +
-                    (index === current ? "border-on-surface" : "border-transparent hover:border-line")
-                  }
-                >
-                  <Plate {...entry} cover sizes="80px" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <span />
-        )}
+      {many ? (
+        <ul
+          className={
+            "flex min-w-0 gap-2 self-start overflow-x-auto [grid-area:thumbs] [scrollbar-width:none] " +
+            "md:max-h-full md:flex-col md:self-stretch md:overflow-x-hidden md:overflow-y-auto"
+          }
+        >
+          {images.map((entry, index) => (
+            <li key={`${entry.role}-${index}`} className="shrink-0">
+              <button
+                type="button"
+                aria-label={`Show image ${index + 1} of ${images.length}`}
+                aria-current={index === current ? "true" : undefined}
+                onClick={() => show(index)}
+                className={
+                  `relative block size-16 overflow-hidden border md:size-[4.5rem] ${FRAME_TINT} ` +
+                  "focus-visible:outline-2 focus-visible:-outline-offset-2 " +
+                  (index === current ? "border-on-surface" : "border-transparent hover:border-line")
+                }
+              >
+                <Plate {...entry} cover sizes="72px" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div className="justify-self-end [grid-area:more]">
         <button type="button" className={buttonClass("inline")} onClick={() => setViewing(current)}>
           View larger
         </button>

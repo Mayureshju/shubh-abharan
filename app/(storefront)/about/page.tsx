@@ -99,7 +99,7 @@ function Story({ className }: { className?: string }) {
 /**
  * The four supplied reasons, as a numbered list rather than the homepage's
  * centred icon row — same record, a different composition, no second icon set.
- * Numerals are caption type: Playfair is reserved for display and title.
+ * Numerals are caption type: Gambarino is reserved for display and title.
  */
 function Reasons({ className }: { className?: string }) {
   if (brand.reasons.length === 0) return null;

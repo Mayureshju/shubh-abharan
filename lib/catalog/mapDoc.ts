@@ -101,6 +101,7 @@ export function mapProduct(doc: ProductDoc, rules: readonly HikeRule[] = [], at 
     tags: doc.tags ?? [],
     isNew: Boolean(doc.newArrival),
     isFeatured: Boolean(doc.isFeatured),
+    isAddon: Boolean(doc.isAddon),
     isSize: Boolean(doc.isSize),
     sizes: doc.sizes ?? [],
     options: asOptions(doc.options ?? [], Boolean(doc.isSize), doc.sizes ?? []),

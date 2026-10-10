@@ -15,7 +15,7 @@ export function ProductListing({ products }: { products: readonly Product[] }) {
           product={toProductCardProduct(product, "macro")}
           portrait
           priority={index === 0}
-          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+          sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
         />
       ))}
     </div>

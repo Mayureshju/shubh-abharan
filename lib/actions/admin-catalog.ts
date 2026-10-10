@@ -189,6 +189,7 @@ export async function saveProduct(formData: FormData) {
         tags: formData.getAll("tags").map(String),
         newArrival: formData.get("isNew") === "on",
         isFeatured: formData.get("isFeatured") === "on",
+        isAddon: formData.get("isAddon") === "on",
         isSize,
         sizes,
         options: isSize ? [{ axis: "size", values: sizes }] : [],

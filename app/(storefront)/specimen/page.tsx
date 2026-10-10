@@ -130,15 +130,15 @@ export default async function SpecimenPage() {
         >
           <div className="space-y-tight">
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">display · Playfair Display · clamp(3.25rem, 1.5rem + 7vw, 7.5rem) · -0.02em</p>
+              <p className="text-caption uppercase text-muted">display · Gambarino · clamp(3.25rem, 1.5rem + 7vw, 7.5rem) · -0.02em</p>
               <p className="mt-3 font-display text-display">Hand &amp; file</p>
             </div>
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">title · Playfair Display · clamp(1.75rem, 1.1rem + 2.2vw, 2.75rem) · -0.01em</p>
+              <p className="text-caption uppercase text-muted">title · Gambarino · clamp(1.75rem, 1.1rem + 2.2vw, 2.75rem) · -0.01em</p>
               <p className="mt-3 font-display text-title">Nine carat, recycled</p>
             </div>
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">body · Montserrat · 17px / 1.55</p>
+              <p className="text-caption uppercase text-muted">body · Switzer · 17px / 1.55 · 400</p>
               <p className="mt-3 max-w-measure font-text text-body">
                 Measure is capped at 62 characters and positioned by the grid.
                 Images size independently of it. There is deliberately no global
@@ -147,7 +147,7 @@ export default async function SpecimenPage() {
               </p>
             </div>
             <div className="border-t border-line pt-4">
-              <p className="text-caption uppercase text-muted">caption · Montserrat · 12px / 1.35 · +0.06em</p>
+              <p className="text-caption uppercase text-muted">caption · Switzer · 12px / 1.35 · 500 · +0.06em</p>
               <p className="mt-3 font-text text-caption uppercase">
                 Band width 1.2mm · Plate 04 · 14mm
               </p>

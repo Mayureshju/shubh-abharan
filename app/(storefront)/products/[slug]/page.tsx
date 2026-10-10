@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AddToBag } from "@/components/product/AddToBag";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductGallery } from "@/components/product/ProductGallery";
-import { resolve } from "@/lib/brand";
+import { ProductPurchase } from "@/components/product/ProductPurchase";
+import { PDP_COLUMNS, buyable, type AddonOption } from "@/components/product/purchase";
+import { brand, isSupplied, resolve } from "@/lib/brand";
 import {
   categoryLabel,
-  formatMoney,
   getProduct,
-  hasPriceRange,
+  listAddons,
+  listCategories,
   listProducts,
-  lowestPrice,
   relatedProducts,
   toProductCardProduct,
 } from "@/lib/catalog";
-import type { ProductLabel } from "@/lib/catalog/types";
+import type { Product, ProductLabel } from "@/lib/catalog/types";
 
 const LABEL_TEXT: Record<ProductLabel, string> = {
   "made-to-order": "Made to order",
@@ -22,6 +23,28 @@ const LABEL_TEXT: Record<ProductLabel, string> = {
   hallmarked: "Hallmarked",
   "limited-run": "Limited run",
 };
+
+/** Policy facts beside the purchase, in the business's own words — or not at all. */
+const POLICY_FACTS = [
+  { key: "hallmarking", label: "Hallmarking" },
+  { key: "returns", label: "Returns" },
+  { key: "shipping", label: "Shipping" },
+] as const;
+
+/** Each add-on's first buyable, priced variant; add-ons without one are left out. */
+function addonOptions(addons: readonly Product[], current: Product): AddonOption[] {
+  if (current.isAddon || !current.variants.some((variant) => buyable(variant.availability))) return [];
+  return addons.flatMap((addon) => {
+    if (addon.id === current.id) return [];
+    for (const variant of addon.variants) {
+      const price = variant.payablePrice ?? variant.price;
+      if (price && buyable(variant.availability)) {
+        return [{ productId: addon.id, variantId: variant.id, name: addon.name, price, image: addon.images[0] }];
+      }
+    }
+    return [];
+  });
+}
 
 export async function generateMetadata({
   params,
@@ -47,59 +70,85 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
   const product = await getProduct(slug);
   if (!product) notFound();
 
-  const price = formatMoney(lowestPrice(product));
-  const compare = product.quote?.compare;
-  const displayPrice = hasPriceRange(product) ? `From ${price}` : price;
-  const all = await listProducts();
+  const [all, addons, categories] = await Promise.all([listProducts(), listAddons(), listCategories()]);
   const related = relatedProducts(product, all, 4);
   const attributes = product.attributes ?? [];
   const labels = product.labels ?? [];
   const hasDetails = attributes.length > 0 || labels.length > 0 || Boolean(product.care);
+  const typeName = categoryLabel(
+    product.category,
+    categories.find((entry) => entry.slug === product.category)?.name,
+  );
+  const policies = POLICY_FACTS.flatMap(({ key, label }) => {
+    const value = brand.policies[key];
+    return isSupplied(value) ? [{ label, value }] : [];
+  });
 
   return (
-    <article className="page-gutter py-tight">
-      <div className="md:grid md:grid-cols-12 md:gap-12 lg:gap-16">
-        <div className="md:col-span-7">
+    <article className="page-gutter pt-6 pb-tight md:pt-8">
+      <nav aria-label="Breadcrumb">
+        <ol className="flex min-w-0 items-center gap-2 whitespace-nowrap text-caption uppercase tracking-[0.12em] text-muted">
+          <li className="shrink-0">
+            <Link href="/" className="inline-flex min-h-6 items-center hover:text-on-surface hover:underline">
+              Home
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li className="shrink-0">
+            <Link
+              href={`/shop?category=${product.category}`}
+              className="inline-flex min-h-6 items-center hover:text-on-surface hover:underline"
+            >
+              {typeName}
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" className="min-w-0 truncate text-on-surface">
+            {product.name}
+          </li>
+        </ol>
+      </nav>
+
+      <div className={`mt-4 md:mt-6 ${PDP_COLUMNS}`}>
+        <div className="md:sticky md:top-24 md:self-start">
           <ProductGallery images={product.images} name={product.name} />
         </div>
 
-        <div className="mt-tight md:col-span-5 md:mt-0 md:sticky md:top-24 md:self-start">
-          <p className="text-caption uppercase tracking-[0.22em] text-accent">
-            {categoryLabel(product.category)}
-          </p>
-          <h1 className="mt-3 text-title">{product.name}</h1>
-          <p className="mt-4 text-body">
-            {compare && lowestPrice(product) && compare.amount > lowestPrice(product)!.amount ? (
-              <>
-                <span className="mr-3 text-muted line-through">{formatMoney(compare)}</span>
-                {displayPrice}
-              </>
-            ) : (
-              displayPrice
-            )}
-          </p>
-          <p className="mt-2 text-caption uppercase text-muted">
-            {resolve(product.materialLine, "material line")}
-          </p>
-
-          <AddToBag
+        <div className="mt-tight md:mt-0">
+          <ProductPurchase
             product={{
               id: product.id,
+              name: product.name,
+              materialLine: resolve(product.materialLine, "material line"),
               isSize: Boolean(product.isSize),
-              sizes: product.sizes ?? [],
-              sizeValues: product.options.find((option) => option.axis === "size")?.values ?? [],
-              displayPrice,
+              sizes:
+                (product.sizes ?? []).length > 0
+                  ? (product.sizes ?? [])
+                  : (product.options.find((option) => option.axis === "size")?.values ?? []),
               variants: product.variants.map((variant) => {
-                const payable = variant.payablePrice ?? variant.price;
+                const price = variant.payablePrice ?? variant.price;
                 return {
                   id: variant.id,
                   size: variant.options.size ?? null,
                   availability: variant.availability,
-                  price: payable ? formatMoney(payable) : null,
+                  price,
+                  compare: variant.comparePrice ?? null,
                 };
               }),
             }}
+            addons={addonOptions(addons, product)}
           />
+
+          {policies.length > 0 ? (
+            <dl className="mt-6 grid gap-3 border-t border-line pt-4">
+              {policies.map((policy) => (
+                <div key={policy.label}>
+                  <dt className="text-caption uppercase tracking-[0.22em] text-accent">{policy.label}</dt>
+                  <dd className="mt-1 max-w-measure text-body">{policy.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
 
           <p className="mt-tight max-w-measure text-body text-muted">
             {resolve(product.description, "description")}

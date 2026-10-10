@@ -76,6 +76,20 @@ export const merchandise: readonly Product[] = [
         crop: "floral kundan collar on ivory marble, square still",
         alt: "A gold kundan collar with emerald stones and pearl drops, laid on ivory marble beside lilac silk.",
       },
+      {
+        role: "macro",
+        aspect: "1/1",
+        src: "/images/collection-2.jpg",
+        crop: "the same collar, frontal on ivory marble with lilac silk",
+        alt: "The same floral kundan collar, photographed frontally on ivory marble with a fold of lilac silk.",
+      },
+      {
+        role: "macro",
+        aspect: "1/1",
+        src: "/images/collection-3.jpg",
+        crop: "the same collar filling the frame on aubergine velvet",
+        alt: "The same floral kundan collar, laid on deep aubergine velvet.",
+      },
     ],
     collections: ["modern-classics"],
     occasions: ["festive", "wedding"],
@@ -126,6 +140,7 @@ export const merchandise: readonly Product[] = [
   {
     id: asProductId("p_merch_pendant_drop"),
     slug: "emerald-drop-pendant",
+    isAddon: true,
     name: "Emerald-drop pendant",
     category: "pendant",
     options: [],
@@ -157,6 +172,7 @@ export const merchandise: readonly Product[] = [
   {
     id: asProductId("p_merch_rings"),
     slug: "stacked-emerald-rings",
+    isAddon: true,
     name: "Stacked emerald rings",
     category: "ring",
     options: [{ axis: "size", values: ["[SIZE A]", "[SIZE B]", "[SIZE C]"] }],
@@ -278,6 +294,7 @@ export const merchandise: readonly Product[] = [
   {
     id: asProductId("p_merch_chain_pendant"),
     slug: "chain-and-pendant",
+    isAddon: true,
     name: "Chain and pendant",
     category: "pendant",
     options: [{ axis: "length", values: ["[LENGTH A]", "[LENGTH B]"] }],

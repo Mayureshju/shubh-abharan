@@ -210,6 +210,9 @@ policies.** Policies still omit their footer links while unsupplied.
 | WhatsApp number, international format with country code (e.g. `+91 …`) | UNFILLED | |
 | Social profile links — label and full URL each (`brand.social`) | UNFILLED | |
 
+The product page states `policies.hallmarking`, `policies.returns` and
+`policies.shipping` beside Buy now, word for word, once each is supplied.
+
 ## Catalog
 
 Structural fixtures in `products.ts` stay unfilled. Development merchandise in
@@ -225,6 +228,7 @@ Structural fixtures in `products.ts` stay unfilled. Development merchandise in
 | Product description per product | DEVELOPMENT 2026-09-20 | Photographable nouns from the same frames |
 | Care copy per product, where it differs from the brand-level care policy | UNFILLED | |
 | Ring sizes offered, and the convention used (UK letter, US numeric, or both) | UNFILLED | Sample rings keep `[SIZE A]` placeholders |
+| Add-ons offered on product pages (name, photograph, price each) | UNFILLED | Created in admin with the product editor's "Add-on" switch; no sizes, kept in a hidden category. None seeded |
 | Chain and bracelet lengths offered, with units | UNFILLED | Sample chain keeps `[LENGTH A]` placeholders |
 | Finish names offered, matching the finishes vocabulary above | UNFILLED | |
 | Metal options offered, matching the metals vocabulary above | UNFILLED | |

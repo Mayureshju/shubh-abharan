@@ -45,7 +45,7 @@ Rejected alternatives:
 
 ### Decision 2 — Exclusion lives in the repository
 
-`listProducts` and `getProductsBySlugs` add `isAddon: { $ne: true }` to their Mongo filter. `$ne` also matches documents stored before the field existed. Every listing routes through one of the two, so search, related pieces and the homepage need no edits.
+`listProducts` and `getProductsBySlugs` add `isAddon: { $ne: true }` to their Mongo filter. `$ne` also matches documents stored before the field existed. Every listing routes through one of the two, so search, related pieces and the homepage need no edits. `listTags` applies the same filter, so an add-on's tag never becomes an empty shop facet.
 
 `getProduct`, `getProductById` and `getProductsByIds` stay unfiltered, so the add-on's product page, bag links, quotes and the wishlist still resolve.
 
@@ -84,7 +84,7 @@ One class string `PDP_COLUMNS` sets the column template:
 - from 768px: `md:grid-cols-2`
 - from 1024px: `lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]`, with a matching gap
 
-The page and the bar's inner row both use it, so the actions sit exactly under the details column.
+The page uses it. The purchase bar does not — its two actions span the viewport (decision 6).
 
 At 768px the details column is about 324px instead of 257px in the current 12-column split. That leaves room for three size cards and two add-ons.
 
@@ -94,18 +94,21 @@ The gallery becomes the sticky element (`md:sticky md:top-24 md:self-start`), an
 
 `data-buy-bar` stays `fixed inset-x-0 bottom-0`, now at every width. It carries `pb-[max(0.75rem,env(safe-area-inset-bottom))]` for the home indicator.
 
-- **Phone:** `grid-cols-2`, Add to bag (`quiet`) and "Buy now · ₹total" (`primary`). The label may wrap to two lines at six-figure totals rather than overflow.
-- **From 768px:** the left column holds a 48px square of the first image, the name, and a caption line ("Size 7 · 2 add-ons"). The right column holds the two buttons.
+At every width the bar is `grid-cols-2`. Add to bag is a gold outline and Buy now is a charcoal fill with an ivory label reading "Buy now · ₹total". Both use `--radius-input`, not the site's pill. The label may wrap to two lines at six-figure totals rather than overflow. There is no thumbnail and no written summary — the piece is already on the page.
 
 `globals.css` pads `body:has([data-buy-bar])` at every width. It also sets `html:has([data-buy-bar]) { scroll-padding-bottom }` so a focused control scrolls clear of the bar (WCAG 2.4.11).
 
-Rejected: full-width double buttons on desktop, as in the reference. Two 680px pills read as a stretched phone layout and leave nothing telling the customer what they are buying.
+Rejected: the earlier summary-plus-pills bar. A thumbnail and a lilac pill under the details column read as a template, and they left most of the bar empty.
 
 ### Decision 7 — The gallery moves its thumbnails, nothing else
 
 On a phone the slide row runs full-bleed (`-mx-[var(--page-gutter)]`) and the thumbnail row sits below, scrolling sideways when long.
 
-From 768px the gallery is `grid-cols-[4.5rem_minmax(0,1fr)]`, with thumbnails in the first column. The list is `md:h-0 md:min-h-full md:overflow-y-auto`, so it never sets the row height and scrolls when it holds more images than the frame is tall. With one image, the frame spans both columns.
+From 1024px the gallery is `grid-cols-[4.5rem_minmax(0,1fr)]`, with thumbnails in the first column. The list is `lg:h-0 lg:min-h-full lg:overflow-y-auto`, so it never sets the row height and scrolls when it holds more images than the frame is tall. With one image, the frame spans both columns.
+
+Between 768px and 1023px the thumbnails stay in a row under the frame. The browser pass showed a 4.5rem column shrinking the frame to 232px in a 320px gallery column.
+
+The gallery's width is capped at `100svh` less the header, the breadcrumb, the "View larger" row and the bar. On a short laptop (1366×768, 1440×900) the whole square then sits above the bar on load and while sticky.
 
 Slide, lens and viewer logic are unchanged.
 
@@ -122,7 +125,7 @@ Slide, lens and viewer logic are unchanged.
 
 Focus is shown on the card with `has-[:focus-visible]:outline-2`. The card is a square-cornered photograph and text, not a pill, so selection reads by border and the "Added" text.
 
-**Rail scrolling.** The rail is a scroll-snap row. Below 768px it runs full-bleed with the gutter as scroll padding, like `.rail`. From 768px it sits inside the column. Previous and next icon buttons call `scrollBy` with 80% of the width. They are disabled at either end and hidden when nothing overflows; this state comes from a scroll listener plus a `ResizeObserver`. The reduced-motion rule already forces `scroll-behavior: auto`.
+**Rail scrolling.** The rail is a scroll-snap row inside the inset panel at every width. Previous and next icon buttons call `scrollBy` with 80% of the width. They are disabled at either end and hidden when nothing overflows; this state comes from a scroll listener plus a `ResizeObserver`. The reduced-motion rule already forces `scroll-behavior: auto`.
 
 **Wishlist.** The wishlist is a `Button variant="icon"` with `aria-pressed`, labelled "Save to wishlist". `WishlistIcon` gains a `filled` prop: the file's own comment reserves a filled heart for a state, so it is the same icon, the same stroke, and no budget change. A `role="status"` line shows "Saved · View wishlist" while saved. A second press filters the entry out of `shubha-wishlist`.
 
@@ -140,6 +143,19 @@ The breadcrumb's type name comes from the category record via `listCategories()`
 Add-on names, photographs and prices are business-supplied. BRAND-INPUTS gains an UNFILLED "Add-ons" row pointing at the admin switch.
 
 The browser pass uses two QA add-ons created in the development database and deleted after verification. This follows the precedent of the QA order in `streamline-purchase-flow`.
+
+### Decision 11 — Policy facts are the brand's own words, or nothing
+
+The owner reported that the page lacked authority. The honest fix is to state the business's real policies where the buying decision happens. Trust marks would be invented.
+
+`page.tsx` renders a `<dl>` directly after `ProductPurchase`. It renders server-side because `brand` is a static module.
+
+- **Facts.** Hallmarking, returns and shipping, in that order, each from `brand.policies`.
+- **Filtering.** The row keeps only facts that pass `isSupplied`. With none, it renders nothing — not a placeholder.
+- **No links.** No policy pages exist yet. The footer's `POLICY_LINKS` point at routes that are not built, so the row states the text in full.
+- **Style.** A hairline top border, caption-role labels and body-role values. No icons, badges or new component.
+
+Rejected: trust badges such as "100% secure" or "certified". They make claims the business has not supplied, and CLAUDE.md forbids invented certifications and policies.
 
 ## Risks / Trade-offs
 

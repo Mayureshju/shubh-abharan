@@ -27,8 +27,11 @@ Today the page has gaps against that reference:
   - Buy now shows the piece plus add-ons total.
   - The rail is omitted when there are no add-ons, on an add-on's own page, and when the piece cannot be bought.
 - **Purchase bar.** The purchase bar is fixed to the bottom at every width; it was phones only.
-  - Phone: Add to bag and "Buy now · total" sit side by side.
-  - From 768px: a summary of the selection sits on the left, and the actions sit under the details column.
+  - Add to bag and "Buy now · total" each take half the bar.
+  - Add to bag is a gold outline and Buy now is a charcoal fill, both square. There is no thumbnail summary.
+- **Policy facts.** The business's own hallmarking, returns and shipping facts sit beside the purchase actions.
+  - Only facts the business has supplied in the brand record are shown.
+  - With none supplied, the row is absent.
 - **Catalog.** Products gain an `isAddon` flag.
   - Shop, search, occasions, related pieces and the new/featured flags leave add-ons out.
   - A new read lists the active add-ons.
@@ -55,6 +58,7 @@ None.
   - presents sizes as cards
   - makes the wishlist a toggle beside the name
   - fixes the purchase bar at every width and shows the total
+  - shows the supplied policy facts near the purchase actions
 - `catalog/product-model`: a product may be flagged as an add-on.
 - `catalog/catalog-access`: listings exclude add-ons, and a dedicated read lists them.
 - `admin/panel`: the product editor covers the add-on flag.

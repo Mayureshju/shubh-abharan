@@ -80,6 +80,8 @@ const ProductSchema = new Schema(
     tags: { type: [String], default: [] },
     newArrival: { type: Boolean, default: false },
     isFeatured: { type: Boolean, default: false },
+    /** A small extra offered on every other product page; kept out of listings. */
+    isAddon: { type: Boolean, default: false },
     isSize: { type: Boolean, default: false },
     sizes: { type: [String], default: [] },
     options: { type: [OptionSchema], default: [] },

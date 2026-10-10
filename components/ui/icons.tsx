@@ -16,7 +16,7 @@
  * `role="img"`. Every icon in this system sits inside a control that already
  * carries its own accessible name, so an announced icon would double it.
  *
- * The budget is twelve. There are ten.
+ * The budget is twelve. There are eleven.
  */
 
 const BOX = {
@@ -41,10 +41,13 @@ export function SearchIcon() {
   );
 }
 
-/** Wishlist. Drawn as an outline, never filled — a filled heart is a state. */
-export function WishlistIcon() {
+/**
+ * Wishlist. An outline at rest; `filled` is the saved state, never decoration.
+ * Same glyph and stroke, so it is not a second icon against the budget.
+ */
+export function WishlistIcon({ filled = false }: { filled?: boolean }) {
   return (
-    <svg {...BOX}>
+    <svg {...BOX} fill={filled ? "currentColor" : "none"}>
       <path d="M12 20.5 3.5 12A5 5 0 0 1 12 7a5 5 0 0 1 8.5 5Z" />
     </svg>
   );
@@ -84,6 +87,15 @@ export function ArrowIcon() {
     <svg {...BOX}>
       <path d="M5 12h14" />
       <path d="M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+/** Points down at rest; a menu trigger turns it to show the open state. */
+export function ChevronIcon() {
+  return (
+    <svg {...BOX}>
+      <path d="m6 9.5 6 6 6-6" />
     </svg>
   );
 }

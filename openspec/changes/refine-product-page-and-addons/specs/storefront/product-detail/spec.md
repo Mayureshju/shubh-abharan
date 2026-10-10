@@ -62,9 +62,11 @@ The product detail page SHALL offer:
 
 ### Requirement: The purchase actions stay within reach on phones
 
-At mobile widths, Add to bag and Buy now SHALL stay fixed side by side at the bottom of the viewport while the product page scrolls.
+At mobile widths, Add to bag and Buy now SHALL stay fixed side by side at the bottom of the viewport while the product page scrolls. Each SHALL take half the bar.
 
-- Buy now SHALL show the amount payable for the chosen size and the chosen add-ons.
+- Add to bag SHALL be a gold outline with square corners.
+- Buy now SHALL be a charcoal fill with an ivory label and the same corners, and SHALL show the amount payable for the chosen size and the chosen add-ons.
+- The bar SHALL NOT include a thumbnail or a written summary of the selection.
 - Page content SHALL NOT be hidden behind the bar at the end of the page.
 - A control that receives keyboard focus SHALL NOT be hidden behind the bar.
 
@@ -83,18 +85,17 @@ At mobile widths, Add to bag and Buy now SHALL stay fixed side by side at the bo
 
 ### Requirement: The purchase actions stay in view on wider screens
 
-From 768px, Add to bag and Buy now SHALL stay fixed at the bottom of the viewport while the product page scrolls.
+From 768px, Add to bag and Buy now SHALL stay fixed at the bottom of the viewport while the product page scrolls. Each SHALL take half the bar.
 
-- They SHALL sit beneath the product details column.
-- A summary of the selection SHALL sit beside them: the piece's name, the chosen size when the piece has sizes, and the number of chosen add-ons when any are chosen.
-- Buy now SHALL show the amount payable for the chosen size and the chosen add-ons.
+- Add to bag SHALL be a gold outline with square corners.
+- Buy now SHALL be a charcoal fill with an ivory label and the same corners, and SHALL show the amount payable for the chosen size and the chosen add-ons.
+- The bar SHALL NOT include a thumbnail or a written summary of the selection.
 - Page content SHALL NOT be hidden behind the bar at the end of the page.
 
 #### Scenario: A desktop customer scrolls to the related pieces
 
 - **WHEN** a customer at 1440px scrolls to the end of a product page
-- **THEN** Buy now and Add to bag remain visible at the bottom of the viewport
-- **AND** the summary names the piece and its chosen size
+- **THEN** Buy now and Add to bag remain visible at the bottom of the viewport, each taking half the bar
 - **AND** the related pieces can be scrolled into view above the bar
 
 ### Requirement: The product page shows the selected size's price
@@ -175,3 +176,21 @@ The product detail page SHALL show a breadcrumb of Home, the product's type and 
 
 - **WHEN** a product with a long name renders at 390px
 - **THEN** the breadcrumb stays on one line and the page has no horizontal scroll
+
+### Requirement: The product page states the business's supplied policies
+
+The product detail page SHALL show the business's hallmarking, returns and shipping facts near the purchase actions, using the business's own wording from the brand record.
+
+- A fact the business has not supplied SHALL NOT render, not even as a placeholder.
+- When no fact is supplied, the page SHALL render no policy facts section.
+
+#### Scenario: Returns policy supplied
+
+- **WHEN** the brand record supplies a returns policy and nothing else
+- **THEN** the product page shows that returns policy beside the purchase actions
+- **AND** no hallmarking or shipping line appears
+
+#### Scenario: No policies supplied
+
+- **WHEN** the brand record supplies no hallmarking, returns or shipping fact
+- **THEN** the product page shows no policy facts section

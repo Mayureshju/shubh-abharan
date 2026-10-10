@@ -193,6 +193,8 @@ export interface Product {
   readonly tags?: readonly string[];
   readonly isNew?: boolean;
   readonly isFeatured?: boolean;
+  /** Offered in the add-ons rail of other product pages; excluded from listings. */
+  readonly isAddon?: boolean;
   /** When true, the product offers a size axis; `sizes` is the ordered value list. */
   readonly isSize?: boolean;
   readonly sizes?: readonly string[];

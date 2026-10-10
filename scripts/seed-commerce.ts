@@ -86,6 +86,7 @@ async function seed() {
           tags: [...(product.tags ?? [])],
           newArrival: arrivals.has(product.slug) || Boolean(product.isNew),
           isFeatured: featured.has(product.slug) || Boolean(product.isFeatured),
+          isAddon: Boolean(product.isAddon),
           isSize,
           sizes: [...sizes],
           options: product.options.map((option) => ({ axis: option.axis, values: [...option.values] })),

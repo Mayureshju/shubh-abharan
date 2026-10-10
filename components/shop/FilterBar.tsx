@@ -1,198 +1,124 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import { buttonClass } from "@/components/ui/buttonClass";
-import type { SortOrder } from "@/lib/catalog/criteria";
-import {
-  AVAILABILITY_LABELS,
-  AVAILABILITY_ORDER,
-  SORT_LABELS,
-  SORT_ORDER,
-} from "@/lib/catalog/labels";
-import { formatMoney } from "@/lib/catalog/money";
-import { shopHref, type ShopSearch } from "./query";
+import { ChevronIcon } from "@/components/ui/icons";
+import type { FilterGroup, FilterMenus } from "./filters";
 
 /**
- * Shop filters above the grid, from 1024px. Every option is a link to the shop URL
- * with that one filter changed and the page reset, so it applies on click
- * without script. Below 1024px FilterSheet takes over: the bar wraps too tall.
+ * Shop filters from 1024px: one row of menus above the grid. Each menu is a
+ * native <details>, so it opens by pointer or keyboard without script, and each
+ * option is a link from shopFilterMenus. Script only closes what the platform
+ * leaves open. Below 1024px FilterSheet takes over.
  */
 
-const CHIP =
-  "inline-flex min-h-[44px] items-center whitespace-nowrap rounded-pill border px-[18px] " +
-  "text-caption uppercase transition-colors duration-[var(--duration-quick)] ease-[var(--ease-out)] " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2";
-
-// Whole rupees, inclusive bounds, so neighbouring bands share their edge.
-const PRICE_BANDS: readonly { min?: number; max?: number }[] = [
-  { min: undefined, max: 25000 },
-  { min: 25000, max: 50000 },
-  { min: 50000, max: 100000 },
-  { min: 100000, max: undefined },
-];
-
-const rupees = (major: number) => formatMoney({ amount: major * 100, currency: "INR" });
-
-function priceLabel(min?: number, max?: number): string {
-  if (min === undefined) return `Up to ${rupees(max ?? 0)}`;
-  if (max === undefined) return `From ${rupees(min)}`;
-  return `${rupees(min)} – ${rupees(max)}`;
-}
-
 export function FilterBar({
-  query,
-  categories,
-  tags,
+  menus,
   start,
   end,
   total,
 }: {
-  query: ShopSearch;
-  categories: readonly { slug: string; name: string }[];
-  tags: readonly { slug: string; name: string }[];
+  menus: FilterMenus;
   start: number;
   end: number;
   total: number;
 }) {
-  const router = useRouter();
-  const to = (change: Partial<ShopSearch>) => shopHref({ ...query, ...change }, 1);
-  const sort = query.sort ?? "display";
-  const noPrice = query.min === undefined && query.max === undefined;
-  const band = PRICE_BANDS.find((entry) => entry.min === query.min && entry.max === query.max);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  // <details> stays open after a click elsewhere, Escape, or a soft navigation.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const openMenus = () => bar.querySelectorAll<HTMLDetailsElement>("details[open]");
+    const close = (menu: HTMLDetailsElement, refocus: boolean) => {
+      menu.open = false;
+      if (refocus) menu.querySelector("summary")?.focus();
+    };
+    const onClick = (event: MouseEvent) => {
+      const target = event.target as Element;
+      for (const menu of openMenus()) {
+        if (!menu.contains(target)) close(menu, false);
+        else if (target.closest("a")) close(menu, true);
+      }
+    };
+    // Focus only; the link rule above would close a menu as Tab enters it.
+    const onFocusIn = (event: FocusEvent) => {
+      for (const menu of openMenus()) {
+        if (!menu.contains(event.target as Node)) close(menu, false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      for (const menu of openMenus()) close(menu, true);
+    };
+    document.addEventListener("click", onClick);
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
 
   return (
-    <div className="mt-tight hidden border-y border-line lg:block">
-      <div className="flex flex-wrap items-center gap-x-10 gap-y-4 py-5">
-        <Group label="Type">
-          <Chip href={to({ category: undefined })} on={query.category === undefined}>
-            All pieces
-          </Chip>
-          {categories.map((category) => (
-            <Chip
-              key={category.slug}
-              href={to({ category: category.slug })}
-              on={query.category === category.slug}
-            >
-              {category.name}
-            </Chip>
-          ))}
-        </Group>
-        {tags.length > 0 ? (
-          <Group label="Tag">
-            <Chip href={to({ tag: undefined })} on={query.tag === undefined}>
-              Any
-            </Chip>
-            {tags.map((tag) => (
-              <Chip key={tag.slug} href={to({ tag: tag.slug })} on={query.tag === tag.slug}>
-                {tag.name}
-              </Chip>
-            ))}
-          </Group>
+    <div
+      ref={barRef}
+      className="mt-tight hidden flex-wrap items-center gap-x-8 border-y border-line py-2 lg:flex"
+    >
+      {menus.filters.map((group) => (
+        <Menu key={group.label} group={group} />
+      ))}
+      {menus.clearHref ? (
+        <Link href={menus.clearHref} className={buttonClass("inline")}>
+          Clear filters
+        </Link>
+      ) : null}
+      <div className="ml-auto flex items-center gap-8">
+        {total > 0 ? (
+          <p className="whitespace-nowrap text-caption uppercase text-muted tabular-nums">
+            {start}–{end} of {total}
+          </p>
         ) : null}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-10 gap-y-4 border-t border-line py-5">
-        <Group label="Price">
-          <Chip href={to({ min: undefined, max: undefined })} on={noPrice}>
-            All prices
-          </Chip>
-          {/* A range typed into the phone sheet or the URL that no band matches. */}
-          {!noPrice && band === undefined ? (
-            <Chip href={to({})} on>
-              {priceLabel(query.min, query.max)}
-            </Chip>
-          ) : null}
-          {PRICE_BANDS.map((entry) => (
-            <Chip key={priceLabel(entry.min, entry.max)} href={to(entry)} on={entry === band}>
-              {priceLabel(entry.min, entry.max)}
-            </Chip>
-          ))}
-        </Group>
-        <Group label="Availability">
-          <Chip href={to({ availability: undefined })} on={query.availability === undefined}>
-            Any
-          </Chip>
-          {AVAILABILITY_ORDER.map((availability) => (
-            <Chip
-              key={availability}
-              href={to({ availability })}
-              on={query.availability === availability}
-            >
-              {AVAILABILITY_LABELS[availability]}
-            </Chip>
-          ))}
-        </Group>
-
-        <div className="ml-auto flex items-center gap-6">
-          {total > 0 ? (
-            <p className="whitespace-nowrap text-caption uppercase text-muted tabular-nums">
-              {start}–{end} of {total}
-            </p>
-          ) : null}
-          {/* GET fallback: without script the noscript button submits the same query. */}
-          <form method="get" action="/shop" className="flex items-center gap-3">
-            {(["category", "availability", "min", "max", "tag"] as const).map((key) =>
-              query[key] === undefined ? null : (
-                <input key={key} type="hidden" name={key} value={String(query[key])} />
-              ),
-            )}
-            <label htmlFor="shop-sort" className="text-caption uppercase tracking-[0.22em] text-accent">
-              Sort
-            </label>
-            <select
-              key={sort}
-              id="shop-sort"
-              name="sort"
-              defaultValue={sort === "display" ? "" : sort}
-              onChange={(event) =>
-                router.push(to({ sort: (event.target.value || undefined) as SortOrder | undefined }))
-              }
-              className="rounded-input min-h-[44px] border border-line bg-surface px-3 text-caption uppercase hover:border-on-surface"
-            >
-              {SORT_ORDER.map((order) => (
-                <option key={order} value={order === "display" ? "" : order}>
-                  {SORT_LABELS[order]}
-                </option>
-              ))}
-            </select>
-            <noscript>
-              <button type="submit" className={buttonClass("quiet")}>
-                Apply
-              </button>
-            </noscript>
-          </form>
-        </div>
+        <Menu group={menus.sort} alignEnd />
       </div>
     </div>
   );
 }
 
-function Group({ label, children }: { label: string; children: ReactNode }) {
-  const id = `filter-${label.toLowerCase()}`;
+function Menu({ group, alignEnd = false }: { group: FilterGroup; alignEnd?: boolean }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <p id={id} className="text-caption uppercase tracking-[0.22em] text-accent">
-        {label}
-      </p>
-      <ul aria-labelledby={id} className="flex flex-wrap gap-2">
-        {children}
-      </ul>
-    </div>
-  );
-}
-
-function Chip({ href, on, children }: { href: string; on: boolean; children: ReactNode }) {
-  return (
-    <li>
-      <Link
-        href={href}
-        aria-current={on ? "true" : undefined}
-        className={`${CHIP} ${on ? "border-lavender bg-lavender text-charcoal" : "border-line hover:border-on-surface"}`}
+    // One name: the platform keeps a single menu open.
+    <details name="shop-filter" className="group relative">
+      <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-caption uppercase [&::-webkit-details-marker]:hidden">
+        <span className="tracking-[0.22em] text-accent">{group.label}</span>
+        {group.value ? <span>{group.value}</span> : null}
+        {/* No transition: the flip is state, and reduced motion keeps it. */}
+        <span className="-mx-1 inline-flex group-open:rotate-180" aria-hidden="true">
+          <ChevronIcon />
+        </span>
+      </summary>
+      <ul
+        aria-label={group.label}
+        // mt-2 clears the bar's padding, so the panel hangs from its rule.
+        className={`absolute top-full z-10 mt-2 w-max min-w-48 border border-line bg-surface py-2 ${alignEnd ? "right-0" : "left-0"}`}
       >
-        {children}
-      </Link>
-    </li>
+        {group.options.map((option) => (
+          <li key={option.label}>
+            <Link
+              href={option.href}
+              aria-current={option.on ? "true" : undefined}
+              className={
+                "flex min-h-11 items-center px-4 text-caption uppercase underline-offset-[6px] " +
+                (option.on ? "underline decoration-accent" : "text-muted hover:text-on-surface")
+              }
+            >
+              {option.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }

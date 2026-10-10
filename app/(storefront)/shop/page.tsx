@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FilterBar } from "@/components/shop/FilterBar";
 import { FilterSheet } from "@/components/shop/FilterSheet";
+import { shopFilterMenus } from "@/components/shop/filters";
 import { PAGE_SIZE } from "@/components/shop/pages";
 import { Pagination } from "@/components/shop/Pagination";
 import { ProductListing } from "@/components/shop/ProductListing";
@@ -41,21 +42,18 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
   const page = Math.min(query.page ?? 1, pageCount);
   const pageProducts = products.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const filtered = shopHasFilters(query);
-  const filterCategories = categories.map((entry) => ({ slug: entry.slug, name: entry.name }));
+  const menus = shopFilterMenus(query, categories, tags);
 
   return (
     <section className="page-gutter py-tight">
       <p className="text-caption uppercase tracking-[0.22em] text-accent">Shop</p>
-      <div className="mt-3 flex items-end justify-between gap-4">
-        <h1 className="text-title">{heading}</h1>
-        <FilterSheet query={query} categories={filterCategories} tags={tags} />
-      </div>
-      <p className="mt-4 text-caption uppercase text-muted">{countLabel}</p>
+      <h1 className="mt-3 text-title">{heading}</h1>
+      {/* Below 1024px the filter bar carries the count. */}
+      <p className="mt-4 hidden text-caption uppercase text-muted lg:block">{countLabel}</p>
 
+      <FilterSheet menus={menus} countLabel={countLabel} />
       <FilterBar
-        query={query}
-        categories={filterCategories}
-        tags={tags}
+        menus={menus}
         start={(page - 1) * PAGE_SIZE + 1}
         end={(page - 1) * PAGE_SIZE + pageProducts.length}
         total={products.length}

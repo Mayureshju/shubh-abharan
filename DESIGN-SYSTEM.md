@@ -190,9 +190,14 @@ measures every pairing the system renders. Re-run it after any colour change.
 
 ## Font licensing — operational constraint
 
-Playfair Display and Montserrat load through `next/font/google` and are
-self-hosted at build time. Gambarino and Switzer remain in `app/fonts/` but
-are unused by the live storefront.
+Gambarino and Switzer load through `next/font/local` from the official
+Fontshare woff2 files in `app/fonts/`. The ITF Free Font License forbids
+subsetting and format conversion, so those files are used as distributed.
+Self-hosting on this site is permitted. If the repository is made public,
+the font files must leave version control and be supplied at build time.
+
+Gambarino is Regular only and carries the display and title roles. Switzer
+is the variable file (weight 100–900) and carries body at 400 and caption at 500.
 
 ## Routes the shell links to that do not exist
 
@@ -210,6 +215,19 @@ still links to is:
 
 `/types` is a photographed index whose entries resolve to `/shop?category=`, not
 a parallel per-type route tree.
+
+## The product page's purchase bar and add-ons
+
+`refine-product-page-and-addons` fixed the purchase bar (`data-buy-bar`) to the
+bottom at **every** width, not only on phones. `globals.css` pads
+`body:has([data-buy-bar])` and sets `scroll-padding-bottom` so neither the footer
+nor a focused control hides behind it. The bar is two equal actions across the
+viewport: a gold-outline Add to bag and a charcoal Buy now, both at
+`--radius-input`. It does not reuse `PDP_COLUMNS`, and it carries no thumbnail.
+
+An add-on is an ordinary product with `isAddon: true`. `listProducts`,
+`getProductsBySlugs` and `listTags` leave add-ons out in the repository, so no
+listing filters them itself; single reads keep them so bag lines resolve.
 
 ## The photography
 

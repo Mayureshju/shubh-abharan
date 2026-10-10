@@ -51,9 +51,10 @@
   --color-hairline: oklch(21.78% 0.0000 89.88 / 0.14);
   --color-hairline-inverse: oklch(97.5% 0.010 80 / 0.18);
 
-  /* Typefaces. Fallback stacks exist only for the load-failure path. */
-  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
-  --font-text: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  /* Typefaces. Fallback stacks exist only for the load-failure path.
+     Gambarino is Regular; Switzer is the variable file (100–900). */
+  --font-display: var(--font-gambarino), Georgia, serif;
+  --font-text: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
 
   /* Type scale — bimodal by design. Four roles, no intermediate steps.
      `display` compresses 120 -> 52px across the viewport range while `body`
@@ -172,6 +173,7 @@
     color: var(--surface-fg);
     font-family: var(--font-text);
     font-size: var(--text-body);
+    font-weight: 400;
     line-height: var(--text-body--line-height);
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
@@ -204,8 +206,23 @@
     overflow-wrap: break-word;
   }
 
+  /* Not :where() — that specificity loses to the user-agent heading weight
+     and to the body's own 400, so caption never reached 500. */
+  .text-display,
+  .text-title {
+    font-weight: 400;
+  }
+
   :where(.text-body, .text-caption) {
     font-family: var(--font-text);
+  }
+
+  .text-body {
+    font-weight: 400;
+  }
+
+  .text-caption {
+    font-weight: 500;
   }
 
   /* Focus indicator resolves to the surface foreground: 16.74:1 on both
@@ -535,7 +552,7 @@
 
   /* Product listings: shop, collections, wishlist. Every card is one column
      of one square size so pieces compare at the same scale. Two up on a
-     phone, three from 1024px. */
+     phone, then three, four and five; each step keeps a card near 220px. */
   .shop-set {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -544,13 +561,20 @@
 
   @media (min-width: 768px) {
     .shop-set {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 2.5rem 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .shop-set {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .shop-set {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
   }
 
@@ -578,11 +602,57 @@
     scroll-snap-align: start;
   }
 
-  /* The product page's purchase bar is fixed to the bottom on a phone; pad
-     the page so the footer's last line scrolls clear of it. */
-  @media (max-width: 767px) {
-    body:has([data-buy-bar]) {
-      padding-bottom: 5rem;
+  /* The product page's purchase bar is fixed to the bottom at every width.
+     Pad the page so the footer's last line scrolls clear of it, and pad the
+     focus scroll so a tabbed-to control never lands under it (WCAG 2.4.11). */
+  body:has([data-buy-bar]) {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  html:has([data-buy-bar]) {
+    scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+
+  /* The shop's filter bar is fixed to the bottom below 1024px; same room. */
+  @media (max-width: 1023px) {
+    body:has([data-filter-bar]) {
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+    }
+
+    html:has([data-filter-bar]) {
+      scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* Add-ons sit inside the inset panel. Two cards and a peek; previous/next
+     page the row from 768px when it overflows. */
+  .addon-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 10.5rem;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    padding-inline: 2px;
+    scroll-padding-inline: 2px;
+    /* Room for the focused card's outline, which overflow would clip. */
+    padding-block: 3px;
+  }
+
+  .addon-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .addon-rail > * {
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 768px) {
+    .addon-rail {
+      grid-auto-columns: 10.5rem;
     }
   }
 

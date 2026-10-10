@@ -1,6 +1,6 @@
 /** Shop page size and the page-number window. No imports, so the check script can load it. */
 
-export const PAGE_SIZE = 12;
+export const PAGE_SIZE = 20;
 
 /** First, last, and the current page's neighbours; `null` marks a gap. */
 export function pageItems(current: number, count: number): (number | null)[] {

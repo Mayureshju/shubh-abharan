@@ -20,6 +20,7 @@ export {
   getCollection,
   getProductsBySlugs,
   listProducts,
+  listAddons,
   listCategories,
   listCollections,
   listTags,

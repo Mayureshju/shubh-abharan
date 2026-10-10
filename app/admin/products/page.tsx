@@ -134,6 +134,7 @@ export default async function AdminProducts({
                         {product.name}
                       </Link>
                       <div className="admin-muted table-sub">
+                        {product.isAddon ? "Add-on · " : null}
                         {product.isSize ? `${product.variants.length} sizes` : product.slug}
                       </div>
                     </td>

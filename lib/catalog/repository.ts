@@ -55,6 +55,23 @@ async function activeRules(): Promise<HikeRule[]> {
   return docs.map((doc) => toHikeRule(doc as PriceRuleDoc));
 }
 
+/**
+ * Listings leave add-ons out; single reads keep them so an add-on's page, bag
+ * line and wishlist entry still resolve. `$ne` also matches documents stored
+ * before the flag existed.
+ */
+const NOT_ADDON = { isAddon: { $ne: true } };
+
+/** Active add-ons in creation order, for the product page's add-ons rail. */
+export async function listAddons(): Promise<readonly Product[]> {
+  await connectDb();
+  const [docs, rules] = await Promise.all([
+    ProductModel.find({ isActive: true, isAddon: true }).sort({ _id: 1 }).lean(),
+    activeRules(),
+  ]);
+  return docs.map((doc) => mapProduct(doc, rules));
+}
+
 function payableAmount(product: Product): number | null {
   return product.quote?.payable?.amount ?? null;
 }
@@ -85,7 +102,7 @@ export async function listCategories(): Promise<readonly CategoryRecord[]> {
 export async function listTags(): Promise<readonly TagRecord[]> {
   await connectDb();
   const [used, docs] = await Promise.all([
-    ProductModel.distinct("tags", { isActive: true }),
+    ProductModel.distinct("tags", { isActive: true, ...NOT_ADDON }),
     TagModel.find().lean(),
   ]);
   const bySlug = new Map(docs.map((doc) => [doc.slug, doc]));
@@ -140,7 +157,7 @@ export async function getProductsBySlugs(slugs: readonly string[]): Promise<read
   if (slugs.length === 0) return [];
   await connectDb();
   const [docs, rules] = await Promise.all([
-    ProductModel.find({ slug: { $in: [...slugs] }, isActive: true }).lean(),
+    ProductModel.find({ slug: { $in: [...slugs] }, isActive: true, ...NOT_ADDON }).lean(),
     activeRules(),
   ]);
   const mapped = docs.map((doc) => mapProduct(doc, rules));
@@ -166,7 +183,7 @@ export async function listCollections(): Promise<readonly Collection[]> {
 
 export async function listProducts(criteria: ListCriteria = {}): Promise<readonly Product[]> {
   await connectDb();
-  const filter: Record<string, unknown> = { isActive: true };
+  const filter: Record<string, unknown> = { isActive: true, ...NOT_ADDON };
   if (criteria.category) filter.categorySlug = criteria.category;
   if (criteria.collection) filter.collections = criteria.collection;
   if (criteria.occasion) filter.occasions = criteria.occasion;

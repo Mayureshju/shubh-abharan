@@ -91,15 +91,3 @@ export function shopHasFilters(search: ShopSearch): boolean {
     search.tag !== undefined
   );
 }
-
-/** Remount the GET form when the query changes so defaultChecked tracks the URL. */
-export function shopQueryKey(search: ShopSearch): string {
-  return [
-    search.category ?? "",
-    search.sort ?? "",
-    search.availability ?? "",
-    search.min ?? "",
-    search.max ?? "",
-    search.tag ?? "",
-  ].join(":");
-}
