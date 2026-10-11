@@ -4,7 +4,7 @@
  *
  * Loads lib/commerce/checkout-schema.ts directly (Node strips the types, as in
  * check-catalog.mjs) and asserts the cases commerce/cart-checkout names: phone
- * normalisation, malformed phone and pincode, and the gift-message ceiling.
+ * normalisation, and malformed phone and pincode.
  * Plain node:assert, no test runner.
  */
 
@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import { checkoutDetailsSchema, fieldErrors } from "../lib/commerce/checkout-schema.ts";
 
 const person = { name: "Asha Rao", phone: "9876543210", address: "12 Marine Drive, Mumbai" };
-const valid = { billing: person, receiver: { ...person, pincode: "400001" }, giftMessage: "" };
+const valid = { billing: person, receiver: { ...person, pincode: "400001" } };
 
 function errorsFor(details) {
   const result = checkoutDetailsSchema.safeParse(details);
@@ -46,10 +46,6 @@ for (const pincode of ["40001", "4000011", "040001", "40O001"]) {
     `pincode "${pincode}" is refused`,
   );
 }
-
-// Gift message: 200 characters pass, 201 do not.
-assert.equal(checkoutDetailsSchema.safeParse({ ...valid, giftMessage: "x".repeat(200) }).success, true);
-assert.ok(errorsFor({ ...valid, giftMessage: "x".repeat(201) }).giftMessage);
 
 // Blank names and addresses are refused after trimming.
 const blanks = errorsFor({ ...valid, billing: { name: "  ", phone: person.phone, address: "   " } });

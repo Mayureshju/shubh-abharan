@@ -16,16 +16,16 @@ import { brand, resolve } from "@/lib/brand";
 import { formatMoney } from "@/lib/catalog/money";
 import { markRazorpayVerified, placeOrder, type PlaceOrderResult } from "@/lib/actions/checkout";
 import {
-  GIFT_MESSAGE_MAX,
   checkoutDetailsSchema,
   fieldErrors,
 } from "@/lib/commerce/checkout-schema";
 
 /**
  * Checkout for guests and signed-in customers — see commerce/cart-checkout.
- * Billing is who pays (name, mobile, address); the receiver is where it goes
- * (pincode, name, mobile, address, gift message). "Deliver to my billing
- * address" is ticked by default, so a self-buyer only adds a pincode.
+ * Billing is who pays (name and mobile). The address sits with delivery:
+ * pincode, and city and state filled from that pincode. "Deliver to my
+ * billing address" is ticked by default, so a self-buyer does not repeat
+ * their name.
  *
  * The same zod schema runs here and in placeOrder. The draft survives a
  * reload or a sign-in redirect in sessionStorage and is cleared once placed.
@@ -45,7 +45,6 @@ type Draft = {
   billing: Person;
   receiver: Person & { pincode: string };
   sameAsBilling: boolean;
-  giftMessage: string;
 };
 type RazorpayOrder = Extract<PlaceOrderResult, { method: "razorpay" }>;
 
@@ -60,7 +59,6 @@ const FIELD_ORDER = [
   "receiver.name",
   "receiver.phone",
   "receiver.address",
-  "giftMessage",
 ];
 const fieldId = (path: string) => `checkout-${path.replace(".", "-")}`;
 const inr = (amount: number) => formatMoney({ amount, currency: "INR" });
@@ -78,7 +76,6 @@ function readDraft(): Draft {
     billing: { name: "", phone: "", address: "" },
     receiver: { name: "", phone: "", address: "", pincode: "" },
     sameAsBilling: true,
-    giftMessage: "",
   };
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(DRAFT_KEY) ?? "null") as Partial<Draft> | null;
@@ -198,7 +195,6 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
       receiver: draft.sameAsBilling
         ? { ...draft.billing, pincode: draft.receiver.pincode }
         : draft.receiver,
-      giftMessage: draft.giftMessage,
     };
   }
 
@@ -305,7 +301,8 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
     code && settled && !settled.ok && settled.couponCode === null && settled.lines.length > 0 && !unserved
       ? settled.error
       : null;
-  const pincodeNote = pincode && settled?.deliveryAreaName ? `Delivers to ${settled.deliveryAreaName}` : undefined;
+  const city = pincode && settled?.deliveryCity ? settled.deliveryCity : "";
+  const stateName = pincode && settled?.deliveryState ? settled.deliveryState : "";
   const total = quote && quote.lines.length > 0 ? inr(quote.total) : null;
   const delivery = !pincode
     ? "Add pincode"
@@ -333,13 +330,13 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
         </a>
       </p>
 
-      <form noValidate className="mt-tight grid gap-tight md:grid-cols-12" onSubmit={onSubmit}>
-        <div className="grid content-start gap-tight md:col-span-7">
-          <fieldset className="border-0 p-0">
-            <legend className="mb-3 text-caption uppercase tracking-[0.22em] text-accent">
-              Billing details
-            </legend>
-            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+      <form noValidate className="mt-8 grid items-start gap-5 md:grid-cols-12" onSubmit={onSubmit}>
+        <div className="grid content-start gap-5 md:col-span-7">
+          <section className="border border-line p-4 sm:p-5" aria-labelledby="customer-information">
+            <h2 id="customer-information" className="text-caption uppercase tracking-[0.22em] text-accent">
+              Customer information
+            </h2>
+            <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
               <TextField
                 path="billing.name"
                 label="Full name"
@@ -347,10 +344,12 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
                 onChange={(value) => setBilling("name", value)}
                 error={errors["billing.name"]}
                 autoComplete="billing name"
+                wide
               />
               <TextField
                 path="billing.phone"
                 label="Mobile number"
+                placeholder="10-digit mobile number"
                 value={draft.billing.phone}
                 onChange={(value) => setBilling("phone", value)}
                 error={errors["billing.phone"]}
@@ -358,27 +357,31 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
                 inputMode="tel"
                 type="tel"
                 prefix="+91"
-              />
-              <TextField
-                path="billing.address"
-                label="Address"
-                hint="House or flat, street, area and city."
-                value={draft.billing.address}
-                onChange={(value) => setBilling("address", value)}
-                error={errors["billing.address"]}
-                autoComplete="billing street-address"
-                multiline
                 wide
               />
+              {draft.sameAsBilling ? null : (
+                <TextField
+                  path="billing.address"
+                  label="Address"
+                  placeholder="House or flat, street, area and city."
+                  value={draft.billing.address}
+                  onChange={(value) => setBilling("address", value)}
+                  error={errors["billing.address"]}
+                  autoComplete="billing street-address"
+                  multiline
+                  rows={3}
+                  wide
+                />
+              )}
             </div>
-          </fieldset>
+          </section>
 
-          <fieldset className="border-0 p-0">
-            <legend className="mb-3 text-caption uppercase tracking-[0.22em] text-accent">
-              Receiver details
-            </legend>
-            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
-              <label className="flex min-h-11 cursor-pointer items-center gap-3 text-body sm:col-span-2">
+          <section className="border border-line p-4 sm:p-5" aria-labelledby="delivery-address">
+            <h2 id="delivery-address" className="text-caption uppercase tracking-[0.22em] text-accent">
+              Delivery address
+            </h2>
+            <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[0.875rem] sm:col-span-2">
                 <input
                   type="checkbox"
                   checked={draft.sameAsBilling}
@@ -390,33 +393,34 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
                 />
                 Deliver to my billing address
               </label>
-              <TextField
-                path="receiver.pincode"
-                label="Delivery pincode"
-                value={draft.receiver.pincode}
-                onChange={(value) => setReceiver("pincode", value)}
-                error={
-                  errors["receiver.pincode"] ?? (unserved ? "We don't deliver to this pincode yet." : undefined)
-                }
-                hint={pincodeNote}
-                autoComplete="shipping postal-code"
-                inputMode="numeric"
-                maxLength={6}
-              />
-              {draft.sameAsBilling ? null : (
-                <>
+              {draft.sameAsBilling ? (
                 <TextField
-                  path="receiver.name"
-                  label="Receiver's full name"
-                  value={draft.receiver.name}
-                  onChange={(value) => setReceiver("name", value)}
-                  error={errors["receiver.name"]}
-                  autoComplete="shipping name"
-                  className="sm:col-start-1"
+                  path="billing.address"
+                  label="Address"
+                  placeholder="House or flat, street, area and city."
+                  value={draft.billing.address}
+                  onChange={(value) => setBilling("address", value)}
+                  error={errors["billing.address"]}
+                  autoComplete="billing street-address"
+                  multiline
+                  rows={3}
+                  wide
                 />
+              ) : (
+                <>
+                  <TextField
+                    path="receiver.name"
+                    label="Receiver name"
+                    placeholder="Name of the person receiving the order"
+                    value={draft.receiver.name}
+                    onChange={(value) => setReceiver("name", value)}
+                    error={errors["receiver.name"]}
+                    autoComplete="shipping name"
+                  />
                   <TextField
                     path="receiver.phone"
-                    label="Receiver's mobile number"
+                    label="Receiver phone"
+                    placeholder="10-digit mobile number"
                     value={draft.receiver.phone}
                     onChange={(value) => setReceiver("phone", value)}
                     error={errors["receiver.phone"]}
@@ -427,40 +431,43 @@ function CheckoutForm({ onPlaced }: { onPlaced: (confirmUrl: string) => void }) 
                   />
                   <TextField
                     path="receiver.address"
-                    label="Receiver's address"
-                    hint="House or flat, street, area and city."
+                    label="Address"
+                    placeholder="Enter complete delivery address"
                     value={draft.receiver.address}
                     onChange={(value) => setReceiver("address", value)}
                     error={errors["receiver.address"]}
                     autoComplete="shipping street-address"
                     multiline
+                    rows={3}
                     wide
                   />
                 </>
               )}
-              <TextField
-                path="giftMessage"
-                label="Gift message (optional)"
-                hint={`${draft.giftMessage.length}/${GIFT_MESSAGE_MAX}`}
-                value={draft.giftMessage}
-                onChange={(value) => {
-                  setDraft((current) => ({ ...current, giftMessage: value }));
-                  clearError("giftMessage");
-                }}
-                error={errors.giftMessage}
-                maxLength={GIFT_MESSAGE_MAX}
-                autoComplete="off"
-                multiline
-                wide
-              />
             </div>
-          </fieldset>
+            <div className="mt-3 grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-3">
+              <TextField
+                path="receiver.pincode"
+                label="Pincode"
+                placeholder="6-digit pincode"
+                value={draft.receiver.pincode}
+                onChange={(value) => setReceiver("pincode", value)}
+                error={
+                  errors["receiver.pincode"] ?? (unserved ? "We don't deliver to this pincode yet." : undefined)
+                }
+                autoComplete="shipping postal-code"
+                inputMode="numeric"
+                maxLength={6}
+              />
+              <LockedField label="City" value={city} placeholder="Auto-filled" />
+              <LockedField label="State" value={stateName} placeholder="Auto-filled" />
+            </div>
+          </section>
         </div>
 
         <aside
           id="order-summary"
           aria-labelledby="order-summary-title"
-          className="md:col-span-5 md:sticky md:top-24 md:self-start"
+          className="border border-line p-4 sm:p-5 md:col-span-5 md:sticky md:top-24 md:self-start"
         >
           <h2 id="order-summary-title" className="text-caption uppercase tracking-[0.22em] text-accent">
             Order summary
@@ -636,6 +643,25 @@ function AccountLine({ onUser }: { onUser: (name: string, phone: string) => void
   );
 }
 
+function LockedField({ label, value, placeholder }: { label: string; value: string; placeholder: string }) {
+  const id = `checkout-${label.toLowerCase()}`;
+  return (
+    <div>
+      <label htmlFor={id} className="text-caption uppercase text-muted">
+        {label}
+      </label>
+      <input
+        id={id}
+        readOnly
+        tabIndex={-1}
+        value={value}
+        placeholder={placeholder}
+        className={`${INPUT} mt-1 text-muted`}
+      />
+    </div>
+  );
+}
+
 function TextField({
   path,
   label,
@@ -644,9 +670,11 @@ function TextField({
   error,
   hint,
   multiline = false,
+  rows = 2,
   prefix,
   wide = false,
   className,
+  placeholder,
   ...rest
 }: {
   path: string;
@@ -656,10 +684,12 @@ function TextField({
   error?: string;
   hint?: string;
   multiline?: boolean;
+  rows?: number;
   prefix?: string;
-  /** Spans both columns from 640px. Address and gift message use this. */
+  /** Spans both columns from 640px. */
   wide?: boolean;
   className?: string;
+  placeholder?: string;
 } & Pick<InputHTMLAttributes<HTMLInputElement>, "autoComplete" | "inputMode" | "maxLength" | "type">) {
   const id = fieldId(path);
   const describedBy =
@@ -690,7 +720,8 @@ function TextField({
         {multiline ? (
           <textarea
             {...shared}
-            rows={2}
+            rows={rows}
+            placeholder={placeholder}
             maxLength={rest.maxLength}
             autoComplete={rest.autoComplete}
             onChange={(event) => onChange(event.target.value)}
@@ -700,6 +731,7 @@ function TextField({
           <input
             {...shared}
             {...rest}
+            placeholder={placeholder}
             onChange={(event) => onChange(event.target.value)}
             className={`${INPUT} ${prefix ? "rounded-l-none" : ""}`}
           />

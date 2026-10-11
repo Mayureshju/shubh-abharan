@@ -46,6 +46,9 @@ export type QuoteResult = {
   readonly currency: "INR";
   readonly couponCode: string | null;
   readonly deliveryAreaName: string | null;
+  /** City and state behind `deliveryAreaName`, from the served pincode. */
+  readonly deliveryCity: string | null;
+  readonly deliveryState: string | null;
   readonly codEnabled: boolean;
   /** True only when a pincode was given and the store does not deliver there. */
   readonly unservedPincode: boolean;
@@ -94,6 +97,8 @@ export async function quoteCart(
       currency: "INR",
       couponCode: null,
       deliveryAreaName: null,
+      deliveryCity: null,
+      deliveryState: null,
       codEnabled,
       unservedPincode: false,
     });
@@ -192,6 +197,8 @@ export async function quoteCart(
   let shipping = 0;
   let shippingWaived = false;
   let deliveryAreaName: string | null = null;
+  let deliveryCity: string | null = null;
+  let deliveryState: string | null = null;
 
   const pin = options.pincode?.trim();
   if (pin) {
@@ -212,11 +219,15 @@ export async function quoteCart(
         currency: "INR",
         couponCode,
         deliveryAreaName: null,
+        deliveryCity: null,
+        deliveryState: null,
         codEnabled,
         unservedPincode: true,
       });
     }
     deliveryAreaName = `${city.name}, ${city.state}`;
+    deliveryCity = city.name;
+    deliveryState = city.state;
     shipping = city.charge ?? settings?.defaultDeliveryCharge ?? 0;
     const threshold = settings?.freeDeliveryMin ?? null;
     const freeShippingCoupon = couponCode
@@ -240,6 +251,8 @@ export async function quoteCart(
     currency: "INR",
     couponCode,
     deliveryAreaName,
+    deliveryCity,
+    deliveryState,
     codEnabled,
     unservedPincode: false,
   });
@@ -258,6 +271,8 @@ function fail(error: string, lines: QuotedLine[], subtotal: number, codEnabled: 
     currency: "INR",
     couponCode: null,
     deliveryAreaName: null,
+    deliveryCity: null,
+    deliveryState: null,
     codEnabled,
     unservedPincode: false,
   });

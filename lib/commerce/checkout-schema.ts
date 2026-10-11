@@ -36,13 +36,10 @@ const pincode = z
 export const checkoutDetailsSchema = z.object({
   billing: z.object({ name, phone, address }),
   receiver: z.object({ name, phone, address, pincode }),
-  giftMessage: z.string().trim().max(200, "Keep the gift message under 200 characters.").optional(),
 });
 
 export type CheckoutDetailsInput = z.input<typeof checkoutDetailsSchema>;
 export type CheckoutDetails = z.output<typeof checkoutDetailsSchema>;
-
-export const GIFT_MESSAGE_MAX = 200;
 
 /** First message per field path ("billing.phone"), for inline errors. */
 export function fieldErrors(error: z.ZodError): Record<string, string> {

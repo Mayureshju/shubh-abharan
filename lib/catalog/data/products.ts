@@ -32,6 +32,7 @@
 import { asProductId, asVariantId } from "../types.ts";
 import type { Product } from "../types.ts";
 import { merchandise } from "./merchandise.ts";
+import { samplePieces } from "./sample-pieces.ts";
 
 const fixtures: readonly Product[] = [
   {
@@ -173,4 +174,4 @@ const fixtures: readonly Product[] = [
   },
 ];
 
-export const products: readonly Product[] = [...fixtures, ...merchandise];
+export const products: readonly Product[] = [...fixtures, ...merchandise, ...samplePieces];

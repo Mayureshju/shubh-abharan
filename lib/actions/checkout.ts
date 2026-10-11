@@ -123,7 +123,6 @@ export async function placeOrder(input: {
       line1: details.receiver.address,
       pincode: details.receiver.pincode,
     },
-    giftMessage: details.giftMessage || undefined,
     deliveryAreaName: quote.deliveryAreaName,
     payment: cod
       ? { method: "cod", status: "pending_collection" }

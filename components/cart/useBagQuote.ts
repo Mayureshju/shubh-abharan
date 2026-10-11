@@ -16,6 +16,8 @@ const FAILED: QuoteResult = {
   currency: "INR",
   couponCode: null,
   deliveryAreaName: null,
+  deliveryCity: null,
+  deliveryState: null,
   codEnabled: false,
   unservedPincode: false,
 };

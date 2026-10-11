@@ -17,6 +17,7 @@
 // under Node's type stripping, and Node's ESM resolver requires the extension.
 import { brand } from "../../brand.ts";
 import type { Collection } from "../types.ts";
+import { sampleCollectionSlugs } from "./sample-pieces.ts";
 
 /**
  * Collection slug -> product slugs, in the order that collection presents them.
@@ -29,6 +30,7 @@ const PRODUCT_ORDER: Readonly<Record<string, readonly string[]>> = {
     "chandbali-earrings",
     "stacked-emerald-rings",
     "emerald-silk-bridal-set",
+    ...sampleCollectionSlugs,
   ],
 };
 
