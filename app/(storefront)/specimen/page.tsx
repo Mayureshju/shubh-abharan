@@ -176,7 +176,7 @@ export default async function SpecimenPage() {
             ))}
           </div>
 
-          <div className="mt-tight overflow-x-auto">
+          <div className="mt-tight overflow-x-auto [contain:paint]">
           <table className="w-full min-w-[30rem] border-collapse text-caption uppercase">
             <caption className="pb-3 text-left text-caption uppercase text-muted">
               Measured by scripts/contrast.mjs
@@ -297,7 +297,7 @@ export default async function SpecimenPage() {
           title="Buttons"
           intent="Four presentations, each in every state. Disabled and pending are signalled by border and text treatment, never by colour alone."
         >
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto [contain:paint]">
           <table className="w-full min-w-[34rem] border-collapse">
             <thead>
               <tr className="border-b border-line text-left text-caption uppercase text-muted">
@@ -390,7 +390,7 @@ export default async function SpecimenPage() {
           title="Motion"
           intent="Four durations, two curves. Reveal travel is budgeted at 16px or less; hover scale at 1.03 or less over the base duration."
         >
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto [contain:paint]">
           <table className="w-full min-w-[30rem] border-collapse text-caption uppercase">
             <thead>
               <tr className="border-b border-line text-left text-muted">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AccountControl } from "@/components/auth/AccountControl";
 import { Button } from "@/components/ui/Button";
 import { CloseIcon } from "@/components/ui/icons";
 import { ModalDialog } from "@/components/ui/ModalDialog";
@@ -89,7 +90,32 @@ export function NavOverlay({
         </div>
 
         <div>
-          <h2 className="text-caption uppercase text-muted">Index</h2>
+          <h2 className="text-caption uppercase text-muted sm:hidden">Account</h2>
+          <ul className="mt-4 space-y-1 sm:hidden">
+            <li>
+              <Link
+                href="/search"
+                onClick={onClose}
+                className="inline-flex min-h-11 items-center text-body hover:underline underline-offset-4"
+              >
+                Search
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/wishlist"
+                onClick={onClose}
+                className="inline-flex min-h-11 items-center text-body hover:underline underline-offset-4"
+              >
+                Wishlist
+              </Link>
+            </li>
+            <li>
+              <AccountControl placement="menu" />
+            </li>
+          </ul>
+
+          <h2 className="mt-tight text-caption uppercase text-muted sm:mt-0">Index</h2>
           <ul className="mt-4 space-y-2">
             {links.map((link) => (
               <li key={link.href}>

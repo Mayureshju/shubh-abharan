@@ -5,12 +5,29 @@ import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import { BagIcon } from "@/components/ui/icons";
 import { clerkConfigured } from "./configured";
 
-const ORDERS_LINK = "inline-flex min-h-11 items-center text-caption uppercase";
+export function AccountControl({
+  overlay,
+  placement = "header",
+}: {
+  overlay?: boolean;
+  /** Menu copy is the phone path; the header copy is hidden below 640px. */
+  placement?: "header" | "menu";
+}) {
+  const signInClass =
+    placement === "menu"
+      ? "inline-flex min-h-11 items-center text-caption uppercase"
+      : "hidden min-h-11 items-center text-caption uppercase sm:inline-flex";
 
-export function AccountControl({ overlay }: { overlay?: boolean }) {
   if (!clerkConfigured()) {
     return (
-      <Link href="/account/orders" className={ORDERS_LINK + (overlay ? " text-paper" : "")}>
+      <Link
+        href="/account/orders"
+        className={
+          "min-h-11 items-center text-caption uppercase " +
+          (placement === "header" ? "hidden sm:inline-flex" : "inline-flex") +
+          (overlay ? " text-paper" : "")
+        }
+      >
         Orders
       </Link>
     );
@@ -19,33 +36,39 @@ export function AccountControl({ overlay }: { overlay?: boolean }) {
     <span className={"inline-flex items-center gap-3" + (overlay ? " text-paper" : "")}>
       <Show when="signed-out">
         <SignInButton mode="modal">
-          <button type="button" className="inline-flex min-h-11 items-center text-caption uppercase">
+          <button type="button" className={signInClass}>
             Sign in
           </button>
         </SignInButton>
       </Show>
       <Show when="signed-in">
-        {/* Text link from 640px; below that it would push the menu button off a 390px
-            header, so phones reach Orders from the avatar menu. */}
+        {/* Text link from 640px in the header. Below that it would push the
+            menu button off a 390px bar, so phones reach Orders from the menu. */}
         <Link
           href="/account/orders"
-          className="hidden min-h-11 items-center text-caption uppercase sm:inline-flex"
+          className={
+            placement === "menu"
+              ? "inline-flex min-h-11 items-center text-caption uppercase"
+              : "hidden min-h-11 items-center text-caption uppercase sm:inline-flex"
+          }
         >
           Orders
         </Link>
-        <UserButton>
-          <UserButton.MenuItems>
-            <UserButton.Link
-              label="Orders"
-              href="/account/orders"
-              labelIcon={
-                <span className="inline-flex size-4 [&>svg]:size-4">
-                  <BagIcon />
-                </span>
-              }
-            />
-          </UserButton.MenuItems>
-        </UserButton>
+        {placement === "header" ? (
+          <UserButton>
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label="Orders"
+                href="/account/orders"
+                labelIcon={
+                  <span className="inline-flex size-4 [&>svg]:size-4">
+                    <BagIcon />
+                  </span>
+                }
+              />
+            </UserButton.MenuItems>
+          </UserButton>
+        ) : null}
       </Show>
     </span>
   );

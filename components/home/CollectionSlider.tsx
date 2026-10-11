@@ -45,7 +45,7 @@ export function CollectionSlider({ slides }: { slides: readonly CollectionSlideV
                 inert={active ? undefined : true}
               >
                 <m.div
-                  className="h-full"
+                  className="h-full w-full"
                   initial={false}
                   animate={{ opacity: active ? 1 : 0 }}
                   transition={{ duration: duration.base, ease: ease.inOut }}

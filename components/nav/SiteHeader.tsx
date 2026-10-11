@@ -72,7 +72,7 @@ export function SiteHeader() {
         data-overlay={overlay || undefined}
         className={
           (home ? "fixed inset-x-0 top-0 " : "sticky top-0 ") +
-          "z-20 border-b " +
+          "z-20 min-w-0 overflow-x-clip border-b " +
           "transition-[background-color,color,border-color,padding] duration-[var(--duration-quick)] ease-[var(--ease-out)] " +
           (overlay
             ? "border-transparent bg-transparent py-3 text-paper md:py-5 "
@@ -80,14 +80,14 @@ export function SiteHeader() {
           (overlay ? "" : scrolled ? "border-line py-3" : "border-transparent py-3 md:py-5")
         }
       >
-        <div className="page-gutter grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 lg:grid-cols-[1fr_auto_1fr]">
-          <Link href="/" className="inline-flex min-h-11 items-center gap-2">
+        <div className="page-gutter grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 sm:gap-x-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <Link href="/" className="inline-flex min-h-11 min-w-0 items-center gap-2">
             {isSupplied(brand.wordmarkSrc) ? (
               // Decorative: the adjacent name is the accessible label.
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={brand.wordmarkSrc} alt="" width={36} height={36} className="size-9" />
+              <img src={brand.wordmarkSrc} alt="" width={36} height={36} className="size-9 shrink-0" />
             ) : null}
-            <span className={"font-display text-body" + (overlay ? " text-paper" : "")}>
+            <span className={"min-w-0 truncate font-display text-body" + (overlay ? " text-paper" : "")}>
               {isSupplied(brand.name) ? brand.name : "[BRAND NAME]"}
             </span>
           </Link>
@@ -116,13 +116,15 @@ export function SiteHeader() {
             </ul>
           </nav>
 
-          <div className="flex min-w-0 items-center justify-end gap-0 sm:gap-1">
+          <div className="flex shrink-0 items-center justify-end gap-0 sm:gap-1">
             <AccountControl overlay={overlay} />
             {UTILITY.map((item) => {
               const bagCount = item.href === "/cart" ? count : 0;
-              return (
+              // Search and wishlist stay in the overlay below 640px. Four 44px
+              // targets plus the wordmark are wider than a 390px header.
+              const inMenuOnPhone = item.href === "/search" || item.href === "/wishlist";
+              const link = (
                 <Link
-                  key={item.href}
                   href={item.href}
                   aria-label={
                     bagCount > 0
@@ -144,6 +146,11 @@ export function SiteHeader() {
                     </span>
                   ) : null}
                 </Link>
+              );
+              return (
+                <span key={item.href} className={inMenuOnPhone ? "hidden sm:contents" : "contents"}>
+                  {link}
+                </span>
               );
             })}
             <Button

@@ -35,7 +35,11 @@ export function NumberedPager({
 
   const tabs = (
     <div
-      className={variant === "stack" ? "flex flex-col items-end gap-1" : "flex items-center"}
+      className={
+        variant === "stack"
+          ? "flex flex-col items-end gap-1"
+          : "flex min-w-0 items-center overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      }
       role="tablist"
       aria-label={labelledBy ?? "Slides"}
     >
@@ -68,7 +72,7 @@ export function NumberedPager({
   );
 
   const arrows = (
-    <div className="flex items-center">
+    <div className="flex shrink-0 items-center">
       <button type="button" className={iconClass} aria-label="Previous slide" onClick={onPrev}>
         <span className="-scale-x-100">
           <ArrowIcon />
@@ -90,7 +94,7 @@ export function NumberedPager({
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex min-w-0 max-w-full items-center gap-2 sm:gap-4">
       {tabs}
       {arrows}
     </div>

@@ -181,7 +181,7 @@ export function RowSlider({
 
       {pager ? (
         <>
-          <div className={heading ? "mt-6 md:hidden" : "mt-tight"}>{pager}</div>
+          <div className={heading ? "mt-6 min-w-0 md:hidden" : "mt-tight min-w-0"}>{pager}</div>
           <p className="sr-only" aria-live="polite">
             {label} {current + 1} of {count}
           </p>

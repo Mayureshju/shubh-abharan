@@ -48,7 +48,7 @@ const STILLS: Record<
     alt: string;
     crop: string;
     aspect: string;
-    role: ProductImage["role"];
+    role: Exclude<ProductImage["role"], "scale">;
     material: string;
     description: string;
     tags: readonly string[];
