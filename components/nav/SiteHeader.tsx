@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -84,10 +85,23 @@ export function SiteHeader() {
           <Link href="/" className="inline-flex min-h-11 min-w-0 items-center gap-2">
             {isSupplied(brand.wordmarkSrc) ? (
               // Decorative: the adjacent name is the accessible label.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={brand.wordmarkSrc} alt="" width={36} height={36} className="size-9 shrink-0" />
+              <Image
+                src={brand.wordmarkSrc}
+                alt=""
+                width={44}
+                height={44}
+                loading="eager"
+                className="size-11 shrink-0"
+              />
             ) : null}
-            <span className={"min-w-0 truncate font-display text-body" + (overlay ? " text-paper" : "")}>
+            {/* Phones show the mark alone; the name stays as the link's accessible name. */}
+            <span
+              className={
+                "min-w-0 truncate font-display text-body" +
+                (isSupplied(brand.wordmarkSrc) ? " max-sm:sr-only" : "") +
+                (overlay ? " text-paper" : "")
+              }
+            >
               {isSupplied(brand.name) ? brand.name : "[BRAND NAME]"}
             </span>
           </Link>

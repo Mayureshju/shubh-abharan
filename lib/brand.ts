@@ -57,8 +57,10 @@ export interface Brand {
   /** Identity */
   name: BrandField;
   legalName: BrandField;
-  /** Path to a single-colour SVG wordmark with no embedded live text. */
+  /** Square monogram beside the name in the header. Decorative there. */
   wordmarkSrc: BrandField;
+  /** Full logo for the footer. It carries the name, so it replaces the text. */
+  fullLogoSrc: BrandField;
   foundedYear: BrandField;
   placeOfBusiness: BrandField;
 
@@ -167,7 +169,8 @@ export interface Policies {
 export const brand: Brand = {
   name: "Shubha Abharan",
   legalName: null,
-  wordmarkSrc: "/brand/lotus.svg",
+  wordmarkSrc: "/brand/logo.png",
+  fullLogoSrc: "/brand/full-logo.png",
   foundedYear: null,
   placeOfBusiness: null,
 

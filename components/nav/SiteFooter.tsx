@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { brand, isSupplied, placeholder } from "@/lib/brand";
 import type { Category } from "@/lib/catalog/types";
@@ -66,13 +67,19 @@ export function SiteFooter() {
       <div className="page-gutter border-t border-line pt-tight">
         <div className="grid gap-tight md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <p className="flex items-center gap-2 font-display text-title text-accent">
-              {isSupplied(brand.wordmarkSrc) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={brand.wordmarkSrc} alt="" width={36} height={36} className="size-9" />
-              ) : null}
-              {isSupplied(brand.name) ? brand.name : placeholder("brand name")}
-            </p>
+            {isSupplied(brand.fullLogoSrc) ? (
+              <Image
+                src={brand.fullLogoSrc}
+                alt={isSupplied(brand.name) ? brand.name : placeholder("brand name")}
+                width={192}
+                height={240}
+                className="h-auto w-48"
+              />
+            ) : (
+              <p className="font-display text-title text-accent">
+                {isSupplied(brand.name) ? brand.name : placeholder("brand name")}
+              </p>
+            )}
 
             {isSupplied(brand.footerStatement) ? (
               <p className="mt-3 text-caption text-muted">{brand.footerStatement}</p>

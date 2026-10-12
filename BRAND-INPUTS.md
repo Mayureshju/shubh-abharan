@@ -23,7 +23,8 @@ directly, and says what it was read from — those are the rows to check first.
 | --- | --- | --- |
 | Brand name | SUPPLIED 2026-09-19 | Shubha Abharan |
 | Legal entity name (footer, policies) | UNFILLED | |
-| Wordmark asset (SVG, single colour, no embedded text) | SUPPLIED 2026-09-20 | `/brand/lotus.svg` |
+| Wordmark asset — header monogram, square | SUPPLIED 2026-10-12 | `/brand/logo.png` |
+| Full logo — footer, carries the name | SUPPLIED 2026-10-12 | `/brand/full-logo.png` |
 | Wordmark clear-space ratio | UNFILLED | |
 | Founding year (only if factual) | UNFILLED | |
 | Place of business shown to customers | UNFILLED | |
@@ -71,7 +72,6 @@ can be reviewed. They are not business-supplied inventory or a CMS.
 | Closing statement | SUPPLIED 2026-09-20 | Because You Deserve to Shine |
 | Closing support | SUPPLIED 2026-09-20 | Jewellery that celebrates you. |
 | Footer brand statement | SUPPLIED 2026-09-20 | Grace in Every Gem |
-| Wordmark | SUPPLIED 2026-09-20 | `/brand/lotus.svg` |
 | Reasons — Premium Quality | SUPPLIED 2026-09-20 | Crafted with the finest materials |
 | Reasons — Trusted Heritage | SUPPLIED 2026-09-20 | A legacy of elegance and trust |
 | Reasons — Elegant Packaging | SUPPLIED 2026-09-20 | Beautifully packed for every occasion |
